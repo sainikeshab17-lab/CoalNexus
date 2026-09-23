@@ -9,14 +9,23 @@ class AppTextField extends StatelessWidget {
   final TextEditingController? controller;
   final String? Function(String?)? validator;
 
+  final Widget? suffixIcon;
+  final TextInputType? keyboardType;
+  final TextInputAction? textInputAction;
+  final void Function(String)? onFieldSubmitted;
+
   const AppTextField({
     super.key,
     required this.labelText,
     this.hintText,
     this.prefixIcon,
+    this.suffixIcon,
     this.obscureText = false,
     this.controller,
     this.validator,
+    this.keyboardType,
+    this.textInputAction,
+    this.onFieldSubmitted,
   });
 
   @override
@@ -25,10 +34,14 @@ class AppTextField extends StatelessWidget {
       controller: controller,
       obscureText: obscureText,
       validator: validator,
+      keyboardType: keyboardType,
+      textInputAction: textInputAction,
+      onFieldSubmitted: onFieldSubmitted,
       decoration: InputDecoration(
         labelText: labelText,
         hintText: hintText,
         prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
+        suffixIcon: suffixIcon,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.md),
         ),
