@@ -1,4 +1,4 @@
-import 'package:drift/drift.dart';
+// lib/core/storage/local_database.dart
 
 // Note: In a real implementation, tables would be defined here
 // and this file would be accompanied by a generated part file.
