@@ -76,20 +76,25 @@ class InspectionCard extends ConsumerWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  FutureBuilder(
-                    future: mineAsync,
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData && snapshot.data != null) {
-                        return Text(
-                          snapshot.data!.name,
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
-                        );
-                      }
-                      return const Text('Loading mine...');
-                    },
+                  Expanded(
+                    child: FutureBuilder(
+                      future: mineAsync,
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData && snapshot.data != null) {
+                          return Text(
+                            snapshot.data!.name,
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          );
+                        }
+                        return const Text('Loading mine...');
+                      },
+                    ),
                   ),
+                  const SizedBox(width: AppSpacing.sm),
                   _SyncStatusIcon(status: syncStatusAsync.value),
                 ],
               ),

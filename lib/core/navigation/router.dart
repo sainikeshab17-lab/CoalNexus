@@ -1,33 +1,41 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import 'package:coalnexus/core/widgets/app_widgets.dart';
 import 'package:coalnexus/features/auth/presentation/pages/login_page.dart';
 import 'package:coalnexus/features/auth/presentation/providers/auth_provider.dart';
 import 'package:coalnexus/features/auth/presentation/providers/auth_state.dart';
 import 'package:coalnexus/features/dashboard/presentation/dashboard_shell_screen.dart';
-import 'package:coalnexus/features/profile/presentation/profile_shell_screen.dart';
-
-import 'package:coalnexus/features/inspections/presentation/pages/inspection_list_page.dart';
+import 'package:coalnexus/features/inspections/presentation/pages/add_finding_page.dart';
 import 'package:coalnexus/features/inspections/presentation/pages/create_inspection_page.dart';
 import 'package:coalnexus/features/inspections/presentation/pages/inspection_detail_page.dart';
-import 'package:coalnexus/features/inspections/presentation/pages/add_finding_page.dart';
+import 'package:coalnexus/features/inspections/presentation/pages/inspection_list_page.dart';
+import 'package:coalnexus/features/profile/presentation/profile_shell_screen.dart';
 
-final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
-final GlobalKey<NavigatorState> _shellNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'shell');
+final GlobalKey<NavigatorState> _rootNavigatorKey =
+GlobalKey<NavigatorState>(debugLabel: 'root');
+
+final GlobalKey<NavigatorState> _shellNavigatorKey =
+GlobalKey<NavigatorState>(debugLabel: 'shell');
 
 final routerProvider = Provider<GoRouter>((ref) {
-  final authState = ref.watch(authNotifierProvider);
-
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
     initialLocation: '/dashboard',
     refreshListenable: _RiverpodRouterRefreshListenable(ref),
+
     redirect: (context, state) {
+      final authState = ref.read(authNotifierProvider);
+
       final isLoggingIn = state.uri.path == '/login';
 
-      if (authState.status == AuthStatus.initializing) return null;
+      if (authState.status == AuthStatus.initializing) {
+        return null;
+      }
 
-      final isAuthenticated = authState.status == AuthStatus.authenticated;
+      final isAuthenticated =
+          authState.status == AuthStatus.authenticated;
 
       if (!isAuthenticated && !isLoggingIn) {
         return '/login';
@@ -39,68 +47,119 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       return null;
     },
+
     routes: [
+      // ----------------------------------------------------------------------
+      // Authentication
+      // ----------------------------------------------------------------------
       GoRoute(
         path: '/login',
         builder: (context, state) => const LoginPage(),
       ),
+
+      // ----------------------------------------------------------------------
+      // Main application shell
+      // ----------------------------------------------------------------------
       ShellRoute(
         navigatorKey: _shellNavigatorKey,
         builder: (context, state, child) {
           return NavigationShell(child: child);
         },
         routes: [
+          // ------------------------------------------------------------------
+          // Dashboard
+          // ------------------------------------------------------------------
           GoRoute(
             path: '/dashboard',
-            builder: (context, state) => const DashboardShellScreen(),
+            builder: (context, state) =>
+            const DashboardShellScreen(),
           ),
+
+          // ------------------------------------------------------------------
+          // Mines
+          // ------------------------------------------------------------------
           GoRoute(
             path: '/mines',
             builder: (context, state) => const Scaffold(
-              body: Center(child: Text('Mines Architectural Placeholder (Not Implemented Yet)')),
+              body: AppEmptyView(
+                icon: Icons.layers_outlined,
+                message: 'Mines management is coming soon.',
+              ),
             ),
           ),
+
+          // ------------------------------------------------------------------
+          // Inspections
+          // ------------------------------------------------------------------
           GoRoute(
             path: '/inspections',
-            builder: (context, state) => const InspectionListPage(),
+            builder: (context, state) =>
+            const InspectionListPage(),
             routes: [
               GoRoute(
                 path: 'create',
-                builder: (context, state) => const CreateInspectionPage(),
+                builder: (context, state) =>
+                const CreateInspectionPage(),
               ),
               GoRoute(
                 path: ':id',
                 builder: (context, state) {
                   final id = state.pathParameters['id']!;
-                  return InspectionDetailPage(inspectionId: id);
+
+                  return InspectionDetailPage(
+                    inspectionId: id,
+                  );
                 },
                 routes: [
                   GoRoute(
                     path: 'add_finding',
                     builder: (context, state) {
-                      final id = state.pathParameters['id']!;
-                      return AddFindingPage(inspectionId: id);
+                      final id =
+                      state.pathParameters['id']!;
+
+                      return AddFindingPage(
+                        inspectionId: id,
+                      );
                     },
                   ),
                 ],
               ),
             ],
           ),
+
+          // ------------------------------------------------------------------
+          // Violations
+          // ------------------------------------------------------------------
           GoRoute(
             path: '/violations',
             builder: (context, state) => const Scaffold(
-              body: Center(child: Text('Violations Architectural Placeholder (Not Implemented Yet)')),
+              body: AppEmptyView(
+                icon: Icons.gavel_outlined,
+                message: 'Violations tracking is coming soon.',
+              ),
             ),
           ),
+
+          // ------------------------------------------------------------------
+          // Alerts
+          // ------------------------------------------------------------------
           GoRoute(
             path: '/alerts',
             builder: (context, state) => const Scaffold(
-              body: Center(child: Text('Alerts Architectural Placeholder (Not Implemented Yet)')),
+              body: AppEmptyView(
+                icon: Icons.warning_amber_outlined,
+                message: 'Safety alerts are coming soon.',
+              ),
             ),
           ),
+
+          // ------------------------------------------------------------------
+          // Profile
+          // ------------------------------------------------------------------
           GoRoute(
             path: '/profile',
-            builder: (context, state) => const ProfileShellScreen(),
+            builder: (context, state) =>
+            const ProfileShellScreen(),
           ),
         ],
       ),
@@ -108,145 +167,246 @@ final routerProvider = Provider<GoRouter>((ref) {
   );
 });
 
+/// Rebuilds GoRouter's redirect logic when authentication state changes,
+/// without recreating the GoRouter instance itself.
 class _RiverpodRouterRefreshListenable extends ChangeNotifier {
   _RiverpodRouterRefreshListenable(Ref ref) {
-    ref.listen(authNotifierProvider, (_, __) {
+    ref.listen(authNotifierProvider, (previous, current) {
       notifyListeners();
     });
   }
 }
 
+/// Main responsive navigation shell.
 class NavigationShell extends ConsumerWidget {
   final Widget child;
 
-  const NavigationShell({super.key, required this.child});
+  const NavigationShell({
+    super.key,
+    required this.child,
+  });
 
   int _calculateSelectedIndex(BuildContext context) {
-    final String location = GoRouterState.of(context).uri.path;
-    if (location.startsWith('/dashboard')) return 0;
-    if (location.startsWith('/mines')) return 1;
-    if (location.startsWith('/inspections')) return 2;
-    if (location.startsWith('/violations')) return 3;
-    if (location.startsWith('/alerts')) return 4;
-    if (location.startsWith('/profile')) return 5;
+    try {
+      final location =
+          GoRouterState.of(context).uri.path;
+
+      if (location.startsWith('/dashboard')) {
+        return 0;
+      }
+
+      if (location.startsWith('/mines')) {
+        return 1;
+      }
+
+      if (location.startsWith('/inspections')) {
+        return 2;
+      }
+
+      if (location.startsWith('/violations')) {
+        return 3;
+      }
+
+      if (location.startsWith('/alerts')) {
+        return 4;
+      }
+
+      if (location.startsWith('/profile')) {
+        return 5;
+      }
+    } catch (_) {
+      // Fallback for tests or contexts without an active route.
+      return 0;
+    }
+
     return 0;
   }
 
-  void _onItemTapped(int index, BuildContext context) {
+  void _onItemTapped(
+      int index,
+      BuildContext context,
+      ) {
+    final router = GoRouter.of(context);
+
     switch (index) {
       case 0:
-        GoRouter.of(context).go('/dashboard');
+        router.go('/dashboard');
         break;
+
       case 1:
-        GoRouter.of(context).go('/mines');
+        router.go('/mines');
         break;
+
       case 2:
-        GoRouter.of(context).go('/inspections');
+        router.go('/inspections');
         break;
+
       case 3:
-        GoRouter.of(context).go('/violations');
+        router.go('/violations');
         break;
+
       case 4:
-        GoRouter.of(context).go('/alerts');
+        router.go('/alerts');
         break;
+
       case 5:
-        GoRouter.of(context).go('/profile');
+        router.go('/profile');
         break;
     }
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final authState = ref.watch(authNotifierProvider);
-    final _ = authState.user; // Reserved for role/permission based destination filtering when needed
+  Widget build(
+      BuildContext context,
+      WidgetRef ref,
+      ) {
+    final width = MediaQuery.sizeOf(context).width;
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final destinations = [
-          const NavigationDestination(
-            icon: Icon(Icons.dashboard_outlined),
-            selectedIcon: Icon(Icons.dashboard),
-            label: 'Dashboard',
-          ),
-          const NavigationDestination(
-            icon: Icon(Icons.layers_outlined),
-            selectedIcon: Icon(Icons.layers),
-            label: 'Mines',
-          ),
-          const NavigationDestination(
-            icon: Icon(Icons.assignment_outlined),
-            selectedIcon: Icon(Icons.assignment),
-            label: 'Inspections',
-          ),
-          const NavigationDestination(
-            icon: Icon(Icons.gavel_outlined),
-            selectedIcon: Icon(Icons.gavel),
-            label: 'Violations',
-          ),
-          const NavigationDestination(
-            icon: Icon(Icons.warning_amber_outlined),
-            selectedIcon: Icon(Icons.warning),
-            label: 'Alerts',
-          ),
-          const NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ];
+    final isTablet = width >= 600;
+    final isDesktop = width >= 900;
 
-        // Conditional display based on user role or permission can be done here if desired.
-        // e.g., if (user?.role == UserRole.admin) { ... }
+    const destinations = [
+      NavigationDestination(
+        icon: Icon(Icons.dashboard_outlined),
+        selectedIcon: Icon(Icons.dashboard),
+        label: 'Home',
+      ),
+      NavigationDestination(
+        icon: Icon(Icons.layers_outlined),
+        selectedIcon: Icon(Icons.layers),
+        label: 'Mines',
+      ),
+      NavigationDestination(
+        icon: Icon(Icons.assignment_outlined),
+        selectedIcon: Icon(Icons.assignment),
+        label: 'Inspections',
+      ),
+      NavigationDestination(
+        icon: Icon(Icons.gavel_outlined),
+        selectedIcon: Icon(Icons.gavel),
+        label: 'Violations',
+      ),
+      NavigationDestination(
+        icon: Icon(Icons.warning_amber_outlined),
+        selectedIcon: Icon(Icons.warning),
+        label: 'Alerts',
+      ),
+      NavigationDestination(
+        icon: Icon(Icons.person_outline),
+        selectedIcon: Icon(Icons.person),
+        label: 'Profile',
+      ),
+    ];
 
-        if (constraints.maxWidth >= 600) {
-          return Scaffold(
-            body: Row(
-              children: [
-                NavigationRail(
-                  extended: constraints.maxWidth >= 900,
-                  selectedIndex: _calculateSelectedIndex(context),
-                  onDestinationSelected: (index) => _onItemTapped(index, context),
-                  leading: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 16.0),
-                    child: Icon(Icons.shield, color: Theme.of(context).colorScheme.primary, size: 36),
-                  ),
-                  trailing: Expanded(
-                    child: Align(
-                      alignment: Alignment.bottomCenter,
-                      child: Padding(
-                        padding: const EdgeInsets.only(bottom: 16.0),
-                        child: IconButton(
-                          icon: const Icon(Icons.logout),
-                          onPressed: () => ref.read(authNotifierProvider.notifier).logout(),
-                        ),
+    // ------------------------------------------------------------------------
+    // Tablet / Desktop
+    // ------------------------------------------------------------------------
+    if (isTablet) {
+      return Scaffold(
+        body: Row(
+          children: [
+            NavigationRail(
+              extended: isDesktop,
+              selectedIndex:
+              _calculateSelectedIndex(context),
+              onDestinationSelected: (index) {
+                _onItemTapped(index, context);
+              },
+              leading: Padding(
+                padding:
+                const EdgeInsets.symmetric(
+                  vertical: 16,
+                ),
+                child: Icon(
+                  Icons.shield,
+                  color:
+                  Theme.of(context)
+                      .colorScheme
+                      .primary,
+                  size: 36,
+                ),
+              ),
+              trailing: Expanded(
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Padding(
+                    padding:
+                    const EdgeInsets.only(
+                      bottom: 16,
+                    ),
+                    child: IconButton(
+                      icon: const Icon(
+                        Icons.logout,
                       ),
+                      onPressed: () {
+                        ref
+                            .read(
+                          authNotifierProvider
+                              .notifier,
+                        )
+                            .logout();
+                      },
                     ),
                   ),
-                  destinations: destinations
-                      .map((d) => NavigationRailDestination(
-                            icon: d.icon,
-                            selectedIcon: d.selectedIcon,
-                            label: Text(d.label),
-                          ))
-                      .toList(),
                 ),
-                const VerticalDivider(thickness: 1, width: 1),
-                Expanded(child: SafeArea(child: child)),
-              ],
+              ),
+              destinations: destinations
+                  .map(
+                    (destination) =>
+                    NavigationRailDestination(
+                      icon: destination.icon,
+                      selectedIcon:
+                      destination.selectedIcon,
+                      label: Text(
+                        destination.label,
+                      ),
+                    ),
+              )
+                  .toList(),
             ),
-          );
-        }
 
-        return Scaffold(
-          body: SafeArea(child: child),
-          bottomNavigationBar: NavigationBar(
-            selectedIndex: _calculateSelectedIndex(context),
-            onDestinationSelected: (index) => _onItemTapped(index, context),
+            const VerticalDivider(
+              thickness: 1,
+              width: 1,
+            ),
+
+            Expanded(
+              child: SafeArea(
+                child: child,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // ------------------------------------------------------------------------
+    // Mobile
+    // ------------------------------------------------------------------------
+    return Scaffold(
+      body: SafeArea(
+        child: child,
+      ),
+      bottomNavigationBar: LayoutBuilder(
+        builder: (context, constraints) {
+          final isCompact =
+              constraints.maxWidth < 380;
+
+          return NavigationBar(
+            selectedIndex:
+            _calculateSelectedIndex(context),
+            onDestinationSelected: (index) {
+              _onItemTapped(index, context);
+            },
             destinations: destinations,
-          ),
-        );
-      },
+            labelBehavior: isCompact
+                ? NavigationDestinationLabelBehavior
+                .alwaysHide
+                : NavigationDestinationLabelBehavior
+                .onlyShowSelected,
+          );
+        },
+      ),
     );
   }
 }
-

@@ -35,36 +35,63 @@ class DashboardShellScreen extends StatelessWidget {
             const SizedBox(height: AppSpacing.lg),
 
             // Quick Stats Row (Placeholders)
-            const Row(
+            Row(
               children: [
                 Expanded(
                   child: AppCard(
+                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs, vertical: AppSpacing.sm),
                     child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text('04', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                        Text('Inspections', style: TextStyle(fontSize: 12)),
+                        const Text('04', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                        const SizedBox(height: AppSpacing.xs),
+                        Text(
+                          'Inspections',
+                          style: Theme.of(context).textTheme.labelSmall?.copyWith(fontSize: 10),
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ],
                     ),
                   ),
                 ),
-                SizedBox(width: AppSpacing.sm),
+                const SizedBox(width: AppSpacing.xs),
                 Expanded(
                   child: AppCard(
+                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs, vertical: AppSpacing.sm),
                     child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text('12', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                        Text('Violations', style: TextStyle(fontSize: 12)),
+                        const Text('12', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                        const SizedBox(height: AppSpacing.xs),
+                        Text(
+                          'Violations',
+                          style: Theme.of(context).textTheme.labelSmall?.copyWith(fontSize: 10),
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ],
                     ),
                   ),
                 ),
-                SizedBox(width: AppSpacing.sm),
+                const SizedBox(width: AppSpacing.xs),
                 Expanded(
                   child: AppCard(
+                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs, vertical: AppSpacing.sm),
                     child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text('02', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                        Text('Alerts', style: TextStyle(fontSize: 12)),
+                        const Text('02', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                        const SizedBox(height: AppSpacing.xs),
+                        Text(
+                          'Alerts',
+                          style: Theme.of(context).textTheme.labelSmall?.copyWith(fontSize: 10),
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ],
                     ),
                   ),
