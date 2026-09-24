@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:coalnexus/core/theme/app_radius.dart';
 import 'package:coalnexus/core/theme/app_spacing.dart';
 
+import 'package:coalnexus/core/sync/sync_models.dart';
+
 class AppCard extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry? padding;
@@ -184,6 +186,46 @@ class AppSectionHeader extends StatelessWidget {
           ],
         ],
       ),
+    );
+  }
+}
+
+class AppSyncStatusIndicator extends StatelessWidget {
+  final SyncStatus status;
+
+  const AppSyncStatusIndicator({super.key, required this.status});
+
+  @override
+  Widget build(BuildContext context) {
+    IconData icon;
+    Color color;
+
+    switch (status) {
+      case SyncStatus.pending:
+        icon = Icons.cloud_upload_outlined;
+        color = Colors.grey;
+        break;
+      case SyncStatus.syncing:
+        icon = Icons.sync;
+        color = Colors.blue;
+        break;
+      case SyncStatus.failed:
+        icon = Icons.cloud_off;
+        color = Colors.red;
+        break;
+      case SyncStatus.conflict:
+        icon = Icons.warning_amber;
+        color = Colors.orange;
+        break;
+      case SyncStatus.synced:
+        icon = Icons.cloud_done;
+        color = Colors.green;
+        break;
+    }
+
+    return Tooltip(
+      message: status.name.toUpperCase(),
+      child: Icon(icon, size: 16, color: color),
     );
   }
 }

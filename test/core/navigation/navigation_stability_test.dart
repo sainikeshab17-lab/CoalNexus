@@ -7,6 +7,8 @@ import 'package:coalnexus/features/auth/presentation/providers/auth_state.dart';
 import 'package:coalnexus/shared/domain/entities/user.dart';
 import 'package:coalnexus/features/inspections/domain/entities/inspection.dart';
 import 'package:coalnexus/features/inspections/presentation/providers/inspection_list_provider.dart';
+import 'package:coalnexus/features/violations/domain/entities/violation.dart';
+import 'package:coalnexus/features/violations/presentation/providers/violation_list_provider.dart';
 
 class FakeAuthNotifier extends AuthNotifier {
   @override
@@ -30,6 +32,13 @@ class FakeInspectionListNotifier extends InspectionListNotifier {
   }
 }
 
+class FakeViolationListNotifier extends ViolationListNotifier {
+  @override
+  AsyncValue<List<Violation>> build() {
+    return const AsyncValue.data([]);
+  }
+}
+
 void main() {
   testWidgets(
     'Navigation stability and layout regression test on narrow screens (320x700)',
@@ -48,6 +57,7 @@ void main() {
             authNotifierProvider.overrideWith(() => FakeAuthNotifier()),
             inspectionListProvider
                 .overrideWith(() => FakeInspectionListNotifier()),
+            violationListProvider.overrideWith(() => FakeViolationListNotifier()),
           ],
           child: Consumer(
             builder: (context, ref, child) {
@@ -92,7 +102,7 @@ void main() {
 
       // Inspections -> Violations
       await navigateTo(Icons.gavel_outlined);
-      expect(find.text('Violations tracking is coming soon.'), findsOneWidget);
+      expect(find.text('Violations'), findsAtLeastNWidgets(1));
 
       // Violations -> Alerts
       await navigateTo(Icons.warning_amber_outlined);

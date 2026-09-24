@@ -2927,6 +2927,880 @@ class InspectionFindingsCompanion
   }
 }
 
+class $ViolationsTable extends Violations
+    with TableInfo<$ViolationsTable, ViolationEntity> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ViolationsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _localIdMeta = const VerificationMeta(
+    'localId',
+  );
+  @override
+  late final GeneratedColumn<String> localId = GeneratedColumn<String>(
+    'local_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _serverIdMeta = const VerificationMeta(
+    'serverId',
+  );
+  @override
+  late final GeneratedColumn<String> serverId = GeneratedColumn<String>(
+    'server_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _inspectionIdMeta = const VerificationMeta(
+    'inspectionId',
+  );
+  @override
+  late final GeneratedColumn<String> inspectionId = GeneratedColumn<String>(
+    'inspection_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _findingIdMeta = const VerificationMeta(
+    'findingId',
+  );
+  @override
+  late final GeneratedColumn<String> findingId = GeneratedColumn<String>(
+    'finding_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _mineIdMeta = const VerificationMeta('mineId');
+  @override
+  late final GeneratedColumn<String> mineId = GeneratedColumn<String>(
+    'mine_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _descriptionMeta = const VerificationMeta(
+    'description',
+  );
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+    'description',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<ViolationSeverity, String>
+  severity = GeneratedColumn<String>(
+    'severity',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  ).withConverter<ViolationSeverity>($ViolationsTable.$converterseverity);
+  @override
+  late final GeneratedColumnWithTypeConverter<ViolationStatus, String> status =
+      GeneratedColumn<String>(
+        'status',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<ViolationStatus>($ViolationsTable.$converterstatus);
+  static const VerificationMeta _assignedToMeta = const VerificationMeta(
+    'assignedTo',
+  );
+  @override
+  late final GeneratedColumn<String> assignedTo = GeneratedColumn<String>(
+    'assigned_to',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _dueDateMeta = const VerificationMeta(
+    'dueDate',
+  );
+  @override
+  late final GeneratedColumn<DateTime> dueDate = GeneratedColumn<DateTime>(
+    'due_date',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _detectedAtMeta = const VerificationMeta(
+    'detectedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> detectedAt = GeneratedColumn<DateTime>(
+    'detected_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _localVersionMeta = const VerificationMeta(
+    'localVersion',
+  );
+  @override
+  late final GeneratedColumn<int> localVersion = GeneratedColumn<int>(
+    'local_version',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(1),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    localId,
+    serverId,
+    inspectionId,
+    findingId,
+    mineId,
+    title,
+    description,
+    severity,
+    status,
+    assignedTo,
+    dueDate,
+    detectedAt,
+    createdAt,
+    updatedAt,
+    localVersion,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'violations';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ViolationEntity> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('local_id')) {
+      context.handle(
+        _localIdMeta,
+        localId.isAcceptableOrUnknown(data['local_id']!, _localIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_localIdMeta);
+    }
+    if (data.containsKey('server_id')) {
+      context.handle(
+        _serverIdMeta,
+        serverId.isAcceptableOrUnknown(data['server_id']!, _serverIdMeta),
+      );
+    }
+    if (data.containsKey('inspection_id')) {
+      context.handle(
+        _inspectionIdMeta,
+        inspectionId.isAcceptableOrUnknown(
+          data['inspection_id']!,
+          _inspectionIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_inspectionIdMeta);
+    }
+    if (data.containsKey('finding_id')) {
+      context.handle(
+        _findingIdMeta,
+        findingId.isAcceptableOrUnknown(data['finding_id']!, _findingIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_findingIdMeta);
+    }
+    if (data.containsKey('mine_id')) {
+      context.handle(
+        _mineIdMeta,
+        mineId.isAcceptableOrUnknown(data['mine_id']!, _mineIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_mineIdMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+        _descriptionMeta,
+        description.isAcceptableOrUnknown(
+          data['description']!,
+          _descriptionMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_descriptionMeta);
+    }
+    if (data.containsKey('assigned_to')) {
+      context.handle(
+        _assignedToMeta,
+        assignedTo.isAcceptableOrUnknown(data['assigned_to']!, _assignedToMeta),
+      );
+    }
+    if (data.containsKey('due_date')) {
+      context.handle(
+        _dueDateMeta,
+        dueDate.isAcceptableOrUnknown(data['due_date']!, _dueDateMeta),
+      );
+    }
+    if (data.containsKey('detected_at')) {
+      context.handle(
+        _detectedAtMeta,
+        detectedAt.isAcceptableOrUnknown(data['detected_at']!, _detectedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_detectedAtMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    if (data.containsKey('local_version')) {
+      context.handle(
+        _localVersionMeta,
+        localVersion.isAcceptableOrUnknown(
+          data['local_version']!,
+          _localVersionMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {localId};
+  @override
+  ViolationEntity map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ViolationEntity(
+      localId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}local_id'],
+      )!,
+      serverId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}server_id'],
+      ),
+      inspectionId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}inspection_id'],
+      )!,
+      findingId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}finding_id'],
+      )!,
+      mineId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}mine_id'],
+      )!,
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+      description: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}description'],
+      )!,
+      severity: $ViolationsTable.$converterseverity.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}severity'],
+        )!,
+      ),
+      status: $ViolationsTable.$converterstatus.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}status'],
+        )!,
+      ),
+      assignedTo: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}assigned_to'],
+      ),
+      dueDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}due_date'],
+      ),
+      detectedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}detected_at'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      localVersion: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}local_version'],
+      )!,
+    );
+  }
+
+  @override
+  $ViolationsTable createAlias(String alias) {
+    return $ViolationsTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<ViolationSeverity, String, String>
+  $converterseverity = const EnumNameConverter(ViolationSeverity.values);
+  static JsonTypeConverter2<ViolationStatus, String, String> $converterstatus =
+      const EnumNameConverter(ViolationStatus.values);
+}
+
+class ViolationEntity extends DataClass implements Insertable<ViolationEntity> {
+  final String localId;
+  final String? serverId;
+  final String inspectionId;
+  final String findingId;
+  final String mineId;
+  final String title;
+  final String description;
+  final ViolationSeverity severity;
+  final ViolationStatus status;
+  final String? assignedTo;
+  final DateTime? dueDate;
+  final DateTime detectedAt;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final int localVersion;
+  const ViolationEntity({
+    required this.localId,
+    this.serverId,
+    required this.inspectionId,
+    required this.findingId,
+    required this.mineId,
+    required this.title,
+    required this.description,
+    required this.severity,
+    required this.status,
+    this.assignedTo,
+    this.dueDate,
+    required this.detectedAt,
+    required this.createdAt,
+    required this.updatedAt,
+    required this.localVersion,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['local_id'] = Variable<String>(localId);
+    if (!nullToAbsent || serverId != null) {
+      map['server_id'] = Variable<String>(serverId);
+    }
+    map['inspection_id'] = Variable<String>(inspectionId);
+    map['finding_id'] = Variable<String>(findingId);
+    map['mine_id'] = Variable<String>(mineId);
+    map['title'] = Variable<String>(title);
+    map['description'] = Variable<String>(description);
+    {
+      map['severity'] = Variable<String>(
+        $ViolationsTable.$converterseverity.toSql(severity),
+      );
+    }
+    {
+      map['status'] = Variable<String>(
+        $ViolationsTable.$converterstatus.toSql(status),
+      );
+    }
+    if (!nullToAbsent || assignedTo != null) {
+      map['assigned_to'] = Variable<String>(assignedTo);
+    }
+    if (!nullToAbsent || dueDate != null) {
+      map['due_date'] = Variable<DateTime>(dueDate);
+    }
+    map['detected_at'] = Variable<DateTime>(detectedAt);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    map['local_version'] = Variable<int>(localVersion);
+    return map;
+  }
+
+  ViolationsCompanion toCompanion(bool nullToAbsent) {
+    return ViolationsCompanion(
+      localId: Value(localId),
+      serverId: serverId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(serverId),
+      inspectionId: Value(inspectionId),
+      findingId: Value(findingId),
+      mineId: Value(mineId),
+      title: Value(title),
+      description: Value(description),
+      severity: Value(severity),
+      status: Value(status),
+      assignedTo: assignedTo == null && nullToAbsent
+          ? const Value.absent()
+          : Value(assignedTo),
+      dueDate: dueDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(dueDate),
+      detectedAt: Value(detectedAt),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      localVersion: Value(localVersion),
+    );
+  }
+
+  factory ViolationEntity.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ViolationEntity(
+      localId: serializer.fromJson<String>(json['localId']),
+      serverId: serializer.fromJson<String?>(json['serverId']),
+      inspectionId: serializer.fromJson<String>(json['inspectionId']),
+      findingId: serializer.fromJson<String>(json['findingId']),
+      mineId: serializer.fromJson<String>(json['mineId']),
+      title: serializer.fromJson<String>(json['title']),
+      description: serializer.fromJson<String>(json['description']),
+      severity: $ViolationsTable.$converterseverity.fromJson(
+        serializer.fromJson<String>(json['severity']),
+      ),
+      status: $ViolationsTable.$converterstatus.fromJson(
+        serializer.fromJson<String>(json['status']),
+      ),
+      assignedTo: serializer.fromJson<String?>(json['assignedTo']),
+      dueDate: serializer.fromJson<DateTime?>(json['dueDate']),
+      detectedAt: serializer.fromJson<DateTime>(json['detectedAt']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      localVersion: serializer.fromJson<int>(json['localVersion']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'localId': serializer.toJson<String>(localId),
+      'serverId': serializer.toJson<String?>(serverId),
+      'inspectionId': serializer.toJson<String>(inspectionId),
+      'findingId': serializer.toJson<String>(findingId),
+      'mineId': serializer.toJson<String>(mineId),
+      'title': serializer.toJson<String>(title),
+      'description': serializer.toJson<String>(description),
+      'severity': serializer.toJson<String>(
+        $ViolationsTable.$converterseverity.toJson(severity),
+      ),
+      'status': serializer.toJson<String>(
+        $ViolationsTable.$converterstatus.toJson(status),
+      ),
+      'assignedTo': serializer.toJson<String?>(assignedTo),
+      'dueDate': serializer.toJson<DateTime?>(dueDate),
+      'detectedAt': serializer.toJson<DateTime>(detectedAt),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'localVersion': serializer.toJson<int>(localVersion),
+    };
+  }
+
+  ViolationEntity copyWith({
+    String? localId,
+    Value<String?> serverId = const Value.absent(),
+    String? inspectionId,
+    String? findingId,
+    String? mineId,
+    String? title,
+    String? description,
+    ViolationSeverity? severity,
+    ViolationStatus? status,
+    Value<String?> assignedTo = const Value.absent(),
+    Value<DateTime?> dueDate = const Value.absent(),
+    DateTime? detectedAt,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    int? localVersion,
+  }) => ViolationEntity(
+    localId: localId ?? this.localId,
+    serverId: serverId.present ? serverId.value : this.serverId,
+    inspectionId: inspectionId ?? this.inspectionId,
+    findingId: findingId ?? this.findingId,
+    mineId: mineId ?? this.mineId,
+    title: title ?? this.title,
+    description: description ?? this.description,
+    severity: severity ?? this.severity,
+    status: status ?? this.status,
+    assignedTo: assignedTo.present ? assignedTo.value : this.assignedTo,
+    dueDate: dueDate.present ? dueDate.value : this.dueDate,
+    detectedAt: detectedAt ?? this.detectedAt,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    localVersion: localVersion ?? this.localVersion,
+  );
+  ViolationEntity copyWithCompanion(ViolationsCompanion data) {
+    return ViolationEntity(
+      localId: data.localId.present ? data.localId.value : this.localId,
+      serverId: data.serverId.present ? data.serverId.value : this.serverId,
+      inspectionId: data.inspectionId.present
+          ? data.inspectionId.value
+          : this.inspectionId,
+      findingId: data.findingId.present ? data.findingId.value : this.findingId,
+      mineId: data.mineId.present ? data.mineId.value : this.mineId,
+      title: data.title.present ? data.title.value : this.title,
+      description: data.description.present
+          ? data.description.value
+          : this.description,
+      severity: data.severity.present ? data.severity.value : this.severity,
+      status: data.status.present ? data.status.value : this.status,
+      assignedTo: data.assignedTo.present
+          ? data.assignedTo.value
+          : this.assignedTo,
+      dueDate: data.dueDate.present ? data.dueDate.value : this.dueDate,
+      detectedAt: data.detectedAt.present
+          ? data.detectedAt.value
+          : this.detectedAt,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      localVersion: data.localVersion.present
+          ? data.localVersion.value
+          : this.localVersion,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ViolationEntity(')
+          ..write('localId: $localId, ')
+          ..write('serverId: $serverId, ')
+          ..write('inspectionId: $inspectionId, ')
+          ..write('findingId: $findingId, ')
+          ..write('mineId: $mineId, ')
+          ..write('title: $title, ')
+          ..write('description: $description, ')
+          ..write('severity: $severity, ')
+          ..write('status: $status, ')
+          ..write('assignedTo: $assignedTo, ')
+          ..write('dueDate: $dueDate, ')
+          ..write('detectedAt: $detectedAt, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('localVersion: $localVersion')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    localId,
+    serverId,
+    inspectionId,
+    findingId,
+    mineId,
+    title,
+    description,
+    severity,
+    status,
+    assignedTo,
+    dueDate,
+    detectedAt,
+    createdAt,
+    updatedAt,
+    localVersion,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ViolationEntity &&
+          other.localId == this.localId &&
+          other.serverId == this.serverId &&
+          other.inspectionId == this.inspectionId &&
+          other.findingId == this.findingId &&
+          other.mineId == this.mineId &&
+          other.title == this.title &&
+          other.description == this.description &&
+          other.severity == this.severity &&
+          other.status == this.status &&
+          other.assignedTo == this.assignedTo &&
+          other.dueDate == this.dueDate &&
+          other.detectedAt == this.detectedAt &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.localVersion == this.localVersion);
+}
+
+class ViolationsCompanion extends UpdateCompanion<ViolationEntity> {
+  final Value<String> localId;
+  final Value<String?> serverId;
+  final Value<String> inspectionId;
+  final Value<String> findingId;
+  final Value<String> mineId;
+  final Value<String> title;
+  final Value<String> description;
+  final Value<ViolationSeverity> severity;
+  final Value<ViolationStatus> status;
+  final Value<String?> assignedTo;
+  final Value<DateTime?> dueDate;
+  final Value<DateTime> detectedAt;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<int> localVersion;
+  final Value<int> rowid;
+  const ViolationsCompanion({
+    this.localId = const Value.absent(),
+    this.serverId = const Value.absent(),
+    this.inspectionId = const Value.absent(),
+    this.findingId = const Value.absent(),
+    this.mineId = const Value.absent(),
+    this.title = const Value.absent(),
+    this.description = const Value.absent(),
+    this.severity = const Value.absent(),
+    this.status = const Value.absent(),
+    this.assignedTo = const Value.absent(),
+    this.dueDate = const Value.absent(),
+    this.detectedAt = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.localVersion = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ViolationsCompanion.insert({
+    required String localId,
+    this.serverId = const Value.absent(),
+    required String inspectionId,
+    required String findingId,
+    required String mineId,
+    required String title,
+    required String description,
+    required ViolationSeverity severity,
+    required ViolationStatus status,
+    this.assignedTo = const Value.absent(),
+    this.dueDate = const Value.absent(),
+    required DateTime detectedAt,
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.localVersion = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : localId = Value(localId),
+       inspectionId = Value(inspectionId),
+       findingId = Value(findingId),
+       mineId = Value(mineId),
+       title = Value(title),
+       description = Value(description),
+       severity = Value(severity),
+       status = Value(status),
+       detectedAt = Value(detectedAt);
+  static Insertable<ViolationEntity> custom({
+    Expression<String>? localId,
+    Expression<String>? serverId,
+    Expression<String>? inspectionId,
+    Expression<String>? findingId,
+    Expression<String>? mineId,
+    Expression<String>? title,
+    Expression<String>? description,
+    Expression<String>? severity,
+    Expression<String>? status,
+    Expression<String>? assignedTo,
+    Expression<DateTime>? dueDate,
+    Expression<DateTime>? detectedAt,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? localVersion,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (localId != null) 'local_id': localId,
+      if (serverId != null) 'server_id': serverId,
+      if (inspectionId != null) 'inspection_id': inspectionId,
+      if (findingId != null) 'finding_id': findingId,
+      if (mineId != null) 'mine_id': mineId,
+      if (title != null) 'title': title,
+      if (description != null) 'description': description,
+      if (severity != null) 'severity': severity,
+      if (status != null) 'status': status,
+      if (assignedTo != null) 'assigned_to': assignedTo,
+      if (dueDate != null) 'due_date': dueDate,
+      if (detectedAt != null) 'detected_at': detectedAt,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (localVersion != null) 'local_version': localVersion,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ViolationsCompanion copyWith({
+    Value<String>? localId,
+    Value<String?>? serverId,
+    Value<String>? inspectionId,
+    Value<String>? findingId,
+    Value<String>? mineId,
+    Value<String>? title,
+    Value<String>? description,
+    Value<ViolationSeverity>? severity,
+    Value<ViolationStatus>? status,
+    Value<String?>? assignedTo,
+    Value<DateTime?>? dueDate,
+    Value<DateTime>? detectedAt,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<int>? localVersion,
+    Value<int>? rowid,
+  }) {
+    return ViolationsCompanion(
+      localId: localId ?? this.localId,
+      serverId: serverId ?? this.serverId,
+      inspectionId: inspectionId ?? this.inspectionId,
+      findingId: findingId ?? this.findingId,
+      mineId: mineId ?? this.mineId,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      severity: severity ?? this.severity,
+      status: status ?? this.status,
+      assignedTo: assignedTo ?? this.assignedTo,
+      dueDate: dueDate ?? this.dueDate,
+      detectedAt: detectedAt ?? this.detectedAt,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      localVersion: localVersion ?? this.localVersion,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (localId.present) {
+      map['local_id'] = Variable<String>(localId.value);
+    }
+    if (serverId.present) {
+      map['server_id'] = Variable<String>(serverId.value);
+    }
+    if (inspectionId.present) {
+      map['inspection_id'] = Variable<String>(inspectionId.value);
+    }
+    if (findingId.present) {
+      map['finding_id'] = Variable<String>(findingId.value);
+    }
+    if (mineId.present) {
+      map['mine_id'] = Variable<String>(mineId.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (severity.present) {
+      map['severity'] = Variable<String>(
+        $ViolationsTable.$converterseverity.toSql(severity.value),
+      );
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(
+        $ViolationsTable.$converterstatus.toSql(status.value),
+      );
+    }
+    if (assignedTo.present) {
+      map['assigned_to'] = Variable<String>(assignedTo.value);
+    }
+    if (dueDate.present) {
+      map['due_date'] = Variable<DateTime>(dueDate.value);
+    }
+    if (detectedAt.present) {
+      map['detected_at'] = Variable<DateTime>(detectedAt.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (localVersion.present) {
+      map['local_version'] = Variable<int>(localVersion.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ViolationsCompanion(')
+          ..write('localId: $localId, ')
+          ..write('serverId: $serverId, ')
+          ..write('inspectionId: $inspectionId, ')
+          ..write('findingId: $findingId, ')
+          ..write('mineId: $mineId, ')
+          ..write('title: $title, ')
+          ..write('description: $description, ')
+          ..write('severity: $severity, ')
+          ..write('status: $status, ')
+          ..write('assignedTo: $assignedTo, ')
+          ..write('dueDate: $dueDate, ')
+          ..write('detectedAt: $detectedAt, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('localVersion: $localVersion, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -2936,6 +3810,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $InspectionsTable inspections = $InspectionsTable(this);
   late final $InspectionFindingsTable inspectionFindings =
       $InspectionFindingsTable(this);
+  late final $ViolationsTable violations = $ViolationsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -2946,6 +3821,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     syncQueue,
     inspections,
     inspectionFindings,
+    violations,
   ];
 }
 
@@ -4423,6 +5299,415 @@ typedef $$InspectionFindingsTableProcessedTableManager =
       InspectionFindingEntity,
       PrefetchHooks Function()
     >;
+typedef $$ViolationsTableCreateCompanionBuilder = ViolationsCompanion Function({
+  required String localId,
+  Value<String?> serverId,
+  required String inspectionId,
+  required String findingId,
+  required String mineId,
+  required String title,
+  required String description,
+  required ViolationSeverity severity,
+  required ViolationStatus status,
+  Value<String?> assignedTo,
+  Value<DateTime?> dueDate,
+  required DateTime detectedAt,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+  Value<int> localVersion,
+  Value<int> rowid,
+});
+typedef $$ViolationsTableUpdateCompanionBuilder = ViolationsCompanion Function({
+  Value<String> localId,
+  Value<String?> serverId,
+  Value<String> inspectionId,
+  Value<String> findingId,
+  Value<String> mineId,
+  Value<String> title,
+  Value<String> description,
+  Value<ViolationSeverity> severity,
+  Value<ViolationStatus> status,
+  Value<String?> assignedTo,
+  Value<DateTime?> dueDate,
+  Value<DateTime> detectedAt,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+  Value<int> localVersion,
+  Value<int> rowid,
+});
+
+class $$ViolationsTableFilterComposer
+    extends Composer<_$AppDatabase, $ViolationsTable> {
+  $$ViolationsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get localId => $composableBuilder(
+    column: $table.localId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get serverId => $composableBuilder(
+    column: $table.serverId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get inspectionId => $composableBuilder(
+    column: $table.inspectionId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get findingId => $composableBuilder(
+    column: $table.findingId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get mineId => $composableBuilder(
+    column: $table.mineId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<ViolationSeverity, ViolationSeverity, String>
+  get severity => $composableBuilder(
+    column: $table.severity,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<ViolationStatus, ViolationStatus, String>
+  get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<String> get assignedTo => $composableBuilder(
+    column: $table.assignedTo,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get dueDate => $composableBuilder(
+    column: $table.dueDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get detectedAt => $composableBuilder(
+    column: $table.detectedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get localVersion => $composableBuilder(
+    column: $table.localVersion,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ViolationsTableOrderingComposer
+    extends Composer<_$AppDatabase, $ViolationsTable> {
+  $$ViolationsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get localId => $composableBuilder(
+    column: $table.localId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get serverId => $composableBuilder(
+    column: $table.serverId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get inspectionId => $composableBuilder(
+    column: $table.inspectionId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get findingId => $composableBuilder(
+    column: $table.findingId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get mineId => $composableBuilder(
+    column: $table.mineId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get severity => $composableBuilder(
+    column: $table.severity,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get assignedTo => $composableBuilder(
+    column: $table.assignedTo,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get dueDate => $composableBuilder(
+    column: $table.dueDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get detectedAt => $composableBuilder(
+    column: $table.detectedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get localVersion => $composableBuilder(
+    column: $table.localVersion,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ViolationsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ViolationsTable> {
+  $$ViolationsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get localId =>
+      $composableBuilder(column: $table.localId, builder: (column) => column);
+
+  GeneratedColumn<String> get serverId =>
+      $composableBuilder(column: $table.serverId, builder: (column) => column);
+
+  GeneratedColumn<String> get inspectionId => $composableBuilder(
+    column: $table.inspectionId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get findingId =>
+      $composableBuilder(column: $table.findingId, builder: (column) => column);
+
+  GeneratedColumn<String> get mineId =>
+      $composableBuilder(column: $table.mineId, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => column,
+  );
+
+  GeneratedColumnWithTypeConverter<ViolationSeverity, String> get severity =>
+      $composableBuilder(column: $table.severity, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<ViolationStatus, String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<String> get assignedTo => $composableBuilder(
+    column: $table.assignedTo,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get dueDate =>
+      $composableBuilder(column: $table.dueDate, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get detectedAt => $composableBuilder(
+    column: $table.detectedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get localVersion => $composableBuilder(
+    column: $table.localVersion,
+    builder: (column) => column,
+  );
+}
+
+class $$ViolationsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ViolationsTable,
+          ViolationEntity,
+          $$ViolationsTableFilterComposer,
+          $$ViolationsTableOrderingComposer,
+          $$ViolationsTableAnnotationComposer,
+          $$ViolationsTableCreateCompanionBuilder,
+          $$ViolationsTableUpdateCompanionBuilder,
+          (
+            ViolationEntity,
+            BaseReferences<_$AppDatabase, $ViolationsTable, ViolationEntity>,
+          ),
+          ViolationEntity,
+          PrefetchHooks Function()
+        > {
+  $$ViolationsTableTableManager(_$AppDatabase db, $ViolationsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ViolationsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ViolationsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ViolationsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> localId = const Value.absent(),
+                Value<String?> serverId = const Value.absent(),
+                Value<String> inspectionId = const Value.absent(),
+                Value<String> findingId = const Value.absent(),
+                Value<String> mineId = const Value.absent(),
+                Value<String> title = const Value.absent(),
+                Value<String> description = const Value.absent(),
+                Value<ViolationSeverity> severity = const Value.absent(),
+                Value<ViolationStatus> status = const Value.absent(),
+                Value<String?> assignedTo = const Value.absent(),
+                Value<DateTime?> dueDate = const Value.absent(),
+                Value<DateTime> detectedAt = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> localVersion = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ViolationsCompanion(
+                localId: localId,
+                serverId: serverId,
+                inspectionId: inspectionId,
+                findingId: findingId,
+                mineId: mineId,
+                title: title,
+                description: description,
+                severity: severity,
+                status: status,
+                assignedTo: assignedTo,
+                dueDate: dueDate,
+                detectedAt: detectedAt,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                localVersion: localVersion,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String localId,
+                Value<String?> serverId = const Value.absent(),
+                required String inspectionId,
+                required String findingId,
+                required String mineId,
+                required String title,
+                required String description,
+                required ViolationSeverity severity,
+                required ViolationStatus status,
+                Value<String?> assignedTo = const Value.absent(),
+                Value<DateTime?> dueDate = const Value.absent(),
+                required DateTime detectedAt,
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> localVersion = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ViolationsCompanion.insert(
+                localId: localId,
+                serverId: serverId,
+                inspectionId: inspectionId,
+                findingId: findingId,
+                mineId: mineId,
+                title: title,
+                description: description,
+                severity: severity,
+                status: status,
+                assignedTo: assignedTo,
+                dueDate: dueDate,
+                detectedAt: detectedAt,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                localVersion: localVersion,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$ViolationsTable, ViolationEntity>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $ViolationsTable,
+                    ViolationEntity
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ViolationsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ViolationsTable,
+      ViolationEntity,
+      $$ViolationsTableFilterComposer,
+      $$ViolationsTableOrderingComposer,
+      $$ViolationsTableAnnotationComposer,
+      $$ViolationsTableCreateCompanionBuilder,
+      $$ViolationsTableUpdateCompanionBuilder,
+      (
+        ViolationEntity,
+        BaseReferences<_$AppDatabase, $ViolationsTable, ViolationEntity>,
+      ),
+      ViolationEntity,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -4437,4 +5722,6 @@ class $AppDatabaseManager {
       $$InspectionsTableTableManager(_db, _db.inspections);
   $$InspectionFindingsTableTableManager get inspectionFindings =>
       $$InspectionFindingsTableTableManager(_db, _db.inspectionFindings);
+  $$ViolationsTableTableManager get violations =>
+      $$ViolationsTableTableManager(_db, _db.violations);
 }

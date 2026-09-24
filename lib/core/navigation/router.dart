@@ -15,6 +15,10 @@ import 'package:coalnexus/features/mines/presentation/pages/create_mine_page.dar
 import 'package:coalnexus/features/mines/presentation/pages/edit_mine_page.dart';
 import 'package:coalnexus/features/mines/presentation/pages/mine_detail_page.dart';
 import 'package:coalnexus/features/mines/presentation/pages/mine_list_page.dart';
+import 'package:coalnexus/features/violations/presentation/pages/violation_list_page.dart';
+import 'package:coalnexus/features/violations/presentation/pages/violation_detail_page.dart';
+import 'package:coalnexus/features/violations/presentation/pages/create_violation_page.dart';
+import 'package:coalnexus/features/violations/presentation/pages/edit_violation_page.dart';
 import 'package:coalnexus/features/profile/presentation/profile_shell_screen.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey =
@@ -153,12 +157,32 @@ final routerProvider = Provider<GoRouter>((ref) {
           // ------------------------------------------------------------------
           GoRoute(
             path: '/violations',
-            builder: (context, state) => const Scaffold(
-              body: AppEmptyView(
-                icon: Icons.gavel_outlined,
-                message: 'Violations tracking is coming soon.',
+            builder: (context, state) => const ViolationListPage(),
+            routes: [
+              GoRoute(
+                path: 'create',
+                builder: (context, state) {
+                  final extra = state.extra as Map<String, dynamic>?;
+                  return CreateViolationPage(initialData: extra);
+                },
               ),
-            ),
+              GoRoute(
+                path: ':id',
+                builder: (context, state) {
+                  final id = state.pathParameters['id']!;
+                  return ViolationDetailPage(violationId: id);
+                },
+                routes: [
+                  GoRoute(
+                    path: 'edit',
+                    builder: (context, state) {
+                      final id = state.pathParameters['id']!;
+                      return EditViolationPage(violationId: id);
+                    },
+                  ),
+                ],
+              ),
+            ],
           ),
 
           // ------------------------------------------------------------------

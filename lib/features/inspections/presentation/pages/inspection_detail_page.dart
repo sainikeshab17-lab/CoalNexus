@@ -72,9 +72,10 @@ class InspectionDetailPage extends ConsumerWidget {
                       separatorBuilder: (context, index) => const SizedBox(height: AppSpacing.sm),
                       itemBuilder: (context, index) {
                         final finding = findings[index];
-                        return _FindingCard(finding: finding);
+                        return _FindingCard(finding: finding, mineId: inspection.mineId);
                       },
                     );
+
                   },
                 ),
               ],
@@ -138,8 +139,12 @@ class _InspectionHeader extends ConsumerWidget {
 
 class _FindingCard extends StatelessWidget {
   final InspectionFinding finding;
+  final String mineId;
 
-  const _FindingCard({required this.finding});
+  const _FindingCard({
+    required this.finding,
+    required this.mineId,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -178,6 +183,30 @@ class _FindingCard extends StatelessWidget {
             finding.description,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
+          if (finding.status == FindingStatus.nonCompliant) ...[
+            const SizedBox(height: AppSpacing.sm),
+            Align(
+              alignment: Alignment.centerRight,
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  context.push(
+                    '/violations/create',
+                    extra: {
+                      'findingId': finding.localId,
+                      'inspectionId': finding.inspectionId,
+                      'mineId': mineId,
+                      'description': finding.description,
+                    },
+                  );
+                },
+                icon: const Icon(Icons.gavel_outlined, size: 16),
+                label: const Text('Report Violation'),
+                style: OutlinedButton.styleFrom(
+                  visualDensity: VisualDensity.compact,
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );

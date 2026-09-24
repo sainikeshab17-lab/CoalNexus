@@ -9,8 +9,31 @@ import 'package:coalnexus/core/sync/sync_models.dart';
 
 import 'package:coalnexus/features/inspections/domain/entities/inspection.dart';
 import 'package:coalnexus/features/inspections/domain/entities/inspection_finding.dart';
+import 'package:coalnexus/features/violations/domain/entities/violation.dart';
 
 part 'local_database.g.dart';
+
+@DataClassName('ViolationEntity')
+class Violations extends Table {
+  TextColumn get localId => text()();
+  TextColumn get serverId => text().nullable()();
+  TextColumn get inspectionId => text()();
+  TextColumn get findingId => text()();
+  TextColumn get mineId => text()();
+  TextColumn get title => text()();
+  TextColumn get description => text()();
+  TextColumn get severity => text().map(const EnumNameConverter(ViolationSeverity.values))();
+  TextColumn get status => text().map(const EnumNameConverter(ViolationStatus.values))();
+  TextColumn get assignedTo => text().nullable()();
+  DateTimeColumn get dueDate => dateTime().nullable()();
+  DateTimeColumn get detectedAt => dateTime()();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
+  IntColumn get localVersion => integer().withDefault(const Constant(1))();
+
+  @override
+  Set<Column> get primaryKey => {localId};
+}
 
 @DataClassName('UserEntity')
 class Users extends Table {
@@ -93,7 +116,7 @@ class InspectionFindings extends Table {
   Set<Column> get primaryKey => {localId};
 }
 
-@DriftDatabase(tables: [Users, Mines, SyncQueue, Inspections, InspectionFindings])
+@DriftDatabase(tables: [Users, Mines, SyncQueue, Inspections, InspectionFindings, Violations])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
@@ -101,7 +124,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 }
 
 LazyDatabase _openConnection() {
