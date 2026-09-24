@@ -11,6 +11,10 @@ import 'package:coalnexus/features/inspections/presentation/pages/add_finding_pa
 import 'package:coalnexus/features/inspections/presentation/pages/create_inspection_page.dart';
 import 'package:coalnexus/features/inspections/presentation/pages/inspection_detail_page.dart';
 import 'package:coalnexus/features/inspections/presentation/pages/inspection_list_page.dart';
+import 'package:coalnexus/features/mines/presentation/pages/create_mine_page.dart';
+import 'package:coalnexus/features/mines/presentation/pages/edit_mine_page.dart';
+import 'package:coalnexus/features/mines/presentation/pages/mine_detail_page.dart';
+import 'package:coalnexus/features/mines/presentation/pages/mine_list_page.dart';
 import 'package:coalnexus/features/profile/presentation/profile_shell_screen.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey =
@@ -80,12 +84,29 @@ final routerProvider = Provider<GoRouter>((ref) {
           // ------------------------------------------------------------------
           GoRoute(
             path: '/mines',
-            builder: (context, state) => const Scaffold(
-              body: AppEmptyView(
-                icon: Icons.layers_outlined,
-                message: 'Mines management is coming soon.',
+            builder: (context, state) => const MineListPage(),
+            routes: [
+              GoRoute(
+                path: 'create',
+                builder: (context, state) => const CreateMinePage(),
               ),
-            ),
+              GoRoute(
+                path: ':id',
+                builder: (context, state) {
+                  final id = state.pathParameters['id']!;
+                  return MineDetailPage(mineId: id);
+                },
+                routes: [
+                  GoRoute(
+                    path: 'edit',
+                    builder: (context, state) {
+                      final id = state.pathParameters['id']!;
+                      return EditMinePage(mineId: id);
+                    },
+                  ),
+                ],
+              ),
+            ],
           ),
 
           // ------------------------------------------------------------------

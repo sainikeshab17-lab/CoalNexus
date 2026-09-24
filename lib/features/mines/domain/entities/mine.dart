@@ -18,6 +18,7 @@ class Mine {
   final MineStatus status;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final int localVersion;
 
   const Mine({
     required this.localId,
@@ -29,6 +30,7 @@ class Mine {
     required this.status,
     required this.createdAt,
     required this.updatedAt,
+    this.localVersion = 1,
   });
 
   @override
@@ -44,7 +46,8 @@ class Mine {
           longitude == other.longitude &&
           status == other.status &&
           createdAt == other.createdAt &&
-          updatedAt == other.updatedAt;
+          updatedAt == other.updatedAt &&
+          localVersion == other.localVersion;
 
   @override
   int get hashCode =>
@@ -56,5 +59,32 @@ class Mine {
       longitude.hashCode ^
       status.hashCode ^
       createdAt.hashCode ^
-      updatedAt.hashCode;
+      updatedAt.hashCode ^
+      localVersion.hashCode;
+
+  Mine copyWith({
+    String? localId,
+    String? serverId,
+    String? name,
+    String? mineCode,
+    double? latitude,
+    double? longitude,
+    MineStatus? status,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    int? localVersion,
+  }) {
+    return Mine(
+      localId: localId ?? this.localId,
+      serverId: serverId ?? this.serverId,
+      name: name ?? this.name,
+      mineCode: mineCode ?? this.mineCode,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
+      status: status ?? this.status,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      localVersion: localVersion ?? this.localVersion,
+    );
+  }
 }

@@ -1,8 +1,6 @@
 import 'package:coalnexus/features/mines/domain/entities/mine.dart';
 
 class MineModel extends Mine {
-  final int localVersion;
-
   const MineModel({
     required super.localId,
     super.serverId,
@@ -13,10 +11,10 @@ class MineModel extends Mine {
     required super.status,
     required super.createdAt,
     required super.updatedAt,
-    this.localVersion = 1,
+    super.localVersion = 1,
   });
 
-  factory MineModel.fromDomain(Mine mine, {int localVersion = 1}) {
+  factory MineModel.fromDomain(Mine mine, {int? localVersion}) {
     return MineModel(
       localId: mine.localId,
       serverId: mine.serverId,
@@ -27,7 +25,7 @@ class MineModel extends Mine {
       status: mine.status,
       createdAt: mine.createdAt,
       updatedAt: mine.updatedAt,
-      localVersion: localVersion,
+      localVersion: localVersion ?? mine.localVersion,
     );
   }
 
@@ -42,6 +40,37 @@ class MineModel extends Mine {
       status: status,
       createdAt: createdAt,
       updatedAt: updatedAt,
+      localVersion: localVersion,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'localId': localId,
+      'serverId': serverId,
+      'name': name,
+      'mineCode': mineCode,
+      'latitude': latitude,
+      'longitude': longitude,
+      'status': status.name,
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt.toIso8601String(),
+      'localVersion': localVersion,
+    };
+  }
+
+  factory MineModel.fromJson(Map<String, dynamic> json) {
+    return MineModel(
+      localId: json['localId'] as String,
+      serverId: json['serverId'] as String?,
+      name: json['name'] as String,
+      mineCode: json['mineCode'] as String,
+      latitude: (json['latitude'] as num).toDouble(),
+      longitude: (json['longitude'] as num).toDouble(),
+      status: MineStatus.values.firstWhere((e) => e.name == json['status']),
+      createdAt: DateTime.parse(json['createdAt'] as String),
+      updatedAt: DateTime.parse(json['updatedAt'] as String),
+      localVersion: json['localVersion'] as int,
     );
   }
 }

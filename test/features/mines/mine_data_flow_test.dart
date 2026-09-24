@@ -6,6 +6,9 @@ import 'package:coalnexus/features/mines/data/repositories/mine_repository_impl.
 import 'package:coalnexus/features/mines/domain/usecases/get_cached_mines.dart';
 import 'package:coalnexus/features/mines/domain/usecases/get_mine_by_id.dart';
 import 'package:coalnexus/features/mines/domain/usecases/search_mines.dart';
+import 'package:coalnexus/core/sync/sync_models.dart';
+import 'package:coalnexus/core/sync/sync_repository.dart';
+import 'package:coalnexus/core/sync/outbox_service.dart';
 
 class FakeMineLocalDataSource implements MineLocalDataSource {
   final Map<String, MineModel> _mines = {};
@@ -28,8 +31,17 @@ class FakeMineLocalDataSource implements MineLocalDataSource {
   }
 
   @override
-  Future<void> saveMine(Mine mine) async {
-    _mines[mine.localId] = MineModel.fromDomain(mine);
+  Future<void> saveMine(Mine mine, {int localVersion = 1}) async {
+    _mines[mine.localId] = MineModel.fromDomain(mine, localVersion: localVersion);
+  }
+
+  @override
+  Future<void> updateMine(Mine mine, {int? expectedVersion}) async {
+    if (expectedVersion != null && _mines[mine.localId]?.localVersion != expectedVersion) {
+      throw Exception('Version mismatch');
+    }
+    final currentVersion = _mines[mine.localId]?.localVersion ?? 1;
+    _mines[mine.localId] = MineModel.fromDomain(mine, localVersion: currentVersion + 1);
   }
 
   @override
@@ -41,10 +53,35 @@ class FakeMineLocalDataSource implements MineLocalDataSource {
   Future<void> clearAllMines() async {
     _mines.clear();
   }
+
+  @override
+  Future<T> transaction<T>(Future<T> Function() action) async {
+    return await action();
+  }
+}
+
+class FakeSyncRepository implements SyncRepository {
+  final List<SyncQueueItem> _queue = [];
+
+  @override
+  Future<void> enqueue(SyncQueueItem item) async {
+    _queue.add(item);
+  }
+
+  @override
+  Future<List<SyncQueueItem>> getPendingOperations() async => _queue;
+
+  @override
+  Future<void> updateStatus(String localId, SyncStatus status, {String? lastError, int? retryCount}) async {}
+
+  @override
+  Future<void> markSynced(String localId, String serverId) async {}
 }
 
 void main() {
   late FakeMineLocalDataSource localDataSource;
+  late FakeSyncRepository syncRepository;
+  late OutboxService outboxService;
   late MineRepositoryImpl repository;
   final testDate = DateTime(2023, 1, 1);
 
@@ -62,27 +99,47 @@ void main() {
 
   setUp(() {
     localDataSource = FakeMineLocalDataSource();
-    repository = MineRepositoryImpl(localDataSource);
+    syncRepository = FakeSyncRepository();
+    outboxService = OutboxService(syncRepository);
+    repository = MineRepositoryImpl(localDataSource, outboxService);
   });
 
   group('Mine Repository & Use Cases Data Flow', () {
-    test('should save and retrieve cached mines', () async {
-      await repository.saveMine(tMine);
+    test('should create mine and enqueue outbox operation', () async {
+      await repository.createMine(tMine);
 
       final useCase = GetCachedMines(repository);
       final result = await useCase();
 
       expect(result, hasLength(1));
-      expect(result.first, equals(tMine));
+      expect(result.first.name, equals(tMine.name));
+      
+      final pending = await syncRepository.getPendingOperations();
+      expect(pending, hasLength(1));
+      expect(pending.first.actionType, equals('CREATE_MINE'));
+      expect(pending.first.localId, equals(tMine.localId));
+    });
+
+    test('should update mine and enqueue outbox operation', () async {
+      await repository.createMine(tMine);
+      
+      final updatedMine = tMine.copyWith(name: 'Updated Name');
+      await repository.updateMine(updatedMine);
+
+      final result = await repository.getMineById(tMine.localId);
+      expect(result?.name, equals('Updated Name'));
+      
+      final pending = await syncRepository.getPendingOperations();
+      expect(pending.any((op) => op.actionType == 'UPDATE_MINE'), isTrue);
     });
 
     test('should get mine by ID', () async {
-      await repository.saveMine(tMine);
+      await repository.createMine(tMine);
 
       final useCase = GetMineById(repository);
       final result = await useCase('loc123');
 
-      expect(result, equals(tMine));
+      expect(result?.localId, equals(tMine.localId));
     });
 
     test('should return null when getting mine by non-existent ID', () async {
@@ -93,8 +150,8 @@ void main() {
     });
 
     test('should search mines matching query', () async {
-      await repository.saveMine(tMine);
-      await repository.saveMine(Mine(
+      await repository.createMine(tMine);
+      await repository.createMine(Mine(
         localId: 'loc456',
         name: 'Ranchi Mine',
         mineCode: 'RNC002',

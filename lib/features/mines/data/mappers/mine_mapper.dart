@@ -18,7 +18,7 @@ class MineMapper {
     );
   }
 
-  static MineEntity toEntity(Mine mine, {int localVersion = 1}) {
+  static MineEntity toEntity(Mine mine, {int? localVersion}) {
     return MineEntity(
       localId: mine.localId,
       serverId: mine.serverId,
@@ -29,7 +29,7 @@ class MineMapper {
       status: mine.status,
       createdAt: mine.createdAt,
       updatedAt: mine.updatedAt,
-      localVersion: localVersion,
+      localVersion: localVersion ?? mine.localVersion,
     );
   }
 

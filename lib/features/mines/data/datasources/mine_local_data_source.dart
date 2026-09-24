@@ -8,9 +8,11 @@ abstract class MineLocalDataSource {
   Future<List<MineModel>> getCachedMines();
   Future<MineModel?> getMineById(String id);
   Future<List<MineModel>> searchMines(String query);
-  Future<void> saveMine(Mine mine);
+  Future<void> saveMine(Mine mine, {int localVersion = 1});
+  Future<void> updateMine(Mine mine, {int? expectedVersion});
   Future<void> deleteMine(String id);
   Future<void> clearAllMines();
+  Future<T> transaction<T>(Future<T> Function() action);
 }
 
 class MineLocalDataSourceImpl implements MineLocalDataSource {
@@ -42,9 +44,37 @@ class MineLocalDataSourceImpl implements MineLocalDataSource {
   }
 
   @override
-  Future<void> saveMine(Mine mine) async {
+  Future<void> saveMine(Mine mine, {int localVersion = 1}) async {
+    final entity = MineMapper.toEntity(mine, localVersion: localVersion);
+    await _database.into(_database.mines).insert(entity);
+  }
+
+  @override
+  Future<void> updateMine(Mine mine, {int? expectedVersion}) async {
+    final query = _database.update(_database.mines)
+      ..where((t) => t.localId.equals(mine.localId));
+    
+    if (expectedVersion != null) {
+      query.where((t) => t.localVersion.equals(expectedVersion));
+    }
+
     final entity = MineMapper.toEntity(mine);
-    await _database.into(_database.mines).insertOnConflictUpdate(entity);
+    final updatedRows = await query.write(
+      MinesCompanion(
+        name: Value(entity.name),
+        mineCode: Value(entity.mineCode),
+        latitude: Value(entity.latitude),
+        longitude: Value(entity.longitude),
+        status: Value(entity.status),
+        updatedAt: Value(entity.updatedAt),
+        localVersion: Value(entity.localVersion),
+        serverId: Value(entity.serverId),
+      ),
+    );
+
+    if (updatedRows == 0) {
+      throw Exception('Update failed: Mine not found or version mismatch');
+    }
   }
 
   @override
@@ -55,5 +85,10 @@ class MineLocalDataSourceImpl implements MineLocalDataSource {
   @override
   Future<void> clearAllMines() async {
     await _database.delete(_database.mines).go();
+  }
+
+  @override
+  Future<T> transaction<T>(Future<T> Function() action) {
+    return _database.transaction(action);
   }
 }

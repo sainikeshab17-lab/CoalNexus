@@ -31,76 +31,89 @@ class FakeInspectionListNotifier extends InspectionListNotifier {
 }
 
 void main() {
-  testWidgets('Navigation stability and layout regression test on narrow screens (320x700)', (WidgetTester tester) async {
-    // Configure viewport size to narrowest target constraint
-    tester.view.physicalSize = const Size(320, 700);
-    tester.view.devicePixelRatio = 1.0;
+  testWidgets(
+    'Navigation stability and layout regression test on narrow screens (320x700)',
+        (WidgetTester tester) async {
+      tester.view.physicalSize = const Size(320, 700);
+      tester.view.devicePixelRatio = 1.0;
 
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          authNotifierProvider.overrideWith(() => FakeAuthNotifier()),
-          inspectionListProvider.overrideWith(() => FakeInspectionListNotifier()),
-        ],
-        child: Consumer(
-          builder: (context, ref, child) {
-            final router = ref.watch(routerProvider);
-            return MaterialApp.router(
-              routerConfig: router,
-            );
-          },
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            authNotifierProvider.overrideWith(() => FakeAuthNotifier()),
+            inspectionListProvider
+                .overrideWith(() => FakeInspectionListNotifier()),
+          ],
+          child: Consumer(
+            builder: (context, ref, child) {
+              final router = ref.watch(routerProvider);
+
+              return MaterialApp.router(
+                routerConfig: router,
+              );
+            },
+          ),
         ),
-      ),
-    );
+      );
 
-    // 1. App Startup validation
-    await tester.pumpAndSettle();
-    expect(find.text('Good Morning, Inspector'), findsOneWidget);
+      // Allow initial route to build without waiting for
+      // every animation/frame in the application to settle.
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
 
-    // Helper function to tap navigation items securely
-    Future<void> navigateTo(IconData icon) async {
-      final finder = find.byIcon(icon);
-      expect(finder, findsAtLeastNWidgets(1));
-      await tester.tap(finder.first);
-      await tester.pumpAndSettle();
-    }
+      expect(find.text('Good Morning, Inspector'), findsOneWidget);
 
-    // 2. Dashboard -> Mines
-    await navigateTo(Icons.layers_outlined);
-    expect(find.text('Mines management is coming soon.'), findsOneWidget);
+      Future<void> navigateTo(IconData icon) async {
+        final finder = find.byIcon(icon);
 
-    // 3. Mines -> Inspections
-    await navigateTo(Icons.assignment_outlined);
-    expect(find.text('Inspections'), findsAtLeastNWidgets(1)); // AppBar title and bottom navigation label
+        expect(finder, findsAtLeastNWidgets(1));
 
-    // 4. Inspections -> Violations
-    await navigateTo(Icons.gavel_outlined);
-    expect(find.text('Violations tracking is coming soon.'), findsOneWidget);
+        await tester.tap(finder.first);
 
-    // 5. Violations -> Alerts
-    await navigateTo(Icons.warning_amber_outlined);
-    expect(find.text('Safety alerts are coming soon.'), findsOneWidget);
+        // Give GoRouter and the destination page time to build.
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 300));
+      }
 
-    // 6. Alerts -> Profile
-    await navigateTo(Icons.person_outline);
-    expect(find.text('Rahul Sharma'), findsOneWidget);
-
-    // 7. Profile -> Dashboard
-    await navigateTo(Icons.dashboard_outlined);
-    expect(find.text('Good Morning, Inspector'), findsOneWidget);
-
-    // 8. Repeated switching to verify GlobalKey & RenderPadding stability
-    for (int i = 0; i < 3; i++) {
+      // Dashboard -> Mines
       await navigateTo(Icons.layers_outlined);
+
+      // Mine Management is now implemented.
+      expect(find.text('Mines'), findsAtLeastNWidgets(1));
+
+      // Mines -> Inspections
       await navigateTo(Icons.assignment_outlined);
+      expect(find.text('Inspections'), findsAtLeastNWidgets(1));
+
+      // Inspections -> Violations
+      await navigateTo(Icons.gavel_outlined);
+      expect(find.text('Violations tracking is coming soon.'), findsOneWidget);
+
+      // Violations -> Alerts
+      await navigateTo(Icons.warning_amber_outlined);
+      expect(find.text('Safety alerts are coming soon.'), findsOneWidget);
+
+      // Alerts -> Profile
+      await navigateTo(Icons.person_outline);
+      expect(find.text('Rahul Sharma'), findsOneWidget);
+
+      // Profile -> Dashboard
       await navigateTo(Icons.dashboard_outlined);
-    }
+      expect(find.text('Good Morning, Inspector'), findsOneWidget);
 
-    expect(find.text('Good Morning, Inspector'), findsOneWidget);
+      // Repeated switching to verify navigation stability.
+      for (int i = 0; i < 3; i++) {
+        await navigateTo(Icons.layers_outlined);
+        await navigateTo(Icons.assignment_outlined);
+        await navigateTo(Icons.dashboard_outlined);
+      }
 
-    addTearDown(() {
-      tester.view.resetPhysicalSize();
-      tester.view.resetDevicePixelRatio();
-    });
-  });
+      expect(find.text('Good Morning, Inspector'), findsOneWidget);
+    },
+  );
 }
