@@ -3801,6 +3801,516 @@ class ViolationsCompanion extends UpdateCompanion<ViolationEntity> {
   }
 }
 
+class $AlertsTable extends Alerts with TableInfo<$AlertsTable, AlertEntity> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $AlertsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _localIdMeta = const VerificationMeta(
+    'localId',
+  );
+  @override
+  late final GeneratedColumn<String> localId = GeneratedColumn<String>(
+    'local_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _serverIdMeta = const VerificationMeta(
+    'serverId',
+  );
+  @override
+  late final GeneratedColumn<String> serverId = GeneratedColumn<String>(
+    'server_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _mineIdMeta = const VerificationMeta('mineId');
+  @override
+  late final GeneratedColumn<String> mineId = GeneratedColumn<String>(
+    'mine_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _messageMeta = const VerificationMeta(
+    'message',
+  );
+  @override
+  late final GeneratedColumn<String> message = GeneratedColumn<String>(
+    'message',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _severityMeta = const VerificationMeta(
+    'severity',
+  );
+  @override
+  late final GeneratedColumn<String> severity = GeneratedColumn<String>(
+    'severity',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _isReadMeta = const VerificationMeta('isRead');
+  @override
+  late final GeneratedColumn<bool> isRead = GeneratedColumn<bool>(
+    'is_read',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_read" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    localId,
+    serverId,
+    mineId,
+    title,
+    message,
+    severity,
+    createdAt,
+    isRead,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'alerts';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<AlertEntity> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('local_id')) {
+      context.handle(
+        _localIdMeta,
+        localId.isAcceptableOrUnknown(data['local_id']!, _localIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_localIdMeta);
+    }
+    if (data.containsKey('server_id')) {
+      context.handle(
+        _serverIdMeta,
+        serverId.isAcceptableOrUnknown(data['server_id']!, _serverIdMeta),
+      );
+    }
+    if (data.containsKey('mine_id')) {
+      context.handle(
+        _mineIdMeta,
+        mineId.isAcceptableOrUnknown(data['mine_id']!, _mineIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_mineIdMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('message')) {
+      context.handle(
+        _messageMeta,
+        message.isAcceptableOrUnknown(data['message']!, _messageMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_messageMeta);
+    }
+    if (data.containsKey('severity')) {
+      context.handle(
+        _severityMeta,
+        severity.isAcceptableOrUnknown(data['severity']!, _severityMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_severityMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('is_read')) {
+      context.handle(
+        _isReadMeta,
+        isRead.isAcceptableOrUnknown(data['is_read']!, _isReadMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {localId};
+  @override
+  AlertEntity map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return AlertEntity(
+      localId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}local_id'],
+      )!,
+      serverId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}server_id'],
+      ),
+      mineId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}mine_id'],
+      )!,
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+      message: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}message'],
+      )!,
+      severity: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}severity'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      isRead: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_read'],
+      )!,
+    );
+  }
+
+  @override
+  $AlertsTable createAlias(String alias) {
+    return $AlertsTable(attachedDatabase, alias);
+  }
+}
+
+class AlertEntity extends DataClass implements Insertable<AlertEntity> {
+  final String localId;
+  final String? serverId;
+  final String mineId;
+  final String title;
+  final String message;
+  final String severity;
+  final DateTime createdAt;
+  final bool isRead;
+  const AlertEntity({
+    required this.localId,
+    this.serverId,
+    required this.mineId,
+    required this.title,
+    required this.message,
+    required this.severity,
+    required this.createdAt,
+    required this.isRead,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['local_id'] = Variable<String>(localId);
+    if (!nullToAbsent || serverId != null) {
+      map['server_id'] = Variable<String>(serverId);
+    }
+    map['mine_id'] = Variable<String>(mineId);
+    map['title'] = Variable<String>(title);
+    map['message'] = Variable<String>(message);
+    map['severity'] = Variable<String>(severity);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['is_read'] = Variable<bool>(isRead);
+    return map;
+  }
+
+  AlertsCompanion toCompanion(bool nullToAbsent) {
+    return AlertsCompanion(
+      localId: Value(localId),
+      serverId: serverId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(serverId),
+      mineId: Value(mineId),
+      title: Value(title),
+      message: Value(message),
+      severity: Value(severity),
+      createdAt: Value(createdAt),
+      isRead: Value(isRead),
+    );
+  }
+
+  factory AlertEntity.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return AlertEntity(
+      localId: serializer.fromJson<String>(json['localId']),
+      serverId: serializer.fromJson<String?>(json['serverId']),
+      mineId: serializer.fromJson<String>(json['mineId']),
+      title: serializer.fromJson<String>(json['title']),
+      message: serializer.fromJson<String>(json['message']),
+      severity: serializer.fromJson<String>(json['severity']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      isRead: serializer.fromJson<bool>(json['isRead']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'localId': serializer.toJson<String>(localId),
+      'serverId': serializer.toJson<String?>(serverId),
+      'mineId': serializer.toJson<String>(mineId),
+      'title': serializer.toJson<String>(title),
+      'message': serializer.toJson<String>(message),
+      'severity': serializer.toJson<String>(severity),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'isRead': serializer.toJson<bool>(isRead),
+    };
+  }
+
+  AlertEntity copyWith({
+    String? localId,
+    Value<String?> serverId = const Value.absent(),
+    String? mineId,
+    String? title,
+    String? message,
+    String? severity,
+    DateTime? createdAt,
+    bool? isRead,
+  }) => AlertEntity(
+    localId: localId ?? this.localId,
+    serverId: serverId.present ? serverId.value : this.serverId,
+    mineId: mineId ?? this.mineId,
+    title: title ?? this.title,
+    message: message ?? this.message,
+    severity: severity ?? this.severity,
+    createdAt: createdAt ?? this.createdAt,
+    isRead: isRead ?? this.isRead,
+  );
+  AlertEntity copyWithCompanion(AlertsCompanion data) {
+    return AlertEntity(
+      localId: data.localId.present ? data.localId.value : this.localId,
+      serverId: data.serverId.present ? data.serverId.value : this.serverId,
+      mineId: data.mineId.present ? data.mineId.value : this.mineId,
+      title: data.title.present ? data.title.value : this.title,
+      message: data.message.present ? data.message.value : this.message,
+      severity: data.severity.present ? data.severity.value : this.severity,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      isRead: data.isRead.present ? data.isRead.value : this.isRead,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AlertEntity(')
+          ..write('localId: $localId, ')
+          ..write('serverId: $serverId, ')
+          ..write('mineId: $mineId, ')
+          ..write('title: $title, ')
+          ..write('message: $message, ')
+          ..write('severity: $severity, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('isRead: $isRead')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    localId,
+    serverId,
+    mineId,
+    title,
+    message,
+    severity,
+    createdAt,
+    isRead,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is AlertEntity &&
+          other.localId == this.localId &&
+          other.serverId == this.serverId &&
+          other.mineId == this.mineId &&
+          other.title == this.title &&
+          other.message == this.message &&
+          other.severity == this.severity &&
+          other.createdAt == this.createdAt &&
+          other.isRead == this.isRead);
+}
+
+class AlertsCompanion extends UpdateCompanion<AlertEntity> {
+  final Value<String> localId;
+  final Value<String?> serverId;
+  final Value<String> mineId;
+  final Value<String> title;
+  final Value<String> message;
+  final Value<String> severity;
+  final Value<DateTime> createdAt;
+  final Value<bool> isRead;
+  final Value<int> rowid;
+  const AlertsCompanion({
+    this.localId = const Value.absent(),
+    this.serverId = const Value.absent(),
+    this.mineId = const Value.absent(),
+    this.title = const Value.absent(),
+    this.message = const Value.absent(),
+    this.severity = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.isRead = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  AlertsCompanion.insert({
+    required String localId,
+    this.serverId = const Value.absent(),
+    required String mineId,
+    required String title,
+    required String message,
+    required String severity,
+    this.createdAt = const Value.absent(),
+    this.isRead = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : localId = Value(localId),
+       mineId = Value(mineId),
+       title = Value(title),
+       message = Value(message),
+       severity = Value(severity);
+  static Insertable<AlertEntity> custom({
+    Expression<String>? localId,
+    Expression<String>? serverId,
+    Expression<String>? mineId,
+    Expression<String>? title,
+    Expression<String>? message,
+    Expression<String>? severity,
+    Expression<DateTime>? createdAt,
+    Expression<bool>? isRead,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (localId != null) 'local_id': localId,
+      if (serverId != null) 'server_id': serverId,
+      if (mineId != null) 'mine_id': mineId,
+      if (title != null) 'title': title,
+      if (message != null) 'message': message,
+      if (severity != null) 'severity': severity,
+      if (createdAt != null) 'created_at': createdAt,
+      if (isRead != null) 'is_read': isRead,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  AlertsCompanion copyWith({
+    Value<String>? localId,
+    Value<String?>? serverId,
+    Value<String>? mineId,
+    Value<String>? title,
+    Value<String>? message,
+    Value<String>? severity,
+    Value<DateTime>? createdAt,
+    Value<bool>? isRead,
+    Value<int>? rowid,
+  }) {
+    return AlertsCompanion(
+      localId: localId ?? this.localId,
+      serverId: serverId ?? this.serverId,
+      mineId: mineId ?? this.mineId,
+      title: title ?? this.title,
+      message: message ?? this.message,
+      severity: severity ?? this.severity,
+      createdAt: createdAt ?? this.createdAt,
+      isRead: isRead ?? this.isRead,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (localId.present) {
+      map['local_id'] = Variable<String>(localId.value);
+    }
+    if (serverId.present) {
+      map['server_id'] = Variable<String>(serverId.value);
+    }
+    if (mineId.present) {
+      map['mine_id'] = Variable<String>(mineId.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (message.present) {
+      map['message'] = Variable<String>(message.value);
+    }
+    if (severity.present) {
+      map['severity'] = Variable<String>(severity.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (isRead.present) {
+      map['is_read'] = Variable<bool>(isRead.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AlertsCompanion(')
+          ..write('localId: $localId, ')
+          ..write('serverId: $serverId, ')
+          ..write('mineId: $mineId, ')
+          ..write('title: $title, ')
+          ..write('message: $message, ')
+          ..write('severity: $severity, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('isRead: $isRead, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -3811,6 +4321,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $InspectionFindingsTable inspectionFindings =
       $InspectionFindingsTable(this);
   late final $ViolationsTable violations = $ViolationsTable(this);
+  late final $AlertsTable alerts = $AlertsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -3822,6 +4333,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     inspections,
     inspectionFindings,
     violations,
+    alerts,
   ];
 }
 
@@ -5708,6 +6220,267 @@ typedef $$ViolationsTableProcessedTableManager =
       ViolationEntity,
       PrefetchHooks Function()
     >;
+typedef $$AlertsTableCreateCompanionBuilder = AlertsCompanion Function({
+  required String localId,
+  Value<String?> serverId,
+  required String mineId,
+  required String title,
+  required String message,
+  required String severity,
+  Value<DateTime> createdAt,
+  Value<bool> isRead,
+  Value<int> rowid,
+});
+typedef $$AlertsTableUpdateCompanionBuilder = AlertsCompanion Function({
+  Value<String> localId,
+  Value<String?> serverId,
+  Value<String> mineId,
+  Value<String> title,
+  Value<String> message,
+  Value<String> severity,
+  Value<DateTime> createdAt,
+  Value<bool> isRead,
+  Value<int> rowid,
+});
+
+class $$AlertsTableFilterComposer
+    extends Composer<_$AppDatabase, $AlertsTable> {
+  $$AlertsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get localId => $composableBuilder(
+    column: $table.localId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get serverId => $composableBuilder(
+    column: $table.serverId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get mineId => $composableBuilder(
+    column: $table.mineId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get message => $composableBuilder(
+    column: $table.message,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get severity => $composableBuilder(
+    column: $table.severity,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isRead => $composableBuilder(
+    column: $table.isRead,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$AlertsTableOrderingComposer
+    extends Composer<_$AppDatabase, $AlertsTable> {
+  $$AlertsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get localId => $composableBuilder(
+    column: $table.localId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get serverId => $composableBuilder(
+    column: $table.serverId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get mineId => $composableBuilder(
+    column: $table.mineId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get message => $composableBuilder(
+    column: $table.message,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get severity => $composableBuilder(
+    column: $table.severity,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isRead => $composableBuilder(
+    column: $table.isRead,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$AlertsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $AlertsTable> {
+  $$AlertsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get localId =>
+      $composableBuilder(column: $table.localId, builder: (column) => column);
+
+  GeneratedColumn<String> get serverId =>
+      $composableBuilder(column: $table.serverId, builder: (column) => column);
+
+  GeneratedColumn<String> get mineId =>
+      $composableBuilder(column: $table.mineId, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get message =>
+      $composableBuilder(column: $table.message, builder: (column) => column);
+
+  GeneratedColumn<String> get severity =>
+      $composableBuilder(column: $table.severity, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<bool> get isRead =>
+      $composableBuilder(column: $table.isRead, builder: (column) => column);
+}
+
+class $$AlertsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $AlertsTable,
+          AlertEntity,
+          $$AlertsTableFilterComposer,
+          $$AlertsTableOrderingComposer,
+          $$AlertsTableAnnotationComposer,
+          $$AlertsTableCreateCompanionBuilder,
+          $$AlertsTableUpdateCompanionBuilder,
+          (
+            AlertEntity,
+            BaseReferences<_$AppDatabase, $AlertsTable, AlertEntity>,
+          ),
+          AlertEntity,
+          PrefetchHooks Function()
+        > {
+  $$AlertsTableTableManager(_$AppDatabase db, $AlertsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$AlertsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$AlertsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$AlertsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> localId = const Value.absent(),
+                Value<String?> serverId = const Value.absent(),
+                Value<String> mineId = const Value.absent(),
+                Value<String> title = const Value.absent(),
+                Value<String> message = const Value.absent(),
+                Value<String> severity = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<bool> isRead = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => AlertsCompanion(
+                localId: localId,
+                serverId: serverId,
+                mineId: mineId,
+                title: title,
+                message: message,
+                severity: severity,
+                createdAt: createdAt,
+                isRead: isRead,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String localId,
+                Value<String?> serverId = const Value.absent(),
+                required String mineId,
+                required String title,
+                required String message,
+                required String severity,
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<bool> isRead = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => AlertsCompanion.insert(
+                localId: localId,
+                serverId: serverId,
+                mineId: mineId,
+                title: title,
+                message: message,
+                severity: severity,
+                createdAt: createdAt,
+                isRead: isRead,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$AlertsTable, AlertEntity>(table),
+                  BaseReferences<_$AppDatabase, $AlertsTable, AlertEntity>(
+                    db,
+                    table,
+                    e,
+                  ),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$AlertsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $AlertsTable,
+      AlertEntity,
+      $$AlertsTableFilterComposer,
+      $$AlertsTableOrderingComposer,
+      $$AlertsTableAnnotationComposer,
+      $$AlertsTableCreateCompanionBuilder,
+      $$AlertsTableUpdateCompanionBuilder,
+      (AlertEntity, BaseReferences<_$AppDatabase, $AlertsTable, AlertEntity>),
+      AlertEntity,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -5724,4 +6497,6 @@ class $AppDatabaseManager {
       $$InspectionFindingsTableTableManager(_db, _db.inspectionFindings);
   $$ViolationsTableTableManager get violations =>
       $$ViolationsTableTableManager(_db, _db.violations);
+  $$AlertsTableTableManager get alerts =>
+      $$AlertsTableTableManager(_db, _db.alerts);
 }

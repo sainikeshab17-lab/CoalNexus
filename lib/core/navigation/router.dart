@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:coalnexus/core/widgets/app_widgets.dart';
 import 'package:coalnexus/features/auth/presentation/pages/login_page.dart';
 import 'package:coalnexus/features/auth/presentation/providers/auth_provider.dart';
 import 'package:coalnexus/features/auth/presentation/providers/auth_state.dart';
@@ -19,6 +18,7 @@ import 'package:coalnexus/features/violations/presentation/pages/violation_list_
 import 'package:coalnexus/features/violations/presentation/pages/violation_detail_page.dart';
 import 'package:coalnexus/features/violations/presentation/pages/create_violation_page.dart';
 import 'package:coalnexus/features/violations/presentation/pages/edit_violation_page.dart';
+import 'package:coalnexus/features/notifications/presentation/alerts_page.dart';
 import 'package:coalnexus/features/profile/presentation/profile_shell_screen.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey =
@@ -28,10 +28,12 @@ final GlobalKey<NavigatorState> _shellNavigatorKey =
 GlobalKey<NavigatorState>(debugLabel: 'shell');
 
 final routerProvider = Provider<GoRouter>((ref) {
+  final listenable = _RiverpodRouterRefreshListenable(ref);
+  
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
     initialLocation: '/dashboard',
-    refreshListenable: _RiverpodRouterRefreshListenable(ref),
+    refreshListenable: listenable,
 
     redirect: (context, state) {
       final authState = ref.read(authNotifierProvider);
@@ -190,12 +192,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           // ------------------------------------------------------------------
           GoRoute(
             path: '/alerts',
-            builder: (context, state) => const Scaffold(
-              body: AppEmptyView(
-                icon: Icons.warning_amber_outlined,
-                message: 'Safety alerts are coming soon.',
-              ),
-            ),
+            builder: (context, state) => const AlertsPage(),
           ),
 
           // ------------------------------------------------------------------
@@ -215,9 +212,15 @@ final routerProvider = Provider<GoRouter>((ref) {
 /// Rebuilds GoRouter's redirect logic when authentication state changes,
 /// without recreating the GoRouter instance itself.
 class _RiverpodRouterRefreshListenable extends ChangeNotifier {
+  late final ProviderSubscription _subscription;
+
   _RiverpodRouterRefreshListenable(Ref ref) {
-    ref.listen(authNotifierProvider, (previous, current) {
+    _subscription = ref.listen(authNotifierProvider, (previous, current) {
       notifyListeners();
+    });
+    
+    ref.onDispose(() {
+      _subscription.close();
     });
   }
 }

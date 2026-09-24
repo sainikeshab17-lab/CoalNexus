@@ -71,10 +71,9 @@ void main() {
         ),
       );
 
-      // Allow initial route to build without waiting for
-      // every animation/frame in the application to settle.
+      // Allow initial route to build.
       await tester.pump();
-      await tester.pump(const Duration(milliseconds: 300));
+      await tester.pump(const Duration(milliseconds: 500));
 
       expect(find.text('Good Morning, Inspector'), findsOneWidget);
 
@@ -87,7 +86,7 @@ void main() {
 
         // Give GoRouter and the destination page time to build.
         await tester.pump();
-        await tester.pump(const Duration(milliseconds: 300));
+        await tester.pump(const Duration(milliseconds: 500));
       }
 
       // Dashboard -> Mines
@@ -106,7 +105,7 @@ void main() {
 
       // Violations -> Alerts
       await navigateTo(Icons.warning_amber_outlined);
-      expect(find.text('Safety alerts are coming soon.'), findsOneWidget);
+      expect(find.text('Safety Alerts'), findsOneWidget);
 
       // Alerts -> Profile
       await navigateTo(Icons.person_outline);
@@ -124,6 +123,9 @@ void main() {
       }
 
       expect(find.text('Good Morning, Inspector'), findsOneWidget);
+
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump(const Duration(milliseconds: 100));
     },
   );
 }

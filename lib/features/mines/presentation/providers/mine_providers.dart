@@ -57,3 +57,13 @@ final updateMineProvider = Provider<UpdateMine>((ref) {
   final repository = ref.watch(mineRepositoryProvider);
   return UpdateMine(repository);
 });
+
+final alertsStreamProvider = StreamProvider<List<AlertEntity>>((ref) {
+  final db = ref.watch(appDatabaseProvider);
+  return db.select(db.alerts).watch();
+});
+
+final criticalAlertsStreamProvider = StreamProvider<List<AlertEntity>>((ref) {
+  final db = ref.watch(appDatabaseProvider);
+  return (db.select(db.alerts)..where((t) => t.severity.equals('CRITICAL'))).watch();
+});
