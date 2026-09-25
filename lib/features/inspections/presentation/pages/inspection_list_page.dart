@@ -176,8 +176,14 @@ class _StatusChip extends StatelessWidget {
       case InspectionStatus.draft:
         color = Colors.grey;
         break;
+      case InspectionStatus.inProgress:
+        color = Colors.orange;
+        break;
       case InspectionStatus.completed:
         color = Colors.blue;
+        break;
+      case InspectionStatus.findingsGenerated:
+        color = Colors.indigo;
         break;
       case InspectionStatus.submitted:
         color = Colors.green;

@@ -19,6 +19,13 @@ TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engin
 
 Base.metadata.create_all(bind=engine)
 
+@pytest.fixture(autouse=True)
+def run_around_tests():
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+    yield
+    Base.metadata.drop_all(bind=engine)
+
 def override_get_db():
     try:
         db = TestingSessionLocal()
@@ -71,3 +78,106 @@ def test_idempotency():
     id2 = response2.json()["id"]
     
     assert id1 == id2
+
+def test_telemetry_ingestion():
+    telemetry_data = {
+        "mine_id": "loc_123",
+        "device_id": "sensor_001",
+        "timestamp": "2023-10-27T10:00:00Z",
+        "readings": {
+            "methane": 0.5,
+            "co": 10.0,
+            "temperature": 25.5,
+            "humidity": 60.0,
+            "oxygen": 20.9,
+            "dust": 0.02,
+            "vibration": 0.1
+        }
+    }
+    # First ensure the mine exists
+    client.post("/api/mines", json={
+        "local_id": "loc_123",
+        "name": "Test Mine",
+        "mine_code": "TM001",
+        "latitude": 0,
+        "longitude": 0,
+        "status": "active",
+        "operation_id": "op_tel_1"
+    })
+    
+    response = client.post("/api/telemetry", json=telemetry_data)
+    assert response.status_code == 200
+    data = response.json()
+    assert data["device_id"] == "sensor_001"
+    assert data["readings"]["methane"] == 0.5
+
+def test_workflow_validation_inspection():
+    # Create an inspection
+    insp_data = {
+        "local_id": "insp_1",
+        "mine_id": "loc_123",
+        "inspector_id": "user_1",
+        "status": "draft",
+        "category": "safety",
+        "local_version": 1,
+        "operation_id": "op_insp_1"
+    }
+    client.post("/api/inspections", json=insp_data)
+    
+    # Try invalid transition: draft -> completed (skipping inProgress)
+    update_data = insp_data.copy()
+    update_data["status"] = "completed"
+    update_data["local_version"] = 2
+    update_data["operation_id"] = "op_insp_2"
+    
+    response = client.put("/api/inspections/insp_1", json=update_data)
+    assert response.status_code == 422
+    assert "Invalid inspection transition" in response.json()["detail"]
+
+    # Try valid transition: draft -> inProgress
+    update_data["status"] = "inProgress"
+    response = client.put("/api/inspections/insp_1", json=update_data)
+    assert response.status_code == 200
+    assert response.json()["status"] == "inProgress"
+
+def test_corrective_action_workflow():
+    # 1. Create Mine
+    client.post("/api/mines", json={
+        "local_id": "m1", "name": "M1", "mine_code": "M1", "latitude": 0, "longitude": 0, "status": "active", "operation_id": "op1"
+    })
+    # 2. Create Inspection
+    client.post("/api/inspections", json={
+        "local_id": "i1", "mine_id": "m1", "inspector_id": "u1", "status": "draft", "category": "safety", "operation_id": "op2"
+    })
+    # 3. Create Violation
+    client.post("/api/violations", json={
+        "local_id": "v1", "mine_id": "m1", "inspection_id": "i1", "finding_id": "f1", "title": "V1", "description": "D1",
+        "severity": "high", "status": "open", "detected_at": "2023-10-27T10:00:00Z", "operation_id": "op3"
+    })
+    # 4. Create Corrective Action
+    ca_data = {
+        "local_id": "ca1",
+        "violation_id": "v1",
+        "title": "Fix it",
+        "description": "Do something",
+        "assigned_to": "worker1",
+        "priority": "high",
+        "due_date": "2023-11-27T10:00:00Z",
+        "status": "assigned",
+        "operation_id": "op4"
+    }
+    response = client.post("/api/corrective-actions", json=ca_data)
+    assert response.status_code == 200
+    
+    # 5. Transition: assigned -> inProgress (Valid)
+    ca_data["status"] = "inProgress"
+    ca_data["operation_id"] = "op5"
+    response = client.put("/api/corrective-actions/ca1", json=ca_data)
+    assert response.status_code == 200
+    
+    # 6. Transition: inProgress -> verified (Invalid, must be submitted first)
+    ca_data["status"] = "verified"
+    ca_data["operation_id"] = "op6"
+    response = client.put("/api/corrective-actions/ca1", json=ca_data)
+    assert response.status_code == 422
+    assert "Invalid corrective action transition" in response.json()["detail"]

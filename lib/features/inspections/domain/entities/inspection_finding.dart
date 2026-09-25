@@ -1,9 +1,19 @@
 import 'package:flutter/foundation.dart';
 
 enum FindingStatus {
+  open,
+  acknowledged,
+  resolved,
   compliant,
   nonCompliant,
   notApplicable,
+}
+
+enum FindingSeverity {
+  low,
+  medium,
+  high,
+  critical,
 }
 
 @immutable
@@ -14,6 +24,7 @@ class InspectionFinding {
   final String requirementId;
   final String description;
   final FindingStatus status;
+  final FindingSeverity severity;
   final DateTime createdAt;
   final DateTime updatedAt;
   final int localVersion;
@@ -25,6 +36,7 @@ class InspectionFinding {
     required this.requirementId,
     required this.description,
     required this.status,
+    this.severity = FindingSeverity.medium,
     required this.createdAt,
     required this.updatedAt,
     this.localVersion = 1,
@@ -37,6 +49,7 @@ class InspectionFinding {
     String? requirementId,
     String? description,
     FindingStatus? status,
+    FindingSeverity? severity,
     DateTime? createdAt,
     DateTime? updatedAt,
     int? localVersion,
@@ -48,6 +61,7 @@ class InspectionFinding {
       requirementId: requirementId ?? this.requirementId,
       description: description ?? this.description,
       status: status ?? this.status,
+      severity: severity ?? this.severity,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       localVersion: localVersion ?? this.localVersion,

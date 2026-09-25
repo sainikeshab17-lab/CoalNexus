@@ -1,3 +1,8 @@
+import 'package:coalnexus/core/sync/sync_providers.dart';
+import 'package:coalnexus/core/widgets/audit_timeline.dart';
+import 'package:coalnexus/core/workflow/workflow_service.dart';
+import 'package:coalnexus/features/violations/domain/entities/corrective_action.dart';
+import 'package:coalnexus/features/violations/presentation/providers/corrective_action_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -20,6 +25,8 @@ class ViolationDetailPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final violationAsync = ref.watch(getViolationByIdProvider).call(violationId);
     final syncStatusAsync = ref.watch(violationSyncStatusProvider(violationId));
+    final actionsAsync = ref.watch(correctiveActionsForViolationProvider(violationId));
+    final auditAsync = ref.watch(auditTrailProvider(violationId));
 
     return Scaffold(
       appBar: AppBar(
@@ -70,6 +77,28 @@ class ViolationDetailPage extends ConsumerWidget {
                 const SizedBox(height: AppSpacing.lg),
                 _ViolationContext(violation: violation),
                 const SizedBox(height: AppSpacing.lg),
+                _CorrectiveActionsSection(
+                  violationId: violationId,
+                  actionsAsync: actionsAsync,
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                _ViolationWorkflowTransitions(violation: violation),
+                const SizedBox(height: AppSpacing.lg),
+                AppCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const AppSectionHeader(title: 'Audit Trail & Workflow History'),
+                      const SizedBox(height: AppSpacing.md),
+                      auditAsync.when(
+                        data: (events) => AuditTimeline(events: events, shrinkWrap: true),
+                        loading: () => const AppLoadingIndicator(),
+                        error: (e, _) => Text('Error loading audit trail: $e'),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.lg),
                 _ViolationLifecycle(violation: violation),
               ],
             ),
@@ -79,6 +108,166 @@ class ViolationDetailPage extends ConsumerWidget {
     );
   }
 }
+
+class _CorrectiveActionsSection extends ConsumerWidget {
+  final String violationId;
+  final AsyncValue<List<CorrectiveAction>> actionsAsync;
+
+  const _CorrectiveActionsSection({
+    required this.violationId,
+    required this.actionsAsync,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AppSectionHeader(
+            title: 'Corrective Actions',
+            trailing: TextButton.icon(
+              onPressed: () => context.push('/violations/$violationId/corrective_action/new'),
+              icon: const Icon(Icons.add),
+              label: const Text('ADD'),
+            ),
+          ),
+          actionsAsync.when(
+            data: (actions) {
+              if (actions.isEmpty) {
+                return const Padding(
+                  padding: EdgeInsets.symmetric(vertical: AppSpacing.md),
+                  child: Text('No corrective actions defined yet.'),
+                );
+              }
+              return ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: actions.length,
+                separatorBuilder: (_, __) => const Divider(),
+                itemBuilder: (context, index) {
+                  final action = actions[index];
+                  return ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(action.title, style: const TextStyle(fontWeight: FontWeight.bold)),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(action.description),
+                        const SizedBox(height: AppSpacing.xs),
+                        Row(
+                          children: [
+                            AppStatusChip(
+                              label: action.status.name.toUpperCase(),
+                              color: WorkflowService.getStatusColor(action.status),
+                            ),
+                            const SizedBox(width: AppSpacing.sm),
+                            Text('Priority: ${action.priority.toUpperCase()}', style: Theme.of(context).textTheme.bodySmall),
+                          ],
+                        ),
+                      ],
+                    ),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => _showStatusTransitionDialog(context, ref, action),
+                  );
+                },
+              );
+            },
+            loading: () => const AppLoadingIndicator(),
+            error: (e, _) => Text('Error: $e'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showStatusTransitionDialog(BuildContext context, WidgetRef ref, CorrectiveAction action) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Manage ${action.title}'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: CorrectiveActionStatus.values.map((status) {
+              final allowed = WorkflowService.canTransitionCorrectiveAction(action.status, status);
+              return ListTile(
+                title: Text(WorkflowService.getStatusLabel(status)),
+                leading: Radio<CorrectiveActionStatus>(
+                  value: status,
+                  groupValue: action.status,
+                  onChanged: allowed ? (v) async {
+                    Navigator.pop(context);
+                    final updated = action.copyWith(status: status, updatedAt: DateTime.now());
+                    await ref.read(updateCorrectiveActionProvider).call(updated);
+                    ref.invalidate(correctiveActionsForViolationProvider(violationId));
+                  } : null,
+                ),
+                enabled: allowed,
+              );
+            }).toList(),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                context.push('/violations/$violationId/corrective_action/${action.localId}/edit');
+              },
+              child: const Text('EDIT DETAILS'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('CLOSE'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _ViolationWorkflowTransitions extends ConsumerWidget {
+  final Violation violation;
+
+  const _ViolationWorkflowTransitions({required this.violation});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const AppSectionHeader(title: 'Workflow Lifecycle States'),
+          const SizedBox(height: AppSpacing.sm),
+          Wrap(
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.sm,
+            children: ViolationStatus.values.map((status) {
+              final isCurrent = violation.status == status;
+              // Simple check for allowed state updates
+              final isAllowed = !isCurrent && (violation.status.index <= status.index);
+
+              return ChoiceChip(
+                label: Text(status.name.toUpperCase()),
+                selected: isCurrent,
+                selectedColor: Colors.blue.withValues(alpha: 0.2),
+                onSelected: isAllowed ? (selected) async {
+                  if (selected) {
+                    final updated = violation.copyWith(status: status, updatedAt: DateTime.now());
+                    await ref.read(updateViolationProvider).call(updated);
+                    // Force refresh of future
+                    ref.invalidate(getViolationByIdProvider);
+                  }
+                } : null,
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 
 class _ViolationHeader extends StatelessWidget {
   final Violation violation;

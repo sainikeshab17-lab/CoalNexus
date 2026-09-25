@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:mockito/annotations.dart';
 import 'package:coalnexus/core/sync/outbox_service.dart';
+import 'package:coalnexus/core/sync/domain/repositories/audit_repository.dart';
 import 'package:coalnexus/features/violations/data/datasources/violation_local_data_source.dart';
 import 'package:coalnexus/features/violations/data/repositories/violation_repository_impl.dart';
 import 'package:coalnexus/features/violations/data/models/violation_model.dart';
@@ -9,20 +10,22 @@ import 'package:coalnexus/features/violations/domain/entities/violation.dart';
 
 import 'package:coalnexus/core/sync/sync_repository.dart';
 
-@GenerateMocks([OutboxService, SyncRepository, ViolationLocalDataSource])
+@GenerateMocks([OutboxService, SyncRepository, ViolationLocalDataSource, AuditRepository])
 import 'violation_repository_test.mocks.dart';
 
 void main() {
   late MockViolationLocalDataSource mockLocalDataSource;
   late MockOutboxService mockOutboxService;
   late MockSyncRepository mockSyncRepository;
+  late MockAuditRepository mockAuditRepository;
   late ViolationRepositoryImpl repository;
 
   setUp(() {
     mockLocalDataSource = MockViolationLocalDataSource();
     mockOutboxService = MockOutboxService();
     mockSyncRepository = MockSyncRepository();
-    repository = ViolationRepositoryImpl(mockLocalDataSource, mockOutboxService, mockSyncRepository);
+    mockAuditRepository = MockAuditRepository();
+    repository = ViolationRepositoryImpl(mockLocalDataSource, mockOutboxService, mockSyncRepository, mockAuditRepository);
   });
 
   tearDown(() async {

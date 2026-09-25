@@ -36,6 +36,7 @@ class InspectionLocalDataSourceImpl implements InspectionLocalDataSource {
       InspectionsCompanion(
         serverId: Value(inspection.serverId),
         status: Value(inspection.status),
+        category: Value(inspection.category),
         updatedAt: Value(inspection.updatedAt),
         localVersion: Value(inspection.localVersion),
       ),
@@ -89,6 +90,7 @@ class InspectionLocalDataSourceImpl implements InspectionLocalDataSource {
         serverId: Value(finding.serverId),
         description: Value(finding.description),
         status: Value(finding.status),
+        severity: Value(finding.severity),
         updatedAt: Value(finding.updatedAt),
         localVersion: Value(finding.localVersion),
       ),

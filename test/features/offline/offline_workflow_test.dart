@@ -7,6 +7,7 @@ import 'package:coalnexus/core/sync/outbox_service.dart';
 import 'package:coalnexus/core/sync/sync_processor.dart';
 import 'package:coalnexus/core/network/connectivity_service.dart';
 import 'package:coalnexus/core/api/api_client.dart';
+import 'package:coalnexus/core/sync/domain/repositories/audit_repository.dart';
 import 'package:coalnexus/features/inspections/domain/entities/inspection.dart';
 import 'package:coalnexus/features/inspections/data/repositories/inspection_repository_impl.dart';
 import 'package:coalnexus/features/inspections/data/datasources/inspection_local_data_source.dart';
@@ -30,11 +31,12 @@ class FakeApiClient implements ApiClient {
   }
 }
 
-@GenerateMocks([SyncRepository, ConnectivityService, InspectionLocalDataSource])
+@GenerateMocks([SyncRepository, ConnectivityService, InspectionLocalDataSource, AuditRepository])
 void main() {
   late MockSyncRepository mockSyncRepository;
   late MockConnectivityService mockConnectivityService;
   late MockInspectionLocalDataSource mockLocalDataSource;
+  late MockAuditRepository mockAuditRepository;
   late OutboxService outboxService;
   late InspectionRepositoryImpl repository;
   late SyncProcessorImpl syncProcessor;
@@ -44,8 +46,9 @@ void main() {
     mockSyncRepository = MockSyncRepository();
     mockConnectivityService = MockConnectivityService();
     mockLocalDataSource = MockInspectionLocalDataSource();
+    mockAuditRepository = MockAuditRepository();
     outboxService = OutboxService(mockSyncRepository);
-    repository = InspectionRepositoryImpl(mockLocalDataSource, outboxService, mockSyncRepository);
+    repository = InspectionRepositoryImpl(mockLocalDataSource, outboxService, mockSyncRepository, mockAuditRepository);
     fakeApiClient = FakeApiClient();
     syncProcessor = SyncProcessorImpl(mockSyncRepository, mockConnectivityService, fakeApiClient);
   });

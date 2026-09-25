@@ -7,6 +7,9 @@
 import 'dart:async' as _i3;
 
 import 'package:coalnexus/core/api/api_client.dart' as _i2;
+import 'package:coalnexus/core/sync/domain/entities/audit_trail.dart' as _i12;
+import 'package:coalnexus/core/sync/domain/repositories/audit_repository.dart'
+    as _i11;
 import 'package:coalnexus/core/sync/outbox_service.dart' as _i4;
 import 'package:coalnexus/core/sync/sync_models.dart' as _i7;
 import 'package:coalnexus/core/sync/sync_repository.dart' as _i6;
@@ -268,4 +271,43 @@ class MockViolationLocalDataSource extends _i1.Mock
             ) ??
             _FakeFuture_1<T>(this, Invocation.method(#transaction, [action])),
       ) as _i3.Future<T>);
+}
+
+/// A class which mocks [AuditRepository].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockAuditRepository extends _i1.Mock implements _i11.AuditRepository {
+  MockAuditRepository() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i3.Future<void> logAction({
+    required String? entityType,
+    required String? entityId,
+    required String? action,
+    String? previousState,
+    required String? newState,
+    String? comment,
+  }) => (super.noSuchMethod(
+    Invocation.method(#logAction, [], {
+      #entityType: entityType,
+      #entityId: entityId,
+      #action: action,
+      #previousState: previousState,
+      #newState: newState,
+      #comment: comment,
+    }),
+    returnValue: _i3.Future<void>.value(),
+    returnValueForMissingStub: _i3.Future<void>.value(),
+  ) as _i3.Future<void>);
+
+  @override
+  _i3.Future<List<_i12.AuditTrail>> getAuditTrail(String? entityId) =>
+      (super.noSuchMethod(
+        Invocation.method(#getAuditTrail, [entityId]),
+        returnValue: _i3.Future<List<_i12.AuditTrail>>.value(
+          <_i12.AuditTrail>[],
+        ),
+      ) as _i3.Future<List<_i12.AuditTrail>>);
 }

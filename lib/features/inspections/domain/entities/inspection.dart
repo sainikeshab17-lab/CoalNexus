@@ -2,8 +2,23 @@ import 'package:flutter/foundation.dart';
 
 enum InspectionStatus {
   draft,
+  inProgress,
   completed,
+  findingsGenerated,
   submitted,
+}
+
+enum InspectionCategory {
+  ventilation,
+  gasMonitoring,
+  electricalSafety,
+  groundControl,
+  fireSafety,
+  machinerySafety,
+  ppeCompliance,
+  environmentalSafety,
+  emergencyPreparedness,
+  other,
 }
 
 @immutable
@@ -13,6 +28,7 @@ class Inspection {
   final String mineId;
   final String inspectorId;
   final InspectionStatus status;
+  final InspectionCategory category;
   final DateTime createdAt;
   final DateTime updatedAt;
   final int localVersion;
@@ -23,6 +39,7 @@ class Inspection {
     required this.mineId,
     required this.inspectorId,
     required this.status,
+    this.category = InspectionCategory.other,
     required this.createdAt,
     required this.updatedAt,
     this.localVersion = 1,
@@ -34,6 +51,7 @@ class Inspection {
     String? mineId,
     String? inspectorId,
     InspectionStatus? status,
+    InspectionCategory? category,
     DateTime? createdAt,
     DateTime? updatedAt,
     int? localVersion,
@@ -44,6 +62,7 @@ class Inspection {
       mineId: mineId ?? this.mineId,
       inspectorId: inspectorId ?? this.inspectorId,
       status: status ?? this.status,
+      category: category ?? this.category,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       localVersion: localVersion ?? this.localVersion,

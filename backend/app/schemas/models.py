@@ -37,15 +37,17 @@ class Mine(MineBase):
     model_config = ConfigDict(from_attributes=True)
 
 class InspectionStatus(str, Enum):
-    pending = "pending"
+    draft = "draft"
     inProgress = "inProgress"
     completed = "completed"
+    findingsGenerated = "findingsGenerated"
     submitted = "submitted"
 
 class InspectionBase(BaseModel):
     mine_id: str
     inspector_id: str
     status: InspectionStatus
+    category: str = "other"
 
 class InspectionCreate(InspectionBase, SyncBase):
     pass
@@ -60,14 +62,19 @@ class Inspection(InspectionBase):
     model_config = ConfigDict(from_attributes=True)
 
 class FindingStatus(str, Enum):
+    open = "open"
+    acknowledged = "acknowledged"
+    resolved = "resolved"
     compliant = "compliant"
     nonCompliant = "nonCompliant"
+    notApplicable = "notApplicable"
 
 class FindingBase(BaseModel):
     inspection_id: str
     requirement_id: str
     description: str
     status: FindingStatus
+    severity: str = "medium"
 
 class FindingCreate(FindingBase, SyncBase):
     pass
@@ -128,6 +135,50 @@ class AlertCreate(AlertBase, SyncBase):
     pass
 
 class Alert(AlertBase):
+    id: str
+    local_id: str
+    created_at: datetime
+    
+    model_config = ConfigDict(from_attributes=True)
+
+class CorrectiveActionBase(BaseModel):
+    violation_id: str
+    title: str
+    description: str
+    assigned_to: str
+    priority: str
+    due_date: datetime
+    status: str
+    submitted_at: Optional[datetime] = None
+    verified_at: Optional[datetime] = None
+    evidence: Optional[str] = None
+
+class CorrectiveActionCreate(CorrectiveActionBase, SyncBase):
+    pass
+
+class CorrectiveAction(CorrectiveActionBase):
+    id: str
+    local_id: str
+    local_version: int
+    created_at: datetime
+    updated_at: datetime
+    
+    model_config = ConfigDict(from_attributes=True)
+
+class AuditTrailBase(BaseModel):
+    entity_type: str
+    entity_id: str
+    action: str
+    previous_state: Optional[str] = None
+    new_state: str
+    actor_id: str
+    timestamp: datetime
+    comment: Optional[str] = None
+
+class AuditTrailCreate(AuditTrailBase, SyncBase):
+    pass
+
+class AuditTrail(AuditTrailBase):
     id: str
     local_id: str
     created_at: datetime

@@ -7,6 +7,7 @@ class InspectionFindingModel {
   final String requirementId;
   final String description;
   final String status;
+  final String severity;
   final String createdAt;
   final String updatedAt;
   final int localVersion;
@@ -18,6 +19,7 @@ class InspectionFindingModel {
     required this.requirementId,
     required this.description,
     required this.status,
+    required this.severity,
     required this.createdAt,
     required this.updatedAt,
     required this.localVersion,
@@ -31,6 +33,7 @@ class InspectionFindingModel {
       requirementId: finding.requirementId,
       description: finding.description,
       status: finding.status.name,
+      severity: finding.severity.name,
       createdAt: finding.createdAt.toIso8601String(),
       updatedAt: finding.updatedAt.toIso8601String(),
       localVersion: finding.localVersion,
@@ -45,6 +48,10 @@ class InspectionFindingModel {
       requirementId: requirementId,
       description: description,
       status: FindingStatus.values.firstWhere((e) => e.name == status),
+      severity: FindingSeverity.values.firstWhere(
+        (e) => e.name == severity,
+        orElse: () => FindingSeverity.medium,
+      ),
       createdAt: DateTime.parse(createdAt),
       updatedAt: DateTime.parse(updatedAt),
       localVersion: localVersion,
@@ -59,6 +66,7 @@ class InspectionFindingModel {
       'requirement_id': requirementId,
       'description': description,
       'status': status,
+      'severity': severity,
       'created_at': createdAt,
       'updated_at': updatedAt,
       'local_version': localVersion,
@@ -73,6 +81,7 @@ class InspectionFindingModel {
       requirementId: (json['requirement_id'] ?? json['requirementId']) as String,
       description: json['description'] as String,
       status: json['status'] as String,
+      severity: (json['severity'] ?? 'medium') as String,
       createdAt: (json['created_at'] ?? json['createdAt']) as String,
       updatedAt: (json['updated_at'] ?? json['updatedAt']) as String,
       localVersion: (json['local_version'] ?? json['localVersion']) as int,

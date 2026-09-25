@@ -9,6 +9,11 @@ import 'package:coalnexus/core/sync/sync_processor.dart';
 import 'package:coalnexus/core/api/api_providers.dart';
 import 'package:coalnexus/features/inspections/presentation/providers/inspection_providers.dart';
 import 'package:coalnexus/features/violations/presentation/providers/violation_providers.dart';
+import 'package:coalnexus/features/violations/presentation/providers/corrective_action_providers.dart';
+import 'package:coalnexus/core/sync/domain/repositories/audit_repository.dart';
+import 'package:coalnexus/core/sync/data/repositories/audit_repository_impl.dart';
+import 'package:coalnexus/core/sync/domain/entities/audit_trail.dart';
+
 
 final connectivityProvider = Provider<Connectivity>((ref) => Connectivity());
 
@@ -43,8 +48,20 @@ final syncProcessorProvider = Provider<SyncProcessor>((ref) {
       ref.read(inspectionRepositoryProvider).refreshInspections();
       ref.read(violationRepositoryProvider).refreshViolations();
       ref.read(alertRepositoryProvider).refreshAlerts();
+      ref.read(correctiveActionRepositoryProvider).refreshActions();
     }
   });
   
   return processor;
+});
+
+final auditRepositoryProvider = Provider<AuditRepository>((ref) {
+  final db = ref.watch(appDatabaseProvider);
+  final syncRepo = ref.watch(syncRepositoryProvider);
+  return AuditRepositoryImpl(db, syncRepo);
+});
+
+final auditTrailProvider = FutureProvider.family<List<AuditTrail>, String>((ref, entityId) async {
+  final repository = ref.watch(auditRepositoryProvider);
+  return repository.getAuditTrail(entityId);
 });

@@ -10,6 +10,8 @@ import 'package:coalnexus/features/inspections/presentation/providers/inspection
 import 'package:coalnexus/features/mines/presentation/providers/mine_providers.dart';
 import 'package:coalnexus/core/sync/sync_models.dart';
 import 'package:coalnexus/features/inspections/presentation/providers/inspection_providers.dart';
+import 'package:coalnexus/core/workflow/workflow_service.dart';
+import 'package:coalnexus/core/widgets/audit_timeline.dart';
 import 'package:intl/intl.dart';
 
 class InspectionDetailPage extends ConsumerWidget {
@@ -83,8 +85,19 @@ class InspectionDetailPage extends ConsumerWidget {
                         return _FindingCard(finding: finding, mineId: inspection.mineId);
                       },
                     );
-
                   },
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                const AppSectionHeader(title: 'Workflow Actions'),
+                const SizedBox(height: AppSpacing.sm),
+                _WorkflowActionButtons(inspection: inspection),
+                const SizedBox(height: AppSpacing.lg),
+                const AppSectionHeader(title: 'Audit History'),
+                const SizedBox(height: AppSpacing.sm),
+                state.auditTrail.when(
+                  loading: () => const CircularProgressIndicator(),
+                  error: (err, _) => Text('Error: $err'),
+                  data: (events) => AuditTimeline(events: events, shrinkWrap: true),
                 ),
               ],
             ),
@@ -158,6 +171,13 @@ class _FindingCard extends StatelessWidget {
   Widget build(BuildContext context) {
     Color statusColor;
     switch (finding.status) {
+      case FindingStatus.open:
+        statusColor = Colors.blue;
+        break;
+      case FindingStatus.acknowledged:
+        statusColor = Colors.orange;
+        break;
+      case FindingStatus.resolved:
       case FindingStatus.compliant:
         statusColor = Colors.green;
         break;
@@ -283,8 +303,14 @@ class _StatusChip extends StatelessWidget {
       case InspectionStatus.draft:
         color = Colors.grey;
         break;
+      case InspectionStatus.inProgress:
+        color = Colors.orange;
+        break;
       case InspectionStatus.completed:
         color = Colors.blue;
+        break;
+      case InspectionStatus.findingsGenerated:
+        color = Colors.indigo;
         break;
       case InspectionStatus.submitted:
         color = Colors.green;
@@ -294,3 +320,40 @@ class _StatusChip extends StatelessWidget {
     return AppStatusChip(label: status.name, color: color);
   }
 }
+
+class _WorkflowActionButtons extends ConsumerWidget {
+  final Inspection inspection;
+
+  const _WorkflowActionButtons({required this.inspection});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Wrap(
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.sm,
+            children: InspectionStatus.values.map((status) {
+              final isCurrent = inspection.status == status;
+              final allowed = WorkflowService.canTransitionInspection(inspection.status, status);
+
+              return ChoiceChip(
+                label: Text(status.name.toUpperCase()),
+                selected: isCurrent,
+                selectedColor: Colors.blue.withValues(alpha: 0.2),
+                onSelected: allowed ? (v) async {
+                  if (v) {
+                    await ref.read(inspectionDetailProvider(inspection.localId).notifier).updateStatus(status);
+                  }
+                } : null,
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+}
+

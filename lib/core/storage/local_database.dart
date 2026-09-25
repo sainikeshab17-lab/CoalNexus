@@ -10,6 +10,8 @@ import 'package:coalnexus/core/sync/sync_models.dart';
 import 'package:coalnexus/features/inspections/domain/entities/inspection.dart';
 import 'package:coalnexus/features/inspections/domain/entities/inspection_finding.dart';
 import 'package:coalnexus/features/violations/domain/entities/violation.dart';
+import 'package:coalnexus/features/violations/domain/entities/corrective_action.dart';
+import 'package:coalnexus/core/sync/domain/entities/audit_trail.dart';
 
 part 'local_database.g.dart';
 
@@ -30,6 +32,45 @@ class Violations extends Table {
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
   IntColumn get localVersion => integer().withDefault(const Constant(1))();
+
+  @override
+  Set<Column> get primaryKey => {localId};
+}
+
+@DataClassName('CorrectiveActionEntity')
+class CorrectiveActions extends Table {
+  TextColumn get localId => text()();
+  TextColumn get serverId => text().nullable()();
+  TextColumn get violationId => text()();
+  TextColumn get title => text()();
+  TextColumn get description => text()();
+  TextColumn get assignedTo => text()();
+  TextColumn get priority => text()();
+  DateTimeColumn get dueDate => dateTime()();
+  TextColumn get status => text().map(const EnumNameConverter(CorrectiveActionStatus.values))();
+  DateTimeColumn get submittedAt => dateTime().nullable()();
+  DateTimeColumn get verifiedAt => dateTime().nullable()();
+  TextColumn get evidence => text().nullable()();
+  IntColumn get localVersion => integer().withDefault(const Constant(1))();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
+
+  @override
+  Set<Column> get primaryKey => {localId};
+}
+
+@DataClassName('AuditTrailEntity')
+class AuditTrails extends Table {
+  TextColumn get localId => text()();
+  TextColumn get serverId => text().nullable()();
+  TextColumn get entityType => text()();
+  TextColumn get entityId => text()();
+  TextColumn get action => text()();
+  TextColumn get previousState => text().nullable()();
+  TextColumn get newState => text()();
+  TextColumn get actorId => text()();
+  DateTimeColumn get timestamp => dateTime().withDefault(currentDateAndTime)();
+  TextColumn get comment => text().nullable()();
 
   @override
   Set<Column> get primaryKey => {localId};
@@ -92,6 +133,7 @@ class Inspections extends Table {
   TextColumn get mineId => text()();
   TextColumn get inspectorId => text()();
   TextColumn get status => text().map(const EnumNameConverter(InspectionStatus.values))();
+  TextColumn get category => text().map(const EnumNameConverter(InspectionCategory.values)).withDefault(const Constant('other'))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
   IntColumn get localVersion => integer().withDefault(const Constant(1))();
@@ -108,6 +150,7 @@ class InspectionFindings extends Table {
   TextColumn get requirementId => text()();
   TextColumn get description => text()();
   TextColumn get status => text().map(const EnumNameConverter(FindingStatus.values))();
+  TextColumn get severity => text().map(const EnumNameConverter(FindingSeverity.values)).withDefault(const Constant('medium'))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
   IntColumn get localVersion => integer().withDefault(const Constant(1))();
@@ -131,7 +174,7 @@ class Alerts extends Table {
   Set<Column> get primaryKey => {localId};
 }
 
-@DriftDatabase(tables: [Users, Mines, SyncQueue, Inspections, InspectionFindings, Violations, Alerts])
+@DriftDatabase(tables: [Users, Mines, SyncQueue, Inspections, InspectionFindings, Violations, Alerts, CorrectiveActions, AuditTrails])
 class AppDatabase extends _$AppDatabase {
   final bool _shouldSeed;
 
@@ -141,7 +184,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e, {bool seed = false}) : _shouldSeed = seed;
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration {
@@ -160,6 +203,12 @@ class AppDatabase extends _$AppDatabase {
         }
         if (from < 4) {
           await m.createTable(alerts);
+        }
+        if (from < 5) {
+          await m.addColumn(inspections, inspections.category);
+          await m.addColumn(inspectionFindings, inspectionFindings.severity);
+          await m.createTable(correctiveActions);
+          await m.createTable(auditTrails);
         }
       },
       beforeOpen: (details) async {

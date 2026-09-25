@@ -2,6 +2,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:coalnexus/core/sync/sync_models.dart';
 import 'package:coalnexus/core/sync/sync_repository.dart';
 import 'package:coalnexus/core/sync/outbox_service.dart';
+import 'package:coalnexus/core/sync/domain/repositories/audit_repository.dart';
+import 'package:coalnexus/core/sync/domain/entities/audit_trail.dart';
 import 'package:coalnexus/features/inspections/data/datasources/inspection_local_data_source.dart';
 import 'package:coalnexus/features/inspections/data/repositories/inspection_repository_impl.dart';
 import 'package:coalnexus/features/inspections/domain/entities/inspection.dart';
@@ -51,6 +53,37 @@ class FakeSyncRepository implements SyncRepository {
         (element.syncStatus == SyncStatus.pending ||
             element.syncStatus == SyncStatus.failed ||
             element.syncStatus == SyncStatus.syncing));
+  }
+}
+
+class FakeAuditRepository implements AuditRepository {
+  final List<AuditTrail> auditTrails = [];
+
+  @override
+  Future<void> logAction({
+    required String entityType,
+    required String entityId,
+    required String action,
+    String? previousState,
+    required String newState,
+    String? comment,
+  }) async {
+    auditTrails.add(AuditTrail(
+      localId: 'a_${auditTrails.length}',
+      entityType: entityType,
+      entityId: entityId,
+      action: action,
+      previousState: previousState,
+      newState: newState,
+      actorId: 'u1',
+      timestamp: DateTime.now(),
+      comment: comment,
+    ));
+  }
+
+  @override
+  Future<List<AuditTrail>> getAuditTrail(String entityId) async {
+    return auditTrails.where((element) => element.entityId == entityId).toList();
   }
 }
 
@@ -126,6 +159,7 @@ class FakeInspectionLocalDataSource implements InspectionLocalDataSource {
 void main() {
   late FakeSyncRepository syncRepository;
   late OutboxService outboxService;
+  late FakeAuditRepository auditRepository;
   late FakeInspectionLocalDataSource localDataSource;
   late InspectionRepositoryImpl repository;
 
@@ -139,8 +173,9 @@ void main() {
   setUp(() {
     syncRepository = FakeSyncRepository();
     outboxService = OutboxService(syncRepository);
+    auditRepository = FakeAuditRepository();
     localDataSource = FakeInspectionLocalDataSource();
-    repository = InspectionRepositoryImpl(localDataSource, outboxService, syncRepository);
+    repository = InspectionRepositoryImpl(localDataSource, outboxService, syncRepository, auditRepository);
 
     createInspection = CreateInspection(repository);
     getCachedInspections = GetCachedInspections(repository);

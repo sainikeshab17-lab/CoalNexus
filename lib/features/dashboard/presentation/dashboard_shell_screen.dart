@@ -33,6 +33,7 @@ class DashboardShellScreen extends ConsumerWidget {
     final simulationState = ref.watch(safetySimulationProvider);
     final simulationService = ref.read(safetySimulationProvider.notifier);
     final sensorRepository = ref.read(sensorRepositoryProvider);
+    final db = ref.read(appDatabaseProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -118,6 +119,7 @@ class DashboardShellScreen extends ConsumerWidget {
               service: simulationService,
               state: simulationState,
               repository: sensorRepository,
+              db: db,
             ),
             if (simulationState.isActive) ...[
               const SizedBox(height: AppSpacing.sm),
@@ -398,11 +400,13 @@ class _SimulationControlPanel extends StatelessWidget {
   final SafetyIncidentSimulationService service;
   final SimulationState state;
   final SensorRepository repository;
+  final AppDatabase db;
 
   const _SimulationControlPanel({
     required this.service,
     required this.state,
     required this.repository,
+    required this.db,
   });
 
   @override
@@ -457,7 +461,7 @@ class _SimulationControlPanel extends StatelessWidget {
                 child: ElevatedButton.icon(
                   onPressed: state.isBusy
                       ? null
-                      : () => service.runSimulation('seed_m1', repository),
+                      : () => service.runSimulation('seed_m1', repository, db),
                   icon: state.isBusy
                       ? const SizedBox(
                           width: 18,

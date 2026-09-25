@@ -1,3 +1,4 @@
+import 'package:coalnexus/features/violations/presentation/pages/corrective_action_form_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -182,6 +183,21 @@ final routerProvider = Provider<GoRouter>((ref) {
                     builder: (context, state) {
                       final id = state.pathParameters['id']!;
                       return EditViolationPage(violationId: id);
+                    },
+                  ),
+                  GoRoute(
+                    path: 'corrective_action/new',
+                    builder: (context, state) {
+                      final id = state.pathParameters['id']!;
+                      return CorrectiveActionFormPage(violationId: id);
+                    },
+                  ),
+                  GoRoute(
+                    path: 'corrective_action/:actionId/edit',
+                    builder: (context, state) {
+                      final id = state.pathParameters['id']!;
+                      final actionId = state.pathParameters['actionId']!;
+                      return CorrectiveActionFormPage(violationId: id, actionId: actionId);
                     },
                   ),
                 ],

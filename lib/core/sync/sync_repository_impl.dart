@@ -67,6 +67,14 @@ class SyncRepositoryImpl implements SyncRepository {
       await (_database.update(_database.violations)
             ..where((t) => t.localId.equals(localId)))
           .write(ViolationsCompanion(serverId: Value(serverId)));
+    } else if (featureLower.contains('correctiveaction')) {
+      await (_database.update(_database.correctiveActions)
+            ..where((t) => t.localId.equals(localId)))
+          .write(CorrectiveActionsCompanion(serverId: Value(serverId)));
+    } else if (featureLower.contains('audittrail')) {
+      await (_database.update(_database.auditTrails)
+            ..where((t) => t.localId.equals(localId)))
+          .write(AuditTrailsCompanion(serverId: Value(serverId)));
     } else if (featureLower.contains('alert')) {
       await (_database.update(_database.alerts)
             ..where((t) => t.localId.equals(localId)))

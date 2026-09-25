@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:coalnexus/core/sync/outbox_service.dart';
 import 'package:coalnexus/core/sync/sync_repository.dart';
+import 'package:coalnexus/core/sync/domain/repositories/audit_repository.dart';
 import 'package:coalnexus/features/inspections/data/datasources/inspection_local_data_source.dart';
 import 'package:coalnexus/features/inspections/data/models/inspection_model.dart';
 import 'package:coalnexus/features/inspections/data/models/inspection_finding_model.dart';
@@ -12,8 +13,14 @@ class InspectionRepositoryImpl implements InspectionRepository {
   final InspectionLocalDataSource _localDataSource;
   final OutboxService _outboxService;
   final SyncRepository _syncRepository;
+  final AuditRepository _auditRepository;
 
-  InspectionRepositoryImpl(this._localDataSource, this._outboxService, this._syncRepository);
+  InspectionRepositoryImpl(
+    this._localDataSource,
+    this._outboxService,
+    this._syncRepository,
+    this._auditRepository,
+  );
 
   @override
   Future<Inspection> createInspection(Inspection inspection) async {
@@ -26,6 +33,14 @@ class InspectionRepositoryImpl implements InspectionRepository {
         actionType: 'CREATE_INSPECTION',
         payloadJson: jsonEncode(model.toJson()),
         localId: inspection.localId,
+      );
+
+      await _auditRepository.logAction(
+        entityType: 'Inspection',
+        entityId: inspection.localId,
+        action: 'CREATE',
+        newState: inspection.status.name,
+        comment: 'Inspection created',
       );
       
       return inspection;
@@ -44,6 +59,9 @@ class InspectionRepositoryImpl implements InspectionRepository {
 
   @override
   Future<void> updateInspection(Inspection inspection) async {
+    final existing = await _localDataSource.getInspectionById(inspection.localId);
+    final previousStatus = existing?.status.name;
+
     await _localDataSource.transaction(() async {
       await _localDataSource.updateInspection(inspection);
 
@@ -52,6 +70,15 @@ class InspectionRepositoryImpl implements InspectionRepository {
         featureName: 'inspections',
         actionType: 'UPDATE_INSPECTION',
         payloadJson: jsonEncode(model.toJson()),
+      );
+
+      await _auditRepository.logAction(
+        entityType: 'Inspection',
+        entityId: inspection.localId,
+        action: 'UPDATE',
+        previousState: previousStatus,
+        newState: inspection.status.name,
+        comment: 'Inspection updated',
       );
     });
   }

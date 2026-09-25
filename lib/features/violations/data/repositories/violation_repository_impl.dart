@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:coalnexus/core/sync/outbox_service.dart';
 import 'package:coalnexus/core/sync/sync_repository.dart';
+import 'package:coalnexus/core/sync/domain/repositories/audit_repository.dart';
 import 'package:coalnexus/features/violations/data/datasources/violation_local_data_source.dart';
 import 'package:coalnexus/features/violations/data/models/violation_model.dart';
 import 'package:coalnexus/features/violations/domain/entities/violation.dart';
@@ -10,8 +11,14 @@ class ViolationRepositoryImpl implements ViolationRepository {
   final ViolationLocalDataSource _localDataSource;
   final OutboxService _outboxService;
   final SyncRepository _syncRepository;
+  final AuditRepository _auditRepository;
 
-  ViolationRepositoryImpl(this._localDataSource, this._outboxService, this._syncRepository);
+  ViolationRepositoryImpl(
+    this._localDataSource,
+    this._outboxService,
+    this._syncRepository,
+    this._auditRepository,
+  );
 
   @override
   Future<List<Violation>> getCachedViolations() async {
@@ -82,6 +89,14 @@ class ViolationRepositoryImpl implements ViolationRepository {
         payloadJson: jsonEncode(model.toJson()),
         localId: violation.localId,
       );
+
+      await _auditRepository.logAction(
+        entityType: 'Violation',
+        entityId: violation.localId,
+        action: 'CREATE',
+        newState: violation.status.name,
+        comment: 'Violation created from finding',
+      );
     });
   }
 
@@ -94,6 +109,7 @@ class ViolationRepositoryImpl implements ViolationRepository {
       }
       
       final currentVersion = existing.localVersion;
+      final previousStatus = existing.status.name;
       final nextVersion = currentVersion + 1;
       
       final updatedViolation = violation.copyWith(
@@ -109,6 +125,15 @@ class ViolationRepositoryImpl implements ViolationRepository {
         actionType: 'UPDATE_VIOLATION',
         payloadJson: jsonEncode(model.toJson()),
         localId: violation.localId,
+      );
+
+      await _auditRepository.logAction(
+        entityType: 'Violation',
+        entityId: violation.localId,
+        action: 'UPDATE',
+        previousState: previousStatus,
+        newState: updatedViolation.status.name,
+        comment: 'Violation status updated',
       );
     });
   }

@@ -1868,6 +1868,16 @@ class $InspectionsTable extends Inspections
         type: DriftSqlType.string,
         requiredDuringInsert: true,
       ).withConverter<InspectionStatus>($InspectionsTable.$converterstatus);
+  @override
+  late final GeneratedColumnWithTypeConverter<InspectionCategory, String>
+  category = GeneratedColumn<String>(
+    'category',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('other'),
+  ).withConverter<InspectionCategory>($InspectionsTable.$convertercategory);
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -1911,6 +1921,7 @@ class $InspectionsTable extends Inspections
     mineId,
     inspectorId,
     status,
+    category,
     createdAt,
     updatedAt,
     localVersion,
@@ -2012,6 +2023,12 @@ class $InspectionsTable extends Inspections
           data['${effectivePrefix}status'],
         )!,
       ),
+      category: $InspectionsTable.$convertercategory.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}category'],
+        )!,
+      ),
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -2034,6 +2051,8 @@ class $InspectionsTable extends Inspections
 
   static JsonTypeConverter2<InspectionStatus, String, String> $converterstatus =
       const EnumNameConverter(InspectionStatus.values);
+  static JsonTypeConverter2<InspectionCategory, String, String>
+  $convertercategory = const EnumNameConverter(InspectionCategory.values);
 }
 
 class InspectionEntity extends DataClass
@@ -2043,6 +2062,7 @@ class InspectionEntity extends DataClass
   final String mineId;
   final String inspectorId;
   final InspectionStatus status;
+  final InspectionCategory category;
   final DateTime createdAt;
   final DateTime updatedAt;
   final int localVersion;
@@ -2052,6 +2072,7 @@ class InspectionEntity extends DataClass
     required this.mineId,
     required this.inspectorId,
     required this.status,
+    required this.category,
     required this.createdAt,
     required this.updatedAt,
     required this.localVersion,
@@ -2070,6 +2091,11 @@ class InspectionEntity extends DataClass
         $InspectionsTable.$converterstatus.toSql(status),
       );
     }
+    {
+      map['category'] = Variable<String>(
+        $InspectionsTable.$convertercategory.toSql(category),
+      );
+    }
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     map['local_version'] = Variable<int>(localVersion);
@@ -2085,6 +2111,7 @@ class InspectionEntity extends DataClass
       mineId: Value(mineId),
       inspectorId: Value(inspectorId),
       status: Value(status),
+      category: Value(category),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
       localVersion: Value(localVersion),
@@ -2104,6 +2131,9 @@ class InspectionEntity extends DataClass
       status: $InspectionsTable.$converterstatus.fromJson(
         serializer.fromJson<String>(json['status']),
       ),
+      category: $InspectionsTable.$convertercategory.fromJson(
+        serializer.fromJson<String>(json['category']),
+      ),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       localVersion: serializer.fromJson<int>(json['localVersion']),
@@ -2120,6 +2150,9 @@ class InspectionEntity extends DataClass
       'status': serializer.toJson<String>(
         $InspectionsTable.$converterstatus.toJson(status),
       ),
+      'category': serializer.toJson<String>(
+        $InspectionsTable.$convertercategory.toJson(category),
+      ),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'localVersion': serializer.toJson<int>(localVersion),
@@ -2132,6 +2165,7 @@ class InspectionEntity extends DataClass
     String? mineId,
     String? inspectorId,
     InspectionStatus? status,
+    InspectionCategory? category,
     DateTime? createdAt,
     DateTime? updatedAt,
     int? localVersion,
@@ -2141,6 +2175,7 @@ class InspectionEntity extends DataClass
     mineId: mineId ?? this.mineId,
     inspectorId: inspectorId ?? this.inspectorId,
     status: status ?? this.status,
+    category: category ?? this.category,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
     localVersion: localVersion ?? this.localVersion,
@@ -2154,6 +2189,7 @@ class InspectionEntity extends DataClass
           ? data.inspectorId.value
           : this.inspectorId,
       status: data.status.present ? data.status.value : this.status,
+      category: data.category.present ? data.category.value : this.category,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       localVersion: data.localVersion.present
@@ -2170,6 +2206,7 @@ class InspectionEntity extends DataClass
           ..write('mineId: $mineId, ')
           ..write('inspectorId: $inspectorId, ')
           ..write('status: $status, ')
+          ..write('category: $category, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('localVersion: $localVersion')
@@ -2184,6 +2221,7 @@ class InspectionEntity extends DataClass
     mineId,
     inspectorId,
     status,
+    category,
     createdAt,
     updatedAt,
     localVersion,
@@ -2197,6 +2235,7 @@ class InspectionEntity extends DataClass
           other.mineId == this.mineId &&
           other.inspectorId == this.inspectorId &&
           other.status == this.status &&
+          other.category == this.category &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
           other.localVersion == this.localVersion);
@@ -2208,6 +2247,7 @@ class InspectionsCompanion extends UpdateCompanion<InspectionEntity> {
   final Value<String> mineId;
   final Value<String> inspectorId;
   final Value<InspectionStatus> status;
+  final Value<InspectionCategory> category;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<int> localVersion;
@@ -2218,6 +2258,7 @@ class InspectionsCompanion extends UpdateCompanion<InspectionEntity> {
     this.mineId = const Value.absent(),
     this.inspectorId = const Value.absent(),
     this.status = const Value.absent(),
+    this.category = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.localVersion = const Value.absent(),
@@ -2229,6 +2270,7 @@ class InspectionsCompanion extends UpdateCompanion<InspectionEntity> {
     required String mineId,
     required String inspectorId,
     required InspectionStatus status,
+    this.category = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.localVersion = const Value.absent(),
@@ -2243,6 +2285,7 @@ class InspectionsCompanion extends UpdateCompanion<InspectionEntity> {
     Expression<String>? mineId,
     Expression<String>? inspectorId,
     Expression<String>? status,
+    Expression<String>? category,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<int>? localVersion,
@@ -2254,6 +2297,7 @@ class InspectionsCompanion extends UpdateCompanion<InspectionEntity> {
       if (mineId != null) 'mine_id': mineId,
       if (inspectorId != null) 'inspector_id': inspectorId,
       if (status != null) 'status': status,
+      if (category != null) 'category': category,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (localVersion != null) 'local_version': localVersion,
@@ -2267,6 +2311,7 @@ class InspectionsCompanion extends UpdateCompanion<InspectionEntity> {
     Value<String>? mineId,
     Value<String>? inspectorId,
     Value<InspectionStatus>? status,
+    Value<InspectionCategory>? category,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
     Value<int>? localVersion,
@@ -2278,6 +2323,7 @@ class InspectionsCompanion extends UpdateCompanion<InspectionEntity> {
       mineId: mineId ?? this.mineId,
       inspectorId: inspectorId ?? this.inspectorId,
       status: status ?? this.status,
+      category: category ?? this.category,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       localVersion: localVersion ?? this.localVersion,
@@ -2305,6 +2351,11 @@ class InspectionsCompanion extends UpdateCompanion<InspectionEntity> {
         $InspectionsTable.$converterstatus.toSql(status.value),
       );
     }
+    if (category.present) {
+      map['category'] = Variable<String>(
+        $InspectionsTable.$convertercategory.toSql(category.value),
+      );
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -2328,6 +2379,7 @@ class InspectionsCompanion extends UpdateCompanion<InspectionEntity> {
           ..write('mineId: $mineId, ')
           ..write('inspectorId: $inspectorId, ')
           ..write('status: $status, ')
+          ..write('category: $category, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('localVersion: $localVersion, ')
@@ -2407,6 +2459,16 @@ class $InspectionFindingsTable extends InspectionFindings
         type: DriftSqlType.string,
         requiredDuringInsert: true,
       ).withConverter<FindingStatus>($InspectionFindingsTable.$converterstatus);
+  @override
+  late final GeneratedColumnWithTypeConverter<FindingSeverity, String>
+  severity = GeneratedColumn<String>(
+    'severity',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('medium'),
+  ).withConverter<FindingSeverity>($InspectionFindingsTable.$converterseverity);
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -2451,6 +2513,7 @@ class $InspectionFindingsTable extends InspectionFindings
     requirementId,
     description,
     status,
+    severity,
     createdAt,
     updatedAt,
     localVersion,
@@ -2573,6 +2636,12 @@ class $InspectionFindingsTable extends InspectionFindings
           data['${effectivePrefix}status'],
         )!,
       ),
+      severity: $InspectionFindingsTable.$converterseverity.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}severity'],
+        )!,
+      ),
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -2595,6 +2664,8 @@ class $InspectionFindingsTable extends InspectionFindings
 
   static JsonTypeConverter2<FindingStatus, String, String> $converterstatus =
       const EnumNameConverter(FindingStatus.values);
+  static JsonTypeConverter2<FindingSeverity, String, String>
+  $converterseverity = const EnumNameConverter(FindingSeverity.values);
 }
 
 class InspectionFindingEntity extends DataClass
@@ -2605,6 +2676,7 @@ class InspectionFindingEntity extends DataClass
   final String requirementId;
   final String description;
   final FindingStatus status;
+  final FindingSeverity severity;
   final DateTime createdAt;
   final DateTime updatedAt;
   final int localVersion;
@@ -2615,6 +2687,7 @@ class InspectionFindingEntity extends DataClass
     required this.requirementId,
     required this.description,
     required this.status,
+    required this.severity,
     required this.createdAt,
     required this.updatedAt,
     required this.localVersion,
@@ -2634,6 +2707,11 @@ class InspectionFindingEntity extends DataClass
         $InspectionFindingsTable.$converterstatus.toSql(status),
       );
     }
+    {
+      map['severity'] = Variable<String>(
+        $InspectionFindingsTable.$converterseverity.toSql(severity),
+      );
+    }
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     map['local_version'] = Variable<int>(localVersion);
@@ -2650,6 +2728,7 @@ class InspectionFindingEntity extends DataClass
       requirementId: Value(requirementId),
       description: Value(description),
       status: Value(status),
+      severity: Value(severity),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
       localVersion: Value(localVersion),
@@ -2670,6 +2749,9 @@ class InspectionFindingEntity extends DataClass
       status: $InspectionFindingsTable.$converterstatus.fromJson(
         serializer.fromJson<String>(json['status']),
       ),
+      severity: $InspectionFindingsTable.$converterseverity.fromJson(
+        serializer.fromJson<String>(json['severity']),
+      ),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       localVersion: serializer.fromJson<int>(json['localVersion']),
@@ -2687,6 +2769,9 @@ class InspectionFindingEntity extends DataClass
       'status': serializer.toJson<String>(
         $InspectionFindingsTable.$converterstatus.toJson(status),
       ),
+      'severity': serializer.toJson<String>(
+        $InspectionFindingsTable.$converterseverity.toJson(severity),
+      ),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'localVersion': serializer.toJson<int>(localVersion),
@@ -2700,6 +2785,7 @@ class InspectionFindingEntity extends DataClass
     String? requirementId,
     String? description,
     FindingStatus? status,
+    FindingSeverity? severity,
     DateTime? createdAt,
     DateTime? updatedAt,
     int? localVersion,
@@ -2710,6 +2796,7 @@ class InspectionFindingEntity extends DataClass
     requirementId: requirementId ?? this.requirementId,
     description: description ?? this.description,
     status: status ?? this.status,
+    severity: severity ?? this.severity,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
     localVersion: localVersion ?? this.localVersion,
@@ -2728,6 +2815,7 @@ class InspectionFindingEntity extends DataClass
           ? data.description.value
           : this.description,
       status: data.status.present ? data.status.value : this.status,
+      severity: data.severity.present ? data.severity.value : this.severity,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       localVersion: data.localVersion.present
@@ -2745,6 +2833,7 @@ class InspectionFindingEntity extends DataClass
           ..write('requirementId: $requirementId, ')
           ..write('description: $description, ')
           ..write('status: $status, ')
+          ..write('severity: $severity, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('localVersion: $localVersion')
@@ -2760,6 +2849,7 @@ class InspectionFindingEntity extends DataClass
     requirementId,
     description,
     status,
+    severity,
     createdAt,
     updatedAt,
     localVersion,
@@ -2774,6 +2864,7 @@ class InspectionFindingEntity extends DataClass
           other.requirementId == this.requirementId &&
           other.description == this.description &&
           other.status == this.status &&
+          other.severity == this.severity &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
           other.localVersion == this.localVersion);
@@ -2787,6 +2878,7 @@ class InspectionFindingsCompanion
   final Value<String> requirementId;
   final Value<String> description;
   final Value<FindingStatus> status;
+  final Value<FindingSeverity> severity;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<int> localVersion;
@@ -2798,6 +2890,7 @@ class InspectionFindingsCompanion
     this.requirementId = const Value.absent(),
     this.description = const Value.absent(),
     this.status = const Value.absent(),
+    this.severity = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.localVersion = const Value.absent(),
@@ -2810,6 +2903,7 @@ class InspectionFindingsCompanion
     required String requirementId,
     required String description,
     required FindingStatus status,
+    this.severity = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.localVersion = const Value.absent(),
@@ -2826,6 +2920,7 @@ class InspectionFindingsCompanion
     Expression<String>? requirementId,
     Expression<String>? description,
     Expression<String>? status,
+    Expression<String>? severity,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<int>? localVersion,
@@ -2838,6 +2933,7 @@ class InspectionFindingsCompanion
       if (requirementId != null) 'requirement_id': requirementId,
       if (description != null) 'description': description,
       if (status != null) 'status': status,
+      if (severity != null) 'severity': severity,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (localVersion != null) 'local_version': localVersion,
@@ -2852,6 +2948,7 @@ class InspectionFindingsCompanion
     Value<String>? requirementId,
     Value<String>? description,
     Value<FindingStatus>? status,
+    Value<FindingSeverity>? severity,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
     Value<int>? localVersion,
@@ -2864,6 +2961,7 @@ class InspectionFindingsCompanion
       requirementId: requirementId ?? this.requirementId,
       description: description ?? this.description,
       status: status ?? this.status,
+      severity: severity ?? this.severity,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       localVersion: localVersion ?? this.localVersion,
@@ -2894,6 +2992,11 @@ class InspectionFindingsCompanion
         $InspectionFindingsTable.$converterstatus.toSql(status.value),
       );
     }
+    if (severity.present) {
+      map['severity'] = Variable<String>(
+        $InspectionFindingsTable.$converterseverity.toSql(severity.value),
+      );
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -2918,6 +3021,7 @@ class InspectionFindingsCompanion
           ..write('requirementId: $requirementId, ')
           ..write('description: $description, ')
           ..write('status: $status, ')
+          ..write('severity: $severity, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('localVersion: $localVersion, ')
@@ -4311,6 +4415,1511 @@ class AlertsCompanion extends UpdateCompanion<AlertEntity> {
   }
 }
 
+class $CorrectiveActionsTable extends CorrectiveActions
+    with TableInfo<$CorrectiveActionsTable, CorrectiveActionEntity> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CorrectiveActionsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _localIdMeta = const VerificationMeta(
+    'localId',
+  );
+  @override
+  late final GeneratedColumn<String> localId = GeneratedColumn<String>(
+    'local_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _serverIdMeta = const VerificationMeta(
+    'serverId',
+  );
+  @override
+  late final GeneratedColumn<String> serverId = GeneratedColumn<String>(
+    'server_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _violationIdMeta = const VerificationMeta(
+    'violationId',
+  );
+  @override
+  late final GeneratedColumn<String> violationId = GeneratedColumn<String>(
+    'violation_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _descriptionMeta = const VerificationMeta(
+    'description',
+  );
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+    'description',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _assignedToMeta = const VerificationMeta(
+    'assignedTo',
+  );
+  @override
+  late final GeneratedColumn<String> assignedTo = GeneratedColumn<String>(
+    'assigned_to',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _priorityMeta = const VerificationMeta(
+    'priority',
+  );
+  @override
+  late final GeneratedColumn<String> priority = GeneratedColumn<String>(
+    'priority',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _dueDateMeta = const VerificationMeta(
+    'dueDate',
+  );
+  @override
+  late final GeneratedColumn<DateTime> dueDate = GeneratedColumn<DateTime>(
+    'due_date',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<CorrectiveActionStatus, String>
+  status =
+      GeneratedColumn<String>(
+        'status',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<CorrectiveActionStatus>(
+        $CorrectiveActionsTable.$converterstatus,
+      );
+  static const VerificationMeta _submittedAtMeta = const VerificationMeta(
+    'submittedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> submittedAt = GeneratedColumn<DateTime>(
+    'submitted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _verifiedAtMeta = const VerificationMeta(
+    'verifiedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> verifiedAt = GeneratedColumn<DateTime>(
+    'verified_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _evidenceMeta = const VerificationMeta(
+    'evidence',
+  );
+  @override
+  late final GeneratedColumn<String> evidence = GeneratedColumn<String>(
+    'evidence',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _localVersionMeta = const VerificationMeta(
+    'localVersion',
+  );
+  @override
+  late final GeneratedColumn<int> localVersion = GeneratedColumn<int>(
+    'local_version',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(1),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    localId,
+    serverId,
+    violationId,
+    title,
+    description,
+    assignedTo,
+    priority,
+    dueDate,
+    status,
+    submittedAt,
+    verifiedAt,
+    evidence,
+    localVersion,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'corrective_actions';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CorrectiveActionEntity> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('local_id')) {
+      context.handle(
+        _localIdMeta,
+        localId.isAcceptableOrUnknown(data['local_id']!, _localIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_localIdMeta);
+    }
+    if (data.containsKey('server_id')) {
+      context.handle(
+        _serverIdMeta,
+        serverId.isAcceptableOrUnknown(data['server_id']!, _serverIdMeta),
+      );
+    }
+    if (data.containsKey('violation_id')) {
+      context.handle(
+        _violationIdMeta,
+        violationId.isAcceptableOrUnknown(
+          data['violation_id']!,
+          _violationIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_violationIdMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+        _descriptionMeta,
+        description.isAcceptableOrUnknown(
+          data['description']!,
+          _descriptionMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_descriptionMeta);
+    }
+    if (data.containsKey('assigned_to')) {
+      context.handle(
+        _assignedToMeta,
+        assignedTo.isAcceptableOrUnknown(data['assigned_to']!, _assignedToMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_assignedToMeta);
+    }
+    if (data.containsKey('priority')) {
+      context.handle(
+        _priorityMeta,
+        priority.isAcceptableOrUnknown(data['priority']!, _priorityMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_priorityMeta);
+    }
+    if (data.containsKey('due_date')) {
+      context.handle(
+        _dueDateMeta,
+        dueDate.isAcceptableOrUnknown(data['due_date']!, _dueDateMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_dueDateMeta);
+    }
+    if (data.containsKey('submitted_at')) {
+      context.handle(
+        _submittedAtMeta,
+        submittedAt.isAcceptableOrUnknown(
+          data['submitted_at']!,
+          _submittedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('verified_at')) {
+      context.handle(
+        _verifiedAtMeta,
+        verifiedAt.isAcceptableOrUnknown(data['verified_at']!, _verifiedAtMeta),
+      );
+    }
+    if (data.containsKey('evidence')) {
+      context.handle(
+        _evidenceMeta,
+        evidence.isAcceptableOrUnknown(data['evidence']!, _evidenceMeta),
+      );
+    }
+    if (data.containsKey('local_version')) {
+      context.handle(
+        _localVersionMeta,
+        localVersion.isAcceptableOrUnknown(
+          data['local_version']!,
+          _localVersionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {localId};
+  @override
+  CorrectiveActionEntity map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CorrectiveActionEntity(
+      localId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}local_id'],
+      )!,
+      serverId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}server_id'],
+      ),
+      violationId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}violation_id'],
+      )!,
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+      description: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}description'],
+      )!,
+      assignedTo: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}assigned_to'],
+      )!,
+      priority: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}priority'],
+      )!,
+      dueDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}due_date'],
+      )!,
+      status: $CorrectiveActionsTable.$converterstatus.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}status'],
+        )!,
+      ),
+      submittedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}submitted_at'],
+      ),
+      verifiedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}verified_at'],
+      ),
+      evidence: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}evidence'],
+      ),
+      localVersion: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}local_version'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $CorrectiveActionsTable createAlias(String alias) {
+    return $CorrectiveActionsTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<CorrectiveActionStatus, String, String>
+  $converterstatus = const EnumNameConverter(CorrectiveActionStatus.values);
+}
+
+class CorrectiveActionEntity extends DataClass
+    implements Insertable<CorrectiveActionEntity> {
+  final String localId;
+  final String? serverId;
+  final String violationId;
+  final String title;
+  final String description;
+  final String assignedTo;
+  final String priority;
+  final DateTime dueDate;
+  final CorrectiveActionStatus status;
+  final DateTime? submittedAt;
+  final DateTime? verifiedAt;
+  final String? evidence;
+  final int localVersion;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const CorrectiveActionEntity({
+    required this.localId,
+    this.serverId,
+    required this.violationId,
+    required this.title,
+    required this.description,
+    required this.assignedTo,
+    required this.priority,
+    required this.dueDate,
+    required this.status,
+    this.submittedAt,
+    this.verifiedAt,
+    this.evidence,
+    required this.localVersion,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['local_id'] = Variable<String>(localId);
+    if (!nullToAbsent || serverId != null) {
+      map['server_id'] = Variable<String>(serverId);
+    }
+    map['violation_id'] = Variable<String>(violationId);
+    map['title'] = Variable<String>(title);
+    map['description'] = Variable<String>(description);
+    map['assigned_to'] = Variable<String>(assignedTo);
+    map['priority'] = Variable<String>(priority);
+    map['due_date'] = Variable<DateTime>(dueDate);
+    {
+      map['status'] = Variable<String>(
+        $CorrectiveActionsTable.$converterstatus.toSql(status),
+      );
+    }
+    if (!nullToAbsent || submittedAt != null) {
+      map['submitted_at'] = Variable<DateTime>(submittedAt);
+    }
+    if (!nullToAbsent || verifiedAt != null) {
+      map['verified_at'] = Variable<DateTime>(verifiedAt);
+    }
+    if (!nullToAbsent || evidence != null) {
+      map['evidence'] = Variable<String>(evidence);
+    }
+    map['local_version'] = Variable<int>(localVersion);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  CorrectiveActionsCompanion toCompanion(bool nullToAbsent) {
+    return CorrectiveActionsCompanion(
+      localId: Value(localId),
+      serverId: serverId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(serverId),
+      violationId: Value(violationId),
+      title: Value(title),
+      description: Value(description),
+      assignedTo: Value(assignedTo),
+      priority: Value(priority),
+      dueDate: Value(dueDate),
+      status: Value(status),
+      submittedAt: submittedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(submittedAt),
+      verifiedAt: verifiedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(verifiedAt),
+      evidence: evidence == null && nullToAbsent
+          ? const Value.absent()
+          : Value(evidence),
+      localVersion: Value(localVersion),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory CorrectiveActionEntity.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CorrectiveActionEntity(
+      localId: serializer.fromJson<String>(json['localId']),
+      serverId: serializer.fromJson<String?>(json['serverId']),
+      violationId: serializer.fromJson<String>(json['violationId']),
+      title: serializer.fromJson<String>(json['title']),
+      description: serializer.fromJson<String>(json['description']),
+      assignedTo: serializer.fromJson<String>(json['assignedTo']),
+      priority: serializer.fromJson<String>(json['priority']),
+      dueDate: serializer.fromJson<DateTime>(json['dueDate']),
+      status: $CorrectiveActionsTable.$converterstatus.fromJson(
+        serializer.fromJson<String>(json['status']),
+      ),
+      submittedAt: serializer.fromJson<DateTime?>(json['submittedAt']),
+      verifiedAt: serializer.fromJson<DateTime?>(json['verifiedAt']),
+      evidence: serializer.fromJson<String?>(json['evidence']),
+      localVersion: serializer.fromJson<int>(json['localVersion']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'localId': serializer.toJson<String>(localId),
+      'serverId': serializer.toJson<String?>(serverId),
+      'violationId': serializer.toJson<String>(violationId),
+      'title': serializer.toJson<String>(title),
+      'description': serializer.toJson<String>(description),
+      'assignedTo': serializer.toJson<String>(assignedTo),
+      'priority': serializer.toJson<String>(priority),
+      'dueDate': serializer.toJson<DateTime>(dueDate),
+      'status': serializer.toJson<String>(
+        $CorrectiveActionsTable.$converterstatus.toJson(status),
+      ),
+      'submittedAt': serializer.toJson<DateTime?>(submittedAt),
+      'verifiedAt': serializer.toJson<DateTime?>(verifiedAt),
+      'evidence': serializer.toJson<String?>(evidence),
+      'localVersion': serializer.toJson<int>(localVersion),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  CorrectiveActionEntity copyWith({
+    String? localId,
+    Value<String?> serverId = const Value.absent(),
+    String? violationId,
+    String? title,
+    String? description,
+    String? assignedTo,
+    String? priority,
+    DateTime? dueDate,
+    CorrectiveActionStatus? status,
+    Value<DateTime?> submittedAt = const Value.absent(),
+    Value<DateTime?> verifiedAt = const Value.absent(),
+    Value<String?> evidence = const Value.absent(),
+    int? localVersion,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => CorrectiveActionEntity(
+    localId: localId ?? this.localId,
+    serverId: serverId.present ? serverId.value : this.serverId,
+    violationId: violationId ?? this.violationId,
+    title: title ?? this.title,
+    description: description ?? this.description,
+    assignedTo: assignedTo ?? this.assignedTo,
+    priority: priority ?? this.priority,
+    dueDate: dueDate ?? this.dueDate,
+    status: status ?? this.status,
+    submittedAt: submittedAt.present ? submittedAt.value : this.submittedAt,
+    verifiedAt: verifiedAt.present ? verifiedAt.value : this.verifiedAt,
+    evidence: evidence.present ? evidence.value : this.evidence,
+    localVersion: localVersion ?? this.localVersion,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  CorrectiveActionEntity copyWithCompanion(CorrectiveActionsCompanion data) {
+    return CorrectiveActionEntity(
+      localId: data.localId.present ? data.localId.value : this.localId,
+      serverId: data.serverId.present ? data.serverId.value : this.serverId,
+      violationId: data.violationId.present
+          ? data.violationId.value
+          : this.violationId,
+      title: data.title.present ? data.title.value : this.title,
+      description: data.description.present
+          ? data.description.value
+          : this.description,
+      assignedTo: data.assignedTo.present
+          ? data.assignedTo.value
+          : this.assignedTo,
+      priority: data.priority.present ? data.priority.value : this.priority,
+      dueDate: data.dueDate.present ? data.dueDate.value : this.dueDate,
+      status: data.status.present ? data.status.value : this.status,
+      submittedAt: data.submittedAt.present
+          ? data.submittedAt.value
+          : this.submittedAt,
+      verifiedAt: data.verifiedAt.present
+          ? data.verifiedAt.value
+          : this.verifiedAt,
+      evidence: data.evidence.present ? data.evidence.value : this.evidence,
+      localVersion: data.localVersion.present
+          ? data.localVersion.value
+          : this.localVersion,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CorrectiveActionEntity(')
+          ..write('localId: $localId, ')
+          ..write('serverId: $serverId, ')
+          ..write('violationId: $violationId, ')
+          ..write('title: $title, ')
+          ..write('description: $description, ')
+          ..write('assignedTo: $assignedTo, ')
+          ..write('priority: $priority, ')
+          ..write('dueDate: $dueDate, ')
+          ..write('status: $status, ')
+          ..write('submittedAt: $submittedAt, ')
+          ..write('verifiedAt: $verifiedAt, ')
+          ..write('evidence: $evidence, ')
+          ..write('localVersion: $localVersion, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    localId,
+    serverId,
+    violationId,
+    title,
+    description,
+    assignedTo,
+    priority,
+    dueDate,
+    status,
+    submittedAt,
+    verifiedAt,
+    evidence,
+    localVersion,
+    createdAt,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CorrectiveActionEntity &&
+          other.localId == this.localId &&
+          other.serverId == this.serverId &&
+          other.violationId == this.violationId &&
+          other.title == this.title &&
+          other.description == this.description &&
+          other.assignedTo == this.assignedTo &&
+          other.priority == this.priority &&
+          other.dueDate == this.dueDate &&
+          other.status == this.status &&
+          other.submittedAt == this.submittedAt &&
+          other.verifiedAt == this.verifiedAt &&
+          other.evidence == this.evidence &&
+          other.localVersion == this.localVersion &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class CorrectiveActionsCompanion
+    extends UpdateCompanion<CorrectiveActionEntity> {
+  final Value<String> localId;
+  final Value<String?> serverId;
+  final Value<String> violationId;
+  final Value<String> title;
+  final Value<String> description;
+  final Value<String> assignedTo;
+  final Value<String> priority;
+  final Value<DateTime> dueDate;
+  final Value<CorrectiveActionStatus> status;
+  final Value<DateTime?> submittedAt;
+  final Value<DateTime?> verifiedAt;
+  final Value<String?> evidence;
+  final Value<int> localVersion;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const CorrectiveActionsCompanion({
+    this.localId = const Value.absent(),
+    this.serverId = const Value.absent(),
+    this.violationId = const Value.absent(),
+    this.title = const Value.absent(),
+    this.description = const Value.absent(),
+    this.assignedTo = const Value.absent(),
+    this.priority = const Value.absent(),
+    this.dueDate = const Value.absent(),
+    this.status = const Value.absent(),
+    this.submittedAt = const Value.absent(),
+    this.verifiedAt = const Value.absent(),
+    this.evidence = const Value.absent(),
+    this.localVersion = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CorrectiveActionsCompanion.insert({
+    required String localId,
+    this.serverId = const Value.absent(),
+    required String violationId,
+    required String title,
+    required String description,
+    required String assignedTo,
+    required String priority,
+    required DateTime dueDate,
+    required CorrectiveActionStatus status,
+    this.submittedAt = const Value.absent(),
+    this.verifiedAt = const Value.absent(),
+    this.evidence = const Value.absent(),
+    this.localVersion = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : localId = Value(localId),
+       violationId = Value(violationId),
+       title = Value(title),
+       description = Value(description),
+       assignedTo = Value(assignedTo),
+       priority = Value(priority),
+       dueDate = Value(dueDate),
+       status = Value(status);
+  static Insertable<CorrectiveActionEntity> custom({
+    Expression<String>? localId,
+    Expression<String>? serverId,
+    Expression<String>? violationId,
+    Expression<String>? title,
+    Expression<String>? description,
+    Expression<String>? assignedTo,
+    Expression<String>? priority,
+    Expression<DateTime>? dueDate,
+    Expression<String>? status,
+    Expression<DateTime>? submittedAt,
+    Expression<DateTime>? verifiedAt,
+    Expression<String>? evidence,
+    Expression<int>? localVersion,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (localId != null) 'local_id': localId,
+      if (serverId != null) 'server_id': serverId,
+      if (violationId != null) 'violation_id': violationId,
+      if (title != null) 'title': title,
+      if (description != null) 'description': description,
+      if (assignedTo != null) 'assigned_to': assignedTo,
+      if (priority != null) 'priority': priority,
+      if (dueDate != null) 'due_date': dueDate,
+      if (status != null) 'status': status,
+      if (submittedAt != null) 'submitted_at': submittedAt,
+      if (verifiedAt != null) 'verified_at': verifiedAt,
+      if (evidence != null) 'evidence': evidence,
+      if (localVersion != null) 'local_version': localVersion,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CorrectiveActionsCompanion copyWith({
+    Value<String>? localId,
+    Value<String?>? serverId,
+    Value<String>? violationId,
+    Value<String>? title,
+    Value<String>? description,
+    Value<String>? assignedTo,
+    Value<String>? priority,
+    Value<DateTime>? dueDate,
+    Value<CorrectiveActionStatus>? status,
+    Value<DateTime?>? submittedAt,
+    Value<DateTime?>? verifiedAt,
+    Value<String?>? evidence,
+    Value<int>? localVersion,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return CorrectiveActionsCompanion(
+      localId: localId ?? this.localId,
+      serverId: serverId ?? this.serverId,
+      violationId: violationId ?? this.violationId,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      assignedTo: assignedTo ?? this.assignedTo,
+      priority: priority ?? this.priority,
+      dueDate: dueDate ?? this.dueDate,
+      status: status ?? this.status,
+      submittedAt: submittedAt ?? this.submittedAt,
+      verifiedAt: verifiedAt ?? this.verifiedAt,
+      evidence: evidence ?? this.evidence,
+      localVersion: localVersion ?? this.localVersion,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (localId.present) {
+      map['local_id'] = Variable<String>(localId.value);
+    }
+    if (serverId.present) {
+      map['server_id'] = Variable<String>(serverId.value);
+    }
+    if (violationId.present) {
+      map['violation_id'] = Variable<String>(violationId.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (assignedTo.present) {
+      map['assigned_to'] = Variable<String>(assignedTo.value);
+    }
+    if (priority.present) {
+      map['priority'] = Variable<String>(priority.value);
+    }
+    if (dueDate.present) {
+      map['due_date'] = Variable<DateTime>(dueDate.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(
+        $CorrectiveActionsTable.$converterstatus.toSql(status.value),
+      );
+    }
+    if (submittedAt.present) {
+      map['submitted_at'] = Variable<DateTime>(submittedAt.value);
+    }
+    if (verifiedAt.present) {
+      map['verified_at'] = Variable<DateTime>(verifiedAt.value);
+    }
+    if (evidence.present) {
+      map['evidence'] = Variable<String>(evidence.value);
+    }
+    if (localVersion.present) {
+      map['local_version'] = Variable<int>(localVersion.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CorrectiveActionsCompanion(')
+          ..write('localId: $localId, ')
+          ..write('serverId: $serverId, ')
+          ..write('violationId: $violationId, ')
+          ..write('title: $title, ')
+          ..write('description: $description, ')
+          ..write('assignedTo: $assignedTo, ')
+          ..write('priority: $priority, ')
+          ..write('dueDate: $dueDate, ')
+          ..write('status: $status, ')
+          ..write('submittedAt: $submittedAt, ')
+          ..write('verifiedAt: $verifiedAt, ')
+          ..write('evidence: $evidence, ')
+          ..write('localVersion: $localVersion, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $AuditTrailsTable extends AuditTrails
+    with TableInfo<$AuditTrailsTable, AuditTrailEntity> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $AuditTrailsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _localIdMeta = const VerificationMeta(
+    'localId',
+  );
+  @override
+  late final GeneratedColumn<String> localId = GeneratedColumn<String>(
+    'local_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _serverIdMeta = const VerificationMeta(
+    'serverId',
+  );
+  @override
+  late final GeneratedColumn<String> serverId = GeneratedColumn<String>(
+    'server_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _entityTypeMeta = const VerificationMeta(
+    'entityType',
+  );
+  @override
+  late final GeneratedColumn<String> entityType = GeneratedColumn<String>(
+    'entity_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _entityIdMeta = const VerificationMeta(
+    'entityId',
+  );
+  @override
+  late final GeneratedColumn<String> entityId = GeneratedColumn<String>(
+    'entity_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _actionMeta = const VerificationMeta('action');
+  @override
+  late final GeneratedColumn<String> action = GeneratedColumn<String>(
+    'action',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _previousStateMeta = const VerificationMeta(
+    'previousState',
+  );
+  @override
+  late final GeneratedColumn<String> previousState = GeneratedColumn<String>(
+    'previous_state',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _newStateMeta = const VerificationMeta(
+    'newState',
+  );
+  @override
+  late final GeneratedColumn<String> newState = GeneratedColumn<String>(
+    'new_state',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _actorIdMeta = const VerificationMeta(
+    'actorId',
+  );
+  @override
+  late final GeneratedColumn<String> actorId = GeneratedColumn<String>(
+    'actor_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _timestampMeta = const VerificationMeta(
+    'timestamp',
+  );
+  @override
+  late final GeneratedColumn<DateTime> timestamp = GeneratedColumn<DateTime>(
+    'timestamp',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _commentMeta = const VerificationMeta(
+    'comment',
+  );
+  @override
+  late final GeneratedColumn<String> comment = GeneratedColumn<String>(
+    'comment',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    localId,
+    serverId,
+    entityType,
+    entityId,
+    action,
+    previousState,
+    newState,
+    actorId,
+    timestamp,
+    comment,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'audit_trails';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<AuditTrailEntity> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('local_id')) {
+      context.handle(
+        _localIdMeta,
+        localId.isAcceptableOrUnknown(data['local_id']!, _localIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_localIdMeta);
+    }
+    if (data.containsKey('server_id')) {
+      context.handle(
+        _serverIdMeta,
+        serverId.isAcceptableOrUnknown(data['server_id']!, _serverIdMeta),
+      );
+    }
+    if (data.containsKey('entity_type')) {
+      context.handle(
+        _entityTypeMeta,
+        entityType.isAcceptableOrUnknown(data['entity_type']!, _entityTypeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_entityTypeMeta);
+    }
+    if (data.containsKey('entity_id')) {
+      context.handle(
+        _entityIdMeta,
+        entityId.isAcceptableOrUnknown(data['entity_id']!, _entityIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_entityIdMeta);
+    }
+    if (data.containsKey('action')) {
+      context.handle(
+        _actionMeta,
+        action.isAcceptableOrUnknown(data['action']!, _actionMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_actionMeta);
+    }
+    if (data.containsKey('previous_state')) {
+      context.handle(
+        _previousStateMeta,
+        previousState.isAcceptableOrUnknown(
+          data['previous_state']!,
+          _previousStateMeta,
+        ),
+      );
+    }
+    if (data.containsKey('new_state')) {
+      context.handle(
+        _newStateMeta,
+        newState.isAcceptableOrUnknown(data['new_state']!, _newStateMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_newStateMeta);
+    }
+    if (data.containsKey('actor_id')) {
+      context.handle(
+        _actorIdMeta,
+        actorId.isAcceptableOrUnknown(data['actor_id']!, _actorIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_actorIdMeta);
+    }
+    if (data.containsKey('timestamp')) {
+      context.handle(
+        _timestampMeta,
+        timestamp.isAcceptableOrUnknown(data['timestamp']!, _timestampMeta),
+      );
+    }
+    if (data.containsKey('comment')) {
+      context.handle(
+        _commentMeta,
+        comment.isAcceptableOrUnknown(data['comment']!, _commentMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {localId};
+  @override
+  AuditTrailEntity map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return AuditTrailEntity(
+      localId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}local_id'],
+      )!,
+      serverId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}server_id'],
+      ),
+      entityType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}entity_type'],
+      )!,
+      entityId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}entity_id'],
+      )!,
+      action: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}action'],
+      )!,
+      previousState: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}previous_state'],
+      ),
+      newState: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}new_state'],
+      )!,
+      actorId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}actor_id'],
+      )!,
+      timestamp: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}timestamp'],
+      )!,
+      comment: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}comment'],
+      ),
+    );
+  }
+
+  @override
+  $AuditTrailsTable createAlias(String alias) {
+    return $AuditTrailsTable(attachedDatabase, alias);
+  }
+}
+
+class AuditTrailEntity extends DataClass
+    implements Insertable<AuditTrailEntity> {
+  final String localId;
+  final String? serverId;
+  final String entityType;
+  final String entityId;
+  final String action;
+  final String? previousState;
+  final String newState;
+  final String actorId;
+  final DateTime timestamp;
+  final String? comment;
+  const AuditTrailEntity({
+    required this.localId,
+    this.serverId,
+    required this.entityType,
+    required this.entityId,
+    required this.action,
+    this.previousState,
+    required this.newState,
+    required this.actorId,
+    required this.timestamp,
+    this.comment,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['local_id'] = Variable<String>(localId);
+    if (!nullToAbsent || serverId != null) {
+      map['server_id'] = Variable<String>(serverId);
+    }
+    map['entity_type'] = Variable<String>(entityType);
+    map['entity_id'] = Variable<String>(entityId);
+    map['action'] = Variable<String>(action);
+    if (!nullToAbsent || previousState != null) {
+      map['previous_state'] = Variable<String>(previousState);
+    }
+    map['new_state'] = Variable<String>(newState);
+    map['actor_id'] = Variable<String>(actorId);
+    map['timestamp'] = Variable<DateTime>(timestamp);
+    if (!nullToAbsent || comment != null) {
+      map['comment'] = Variable<String>(comment);
+    }
+    return map;
+  }
+
+  AuditTrailsCompanion toCompanion(bool nullToAbsent) {
+    return AuditTrailsCompanion(
+      localId: Value(localId),
+      serverId: serverId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(serverId),
+      entityType: Value(entityType),
+      entityId: Value(entityId),
+      action: Value(action),
+      previousState: previousState == null && nullToAbsent
+          ? const Value.absent()
+          : Value(previousState),
+      newState: Value(newState),
+      actorId: Value(actorId),
+      timestamp: Value(timestamp),
+      comment: comment == null && nullToAbsent
+          ? const Value.absent()
+          : Value(comment),
+    );
+  }
+
+  factory AuditTrailEntity.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return AuditTrailEntity(
+      localId: serializer.fromJson<String>(json['localId']),
+      serverId: serializer.fromJson<String?>(json['serverId']),
+      entityType: serializer.fromJson<String>(json['entityType']),
+      entityId: serializer.fromJson<String>(json['entityId']),
+      action: serializer.fromJson<String>(json['action']),
+      previousState: serializer.fromJson<String?>(json['previousState']),
+      newState: serializer.fromJson<String>(json['newState']),
+      actorId: serializer.fromJson<String>(json['actorId']),
+      timestamp: serializer.fromJson<DateTime>(json['timestamp']),
+      comment: serializer.fromJson<String?>(json['comment']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'localId': serializer.toJson<String>(localId),
+      'serverId': serializer.toJson<String?>(serverId),
+      'entityType': serializer.toJson<String>(entityType),
+      'entityId': serializer.toJson<String>(entityId),
+      'action': serializer.toJson<String>(action),
+      'previousState': serializer.toJson<String?>(previousState),
+      'newState': serializer.toJson<String>(newState),
+      'actorId': serializer.toJson<String>(actorId),
+      'timestamp': serializer.toJson<DateTime>(timestamp),
+      'comment': serializer.toJson<String?>(comment),
+    };
+  }
+
+  AuditTrailEntity copyWith({
+    String? localId,
+    Value<String?> serverId = const Value.absent(),
+    String? entityType,
+    String? entityId,
+    String? action,
+    Value<String?> previousState = const Value.absent(),
+    String? newState,
+    String? actorId,
+    DateTime? timestamp,
+    Value<String?> comment = const Value.absent(),
+  }) => AuditTrailEntity(
+    localId: localId ?? this.localId,
+    serverId: serverId.present ? serverId.value : this.serverId,
+    entityType: entityType ?? this.entityType,
+    entityId: entityId ?? this.entityId,
+    action: action ?? this.action,
+    previousState: previousState.present
+        ? previousState.value
+        : this.previousState,
+    newState: newState ?? this.newState,
+    actorId: actorId ?? this.actorId,
+    timestamp: timestamp ?? this.timestamp,
+    comment: comment.present ? comment.value : this.comment,
+  );
+  AuditTrailEntity copyWithCompanion(AuditTrailsCompanion data) {
+    return AuditTrailEntity(
+      localId: data.localId.present ? data.localId.value : this.localId,
+      serverId: data.serverId.present ? data.serverId.value : this.serverId,
+      entityType: data.entityType.present
+          ? data.entityType.value
+          : this.entityType,
+      entityId: data.entityId.present ? data.entityId.value : this.entityId,
+      action: data.action.present ? data.action.value : this.action,
+      previousState: data.previousState.present
+          ? data.previousState.value
+          : this.previousState,
+      newState: data.newState.present ? data.newState.value : this.newState,
+      actorId: data.actorId.present ? data.actorId.value : this.actorId,
+      timestamp: data.timestamp.present ? data.timestamp.value : this.timestamp,
+      comment: data.comment.present ? data.comment.value : this.comment,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AuditTrailEntity(')
+          ..write('localId: $localId, ')
+          ..write('serverId: $serverId, ')
+          ..write('entityType: $entityType, ')
+          ..write('entityId: $entityId, ')
+          ..write('action: $action, ')
+          ..write('previousState: $previousState, ')
+          ..write('newState: $newState, ')
+          ..write('actorId: $actorId, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('comment: $comment')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    localId,
+    serverId,
+    entityType,
+    entityId,
+    action,
+    previousState,
+    newState,
+    actorId,
+    timestamp,
+    comment,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is AuditTrailEntity &&
+          other.localId == this.localId &&
+          other.serverId == this.serverId &&
+          other.entityType == this.entityType &&
+          other.entityId == this.entityId &&
+          other.action == this.action &&
+          other.previousState == this.previousState &&
+          other.newState == this.newState &&
+          other.actorId == this.actorId &&
+          other.timestamp == this.timestamp &&
+          other.comment == this.comment);
+}
+
+class AuditTrailsCompanion extends UpdateCompanion<AuditTrailEntity> {
+  final Value<String> localId;
+  final Value<String?> serverId;
+  final Value<String> entityType;
+  final Value<String> entityId;
+  final Value<String> action;
+  final Value<String?> previousState;
+  final Value<String> newState;
+  final Value<String> actorId;
+  final Value<DateTime> timestamp;
+  final Value<String?> comment;
+  final Value<int> rowid;
+  const AuditTrailsCompanion({
+    this.localId = const Value.absent(),
+    this.serverId = const Value.absent(),
+    this.entityType = const Value.absent(),
+    this.entityId = const Value.absent(),
+    this.action = const Value.absent(),
+    this.previousState = const Value.absent(),
+    this.newState = const Value.absent(),
+    this.actorId = const Value.absent(),
+    this.timestamp = const Value.absent(),
+    this.comment = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  AuditTrailsCompanion.insert({
+    required String localId,
+    this.serverId = const Value.absent(),
+    required String entityType,
+    required String entityId,
+    required String action,
+    this.previousState = const Value.absent(),
+    required String newState,
+    required String actorId,
+    this.timestamp = const Value.absent(),
+    this.comment = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : localId = Value(localId),
+       entityType = Value(entityType),
+       entityId = Value(entityId),
+       action = Value(action),
+       newState = Value(newState),
+       actorId = Value(actorId);
+  static Insertable<AuditTrailEntity> custom({
+    Expression<String>? localId,
+    Expression<String>? serverId,
+    Expression<String>? entityType,
+    Expression<String>? entityId,
+    Expression<String>? action,
+    Expression<String>? previousState,
+    Expression<String>? newState,
+    Expression<String>? actorId,
+    Expression<DateTime>? timestamp,
+    Expression<String>? comment,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (localId != null) 'local_id': localId,
+      if (serverId != null) 'server_id': serverId,
+      if (entityType != null) 'entity_type': entityType,
+      if (entityId != null) 'entity_id': entityId,
+      if (action != null) 'action': action,
+      if (previousState != null) 'previous_state': previousState,
+      if (newState != null) 'new_state': newState,
+      if (actorId != null) 'actor_id': actorId,
+      if (timestamp != null) 'timestamp': timestamp,
+      if (comment != null) 'comment': comment,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  AuditTrailsCompanion copyWith({
+    Value<String>? localId,
+    Value<String?>? serverId,
+    Value<String>? entityType,
+    Value<String>? entityId,
+    Value<String>? action,
+    Value<String?>? previousState,
+    Value<String>? newState,
+    Value<String>? actorId,
+    Value<DateTime>? timestamp,
+    Value<String?>? comment,
+    Value<int>? rowid,
+  }) {
+    return AuditTrailsCompanion(
+      localId: localId ?? this.localId,
+      serverId: serverId ?? this.serverId,
+      entityType: entityType ?? this.entityType,
+      entityId: entityId ?? this.entityId,
+      action: action ?? this.action,
+      previousState: previousState ?? this.previousState,
+      newState: newState ?? this.newState,
+      actorId: actorId ?? this.actorId,
+      timestamp: timestamp ?? this.timestamp,
+      comment: comment ?? this.comment,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (localId.present) {
+      map['local_id'] = Variable<String>(localId.value);
+    }
+    if (serverId.present) {
+      map['server_id'] = Variable<String>(serverId.value);
+    }
+    if (entityType.present) {
+      map['entity_type'] = Variable<String>(entityType.value);
+    }
+    if (entityId.present) {
+      map['entity_id'] = Variable<String>(entityId.value);
+    }
+    if (action.present) {
+      map['action'] = Variable<String>(action.value);
+    }
+    if (previousState.present) {
+      map['previous_state'] = Variable<String>(previousState.value);
+    }
+    if (newState.present) {
+      map['new_state'] = Variable<String>(newState.value);
+    }
+    if (actorId.present) {
+      map['actor_id'] = Variable<String>(actorId.value);
+    }
+    if (timestamp.present) {
+      map['timestamp'] = Variable<DateTime>(timestamp.value);
+    }
+    if (comment.present) {
+      map['comment'] = Variable<String>(comment.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AuditTrailsCompanion(')
+          ..write('localId: $localId, ')
+          ..write('serverId: $serverId, ')
+          ..write('entityType: $entityType, ')
+          ..write('entityId: $entityId, ')
+          ..write('action: $action, ')
+          ..write('previousState: $previousState, ')
+          ..write('newState: $newState, ')
+          ..write('actorId: $actorId, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('comment: $comment, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -4322,6 +5931,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $InspectionFindingsTable(this);
   late final $ViolationsTable violations = $ViolationsTable(this);
   late final $AlertsTable alerts = $AlertsTable(this);
+  late final $CorrectiveActionsTable correctiveActions =
+      $CorrectiveActionsTable(this);
+  late final $AuditTrailsTable auditTrails = $AuditTrailsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -4334,6 +5946,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     inspectionFindings,
     violations,
     alerts,
+    correctiveActions,
+    auditTrails,
   ];
 }
 
@@ -5237,6 +6851,7 @@ typedef $$InspectionsTableCreateCompanionBuilder =
       required String mineId,
       required String inspectorId,
       required InspectionStatus status,
+      Value<InspectionCategory> category,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
       Value<int> localVersion,
@@ -5249,6 +6864,7 @@ typedef $$InspectionsTableUpdateCompanionBuilder =
       Value<String> mineId,
       Value<String> inspectorId,
       Value<InspectionStatus> status,
+      Value<InspectionCategory> category,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
       Value<int> localVersion,
@@ -5287,6 +6903,12 @@ class $$InspectionsTableFilterComposer
   ColumnWithTypeConverterFilters<InspectionStatus, InspectionStatus, String>
   get status => $composableBuilder(
     column: $table.status,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<InspectionCategory, InspectionCategory, String>
+  get category => $composableBuilder(
+    column: $table.category,
     builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
@@ -5340,6 +6962,11 @@ class $$InspectionsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get category => $composableBuilder(
+    column: $table.category,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -5381,6 +7008,9 @@ class $$InspectionsTableAnnotationComposer
 
   GeneratedColumnWithTypeConverter<InspectionStatus, String> get status =>
       $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<InspectionCategory, String> get category =>
+      $composableBuilder(column: $table.category, builder: (column) => column);
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -5430,6 +7060,7 @@ class $$InspectionsTableTableManager
                 Value<String> mineId = const Value.absent(),
                 Value<String> inspectorId = const Value.absent(),
                 Value<InspectionStatus> status = const Value.absent(),
+                Value<InspectionCategory> category = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<int> localVersion = const Value.absent(),
@@ -5440,6 +7071,7 @@ class $$InspectionsTableTableManager
                 mineId: mineId,
                 inspectorId: inspectorId,
                 status: status,
+                category: category,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 localVersion: localVersion,
@@ -5452,6 +7084,7 @@ class $$InspectionsTableTableManager
                 required String mineId,
                 required String inspectorId,
                 required InspectionStatus status,
+                Value<InspectionCategory> category = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<int> localVersion = const Value.absent(),
@@ -5462,6 +7095,7 @@ class $$InspectionsTableTableManager
                 mineId: mineId,
                 inspectorId: inspectorId,
                 status: status,
+                category: category,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 localVersion: localVersion,
@@ -5509,6 +7143,7 @@ typedef $$InspectionFindingsTableCreateCompanionBuilder =
       required String requirementId,
       required String description,
       required FindingStatus status,
+      Value<FindingSeverity> severity,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
       Value<int> localVersion,
@@ -5522,6 +7157,7 @@ typedef $$InspectionFindingsTableUpdateCompanionBuilder =
       Value<String> requirementId,
       Value<String> description,
       Value<FindingStatus> status,
+      Value<FindingSeverity> severity,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
       Value<int> localVersion,
@@ -5565,6 +7201,12 @@ class $$InspectionFindingsTableFilterComposer
   ColumnWithTypeConverterFilters<FindingStatus, FindingStatus, String>
   get status => $composableBuilder(
     column: $table.status,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<FindingSeverity, FindingSeverity, String>
+  get severity => $composableBuilder(
+    column: $table.severity,
     builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
@@ -5623,6 +7265,11 @@ class $$InspectionFindingsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get severity => $composableBuilder(
+    column: $table.severity,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -5671,6 +7318,9 @@ class $$InspectionFindingsTableAnnotationComposer
 
   GeneratedColumnWithTypeConverter<FindingStatus, String> get status =>
       $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<FindingSeverity, String> get severity =>
+      $composableBuilder(column: $table.severity, builder: (column) => column);
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -5730,6 +7380,7 @@ class $$InspectionFindingsTableTableManager
                 Value<String> requirementId = const Value.absent(),
                 Value<String> description = const Value.absent(),
                 Value<FindingStatus> status = const Value.absent(),
+                Value<FindingSeverity> severity = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<int> localVersion = const Value.absent(),
@@ -5741,6 +7392,7 @@ class $$InspectionFindingsTableTableManager
                 requirementId: requirementId,
                 description: description,
                 status: status,
+                severity: severity,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 localVersion: localVersion,
@@ -5754,6 +7406,7 @@ class $$InspectionFindingsTableTableManager
                 required String requirementId,
                 required String description,
                 required FindingStatus status,
+                Value<FindingSeverity> severity = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<int> localVersion = const Value.absent(),
@@ -5765,6 +7418,7 @@ class $$InspectionFindingsTableTableManager
                 requirementId: requirementId,
                 description: description,
                 status: status,
+                severity: severity,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 localVersion: localVersion,
@@ -6481,6 +8135,745 @@ typedef $$AlertsTableProcessedTableManager =
       AlertEntity,
       PrefetchHooks Function()
     >;
+typedef $$CorrectiveActionsTableCreateCompanionBuilder =
+    CorrectiveActionsCompanion Function({
+      required String localId,
+      Value<String?> serverId,
+      required String violationId,
+      required String title,
+      required String description,
+      required String assignedTo,
+      required String priority,
+      required DateTime dueDate,
+      required CorrectiveActionStatus status,
+      Value<DateTime?> submittedAt,
+      Value<DateTime?> verifiedAt,
+      Value<String?> evidence,
+      Value<int> localVersion,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<int> rowid,
+    });
+typedef $$CorrectiveActionsTableUpdateCompanionBuilder =
+    CorrectiveActionsCompanion Function({
+      Value<String> localId,
+      Value<String?> serverId,
+      Value<String> violationId,
+      Value<String> title,
+      Value<String> description,
+      Value<String> assignedTo,
+      Value<String> priority,
+      Value<DateTime> dueDate,
+      Value<CorrectiveActionStatus> status,
+      Value<DateTime?> submittedAt,
+      Value<DateTime?> verifiedAt,
+      Value<String?> evidence,
+      Value<int> localVersion,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<int> rowid,
+    });
+
+class $$CorrectiveActionsTableFilterComposer
+    extends Composer<_$AppDatabase, $CorrectiveActionsTable> {
+  $$CorrectiveActionsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get localId => $composableBuilder(
+    column: $table.localId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get serverId => $composableBuilder(
+    column: $table.serverId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get violationId => $composableBuilder(
+    column: $table.violationId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get assignedTo => $composableBuilder(
+    column: $table.assignedTo,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get priority => $composableBuilder(
+    column: $table.priority,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get dueDate => $composableBuilder(
+    column: $table.dueDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<
+    CorrectiveActionStatus,
+    CorrectiveActionStatus,
+    String
+  >
+  get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<DateTime> get submittedAt => $composableBuilder(
+    column: $table.submittedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get verifiedAt => $composableBuilder(
+    column: $table.verifiedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get evidence => $composableBuilder(
+    column: $table.evidence,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get localVersion => $composableBuilder(
+    column: $table.localVersion,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$CorrectiveActionsTableOrderingComposer
+    extends Composer<_$AppDatabase, $CorrectiveActionsTable> {
+  $$CorrectiveActionsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get localId => $composableBuilder(
+    column: $table.localId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get serverId => $composableBuilder(
+    column: $table.serverId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get violationId => $composableBuilder(
+    column: $table.violationId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get assignedTo => $composableBuilder(
+    column: $table.assignedTo,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get priority => $composableBuilder(
+    column: $table.priority,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get dueDate => $composableBuilder(
+    column: $table.dueDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get submittedAt => $composableBuilder(
+    column: $table.submittedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get verifiedAt => $composableBuilder(
+    column: $table.verifiedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get evidence => $composableBuilder(
+    column: $table.evidence,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get localVersion => $composableBuilder(
+    column: $table.localVersion,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$CorrectiveActionsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CorrectiveActionsTable> {
+  $$CorrectiveActionsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get localId =>
+      $composableBuilder(column: $table.localId, builder: (column) => column);
+
+  GeneratedColumn<String> get serverId =>
+      $composableBuilder(column: $table.serverId, builder: (column) => column);
+
+  GeneratedColumn<String> get violationId => $composableBuilder(
+    column: $table.violationId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get assignedTo => $composableBuilder(
+    column: $table.assignedTo,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get priority =>
+      $composableBuilder(column: $table.priority, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get dueDate =>
+      $composableBuilder(column: $table.dueDate, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<CorrectiveActionStatus, String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get submittedAt => $composableBuilder(
+    column: $table.submittedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get verifiedAt => $composableBuilder(
+    column: $table.verifiedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get evidence =>
+      $composableBuilder(column: $table.evidence, builder: (column) => column);
+
+  GeneratedColumn<int> get localVersion => $composableBuilder(
+    column: $table.localVersion,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$CorrectiveActionsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CorrectiveActionsTable,
+          CorrectiveActionEntity,
+          $$CorrectiveActionsTableFilterComposer,
+          $$CorrectiveActionsTableOrderingComposer,
+          $$CorrectiveActionsTableAnnotationComposer,
+          $$CorrectiveActionsTableCreateCompanionBuilder,
+          $$CorrectiveActionsTableUpdateCompanionBuilder,
+          (
+            CorrectiveActionEntity,
+            BaseReferences<
+              _$AppDatabase,
+              $CorrectiveActionsTable,
+              CorrectiveActionEntity
+            >,
+          ),
+          CorrectiveActionEntity,
+          PrefetchHooks Function()
+        > {
+  $$CorrectiveActionsTableTableManager(
+    _$AppDatabase db,
+    $CorrectiveActionsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CorrectiveActionsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CorrectiveActionsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CorrectiveActionsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> localId = const Value.absent(),
+                Value<String?> serverId = const Value.absent(),
+                Value<String> violationId = const Value.absent(),
+                Value<String> title = const Value.absent(),
+                Value<String> description = const Value.absent(),
+                Value<String> assignedTo = const Value.absent(),
+                Value<String> priority = const Value.absent(),
+                Value<DateTime> dueDate = const Value.absent(),
+                Value<CorrectiveActionStatus> status = const Value.absent(),
+                Value<DateTime?> submittedAt = const Value.absent(),
+                Value<DateTime?> verifiedAt = const Value.absent(),
+                Value<String?> evidence = const Value.absent(),
+                Value<int> localVersion = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CorrectiveActionsCompanion(
+                localId: localId,
+                serverId: serverId,
+                violationId: violationId,
+                title: title,
+                description: description,
+                assignedTo: assignedTo,
+                priority: priority,
+                dueDate: dueDate,
+                status: status,
+                submittedAt: submittedAt,
+                verifiedAt: verifiedAt,
+                evidence: evidence,
+                localVersion: localVersion,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String localId,
+                Value<String?> serverId = const Value.absent(),
+                required String violationId,
+                required String title,
+                required String description,
+                required String assignedTo,
+                required String priority,
+                required DateTime dueDate,
+                required CorrectiveActionStatus status,
+                Value<DateTime?> submittedAt = const Value.absent(),
+                Value<DateTime?> verifiedAt = const Value.absent(),
+                Value<String?> evidence = const Value.absent(),
+                Value<int> localVersion = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CorrectiveActionsCompanion.insert(
+                localId: localId,
+                serverId: serverId,
+                violationId: violationId,
+                title: title,
+                description: description,
+                assignedTo: assignedTo,
+                priority: priority,
+                dueDate: dueDate,
+                status: status,
+                submittedAt: submittedAt,
+                verifiedAt: verifiedAt,
+                evidence: evidence,
+                localVersion: localVersion,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$CorrectiveActionsTable, CorrectiveActionEntity>(
+                    table,
+                  ),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $CorrectiveActionsTable,
+                    CorrectiveActionEntity
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$CorrectiveActionsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CorrectiveActionsTable,
+      CorrectiveActionEntity,
+      $$CorrectiveActionsTableFilterComposer,
+      $$CorrectiveActionsTableOrderingComposer,
+      $$CorrectiveActionsTableAnnotationComposer,
+      $$CorrectiveActionsTableCreateCompanionBuilder,
+      $$CorrectiveActionsTableUpdateCompanionBuilder,
+      (
+        CorrectiveActionEntity,
+        BaseReferences<
+          _$AppDatabase,
+          $CorrectiveActionsTable,
+          CorrectiveActionEntity
+        >,
+      ),
+      CorrectiveActionEntity,
+      PrefetchHooks Function()
+    >;
+typedef $$AuditTrailsTableCreateCompanionBuilder =
+    AuditTrailsCompanion Function({
+      required String localId,
+      Value<String?> serverId,
+      required String entityType,
+      required String entityId,
+      required String action,
+      Value<String?> previousState,
+      required String newState,
+      required String actorId,
+      Value<DateTime> timestamp,
+      Value<String?> comment,
+      Value<int> rowid,
+    });
+typedef $$AuditTrailsTableUpdateCompanionBuilder =
+    AuditTrailsCompanion Function({
+      Value<String> localId,
+      Value<String?> serverId,
+      Value<String> entityType,
+      Value<String> entityId,
+      Value<String> action,
+      Value<String?> previousState,
+      Value<String> newState,
+      Value<String> actorId,
+      Value<DateTime> timestamp,
+      Value<String?> comment,
+      Value<int> rowid,
+    });
+
+class $$AuditTrailsTableFilterComposer
+    extends Composer<_$AppDatabase, $AuditTrailsTable> {
+  $$AuditTrailsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get localId => $composableBuilder(
+    column: $table.localId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get serverId => $composableBuilder(
+    column: $table.serverId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get entityType => $composableBuilder(
+    column: $table.entityType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get entityId => $composableBuilder(
+    column: $table.entityId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get action => $composableBuilder(
+    column: $table.action,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get previousState => $composableBuilder(
+    column: $table.previousState,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get newState => $composableBuilder(
+    column: $table.newState,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get actorId => $composableBuilder(
+    column: $table.actorId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get timestamp => $composableBuilder(
+    column: $table.timestamp,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get comment => $composableBuilder(
+    column: $table.comment,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$AuditTrailsTableOrderingComposer
+    extends Composer<_$AppDatabase, $AuditTrailsTable> {
+  $$AuditTrailsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get localId => $composableBuilder(
+    column: $table.localId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get serverId => $composableBuilder(
+    column: $table.serverId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get entityType => $composableBuilder(
+    column: $table.entityType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get entityId => $composableBuilder(
+    column: $table.entityId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get action => $composableBuilder(
+    column: $table.action,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get previousState => $composableBuilder(
+    column: $table.previousState,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get newState => $composableBuilder(
+    column: $table.newState,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get actorId => $composableBuilder(
+    column: $table.actorId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get timestamp => $composableBuilder(
+    column: $table.timestamp,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get comment => $composableBuilder(
+    column: $table.comment,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$AuditTrailsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $AuditTrailsTable> {
+  $$AuditTrailsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get localId =>
+      $composableBuilder(column: $table.localId, builder: (column) => column);
+
+  GeneratedColumn<String> get serverId =>
+      $composableBuilder(column: $table.serverId, builder: (column) => column);
+
+  GeneratedColumn<String> get entityType => $composableBuilder(
+    column: $table.entityType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get entityId =>
+      $composableBuilder(column: $table.entityId, builder: (column) => column);
+
+  GeneratedColumn<String> get action =>
+      $composableBuilder(column: $table.action, builder: (column) => column);
+
+  GeneratedColumn<String> get previousState => $composableBuilder(
+    column: $table.previousState,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get newState =>
+      $composableBuilder(column: $table.newState, builder: (column) => column);
+
+  GeneratedColumn<String> get actorId =>
+      $composableBuilder(column: $table.actorId, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get timestamp =>
+      $composableBuilder(column: $table.timestamp, builder: (column) => column);
+
+  GeneratedColumn<String> get comment =>
+      $composableBuilder(column: $table.comment, builder: (column) => column);
+}
+
+class $$AuditTrailsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $AuditTrailsTable,
+          AuditTrailEntity,
+          $$AuditTrailsTableFilterComposer,
+          $$AuditTrailsTableOrderingComposer,
+          $$AuditTrailsTableAnnotationComposer,
+          $$AuditTrailsTableCreateCompanionBuilder,
+          $$AuditTrailsTableUpdateCompanionBuilder,
+          (
+            AuditTrailEntity,
+            BaseReferences<_$AppDatabase, $AuditTrailsTable, AuditTrailEntity>,
+          ),
+          AuditTrailEntity,
+          PrefetchHooks Function()
+        > {
+  $$AuditTrailsTableTableManager(_$AppDatabase db, $AuditTrailsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$AuditTrailsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$AuditTrailsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$AuditTrailsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> localId = const Value.absent(),
+                Value<String?> serverId = const Value.absent(),
+                Value<String> entityType = const Value.absent(),
+                Value<String> entityId = const Value.absent(),
+                Value<String> action = const Value.absent(),
+                Value<String?> previousState = const Value.absent(),
+                Value<String> newState = const Value.absent(),
+                Value<String> actorId = const Value.absent(),
+                Value<DateTime> timestamp = const Value.absent(),
+                Value<String?> comment = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => AuditTrailsCompanion(
+                localId: localId,
+                serverId: serverId,
+                entityType: entityType,
+                entityId: entityId,
+                action: action,
+                previousState: previousState,
+                newState: newState,
+                actorId: actorId,
+                timestamp: timestamp,
+                comment: comment,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String localId,
+                Value<String?> serverId = const Value.absent(),
+                required String entityType,
+                required String entityId,
+                required String action,
+                Value<String?> previousState = const Value.absent(),
+                required String newState,
+                required String actorId,
+                Value<DateTime> timestamp = const Value.absent(),
+                Value<String?> comment = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => AuditTrailsCompanion.insert(
+                localId: localId,
+                serverId: serverId,
+                entityType: entityType,
+                entityId: entityId,
+                action: action,
+                previousState: previousState,
+                newState: newState,
+                actorId: actorId,
+                timestamp: timestamp,
+                comment: comment,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$AuditTrailsTable, AuditTrailEntity>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $AuditTrailsTable,
+                    AuditTrailEntity
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$AuditTrailsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $AuditTrailsTable,
+      AuditTrailEntity,
+      $$AuditTrailsTableFilterComposer,
+      $$AuditTrailsTableOrderingComposer,
+      $$AuditTrailsTableAnnotationComposer,
+      $$AuditTrailsTableCreateCompanionBuilder,
+      $$AuditTrailsTableUpdateCompanionBuilder,
+      (
+        AuditTrailEntity,
+        BaseReferences<_$AppDatabase, $AuditTrailsTable, AuditTrailEntity>,
+      ),
+      AuditTrailEntity,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -6499,4 +8892,8 @@ class $AppDatabaseManager {
       $$ViolationsTableTableManager(_db, _db.violations);
   $$AlertsTableTableManager get alerts =>
       $$AlertsTableTableManager(_db, _db.alerts);
+  $$CorrectiveActionsTableTableManager get correctiveActions =>
+      $$CorrectiveActionsTableTableManager(_db, _db.correctiveActions);
+  $$AuditTrailsTableTableManager get auditTrails =>
+      $$AuditTrailsTableTableManager(_db, _db.auditTrails);
 }
