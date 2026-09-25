@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:coalnexus/features/inspections/domain/entities/inspection.dart';
-import 'package:coalnexus/features/violations/domain/entities/violation.dart';
 import 'package:coalnexus/features/violations/domain/entities/corrective_action.dart';
 
 enum SafetyWorkflowState {

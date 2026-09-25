@@ -1,4 +1,3 @@
-import 'package:drift/drift.dart';
 import 'package:coalnexus/core/storage/local_database.dart';
 import 'package:coalnexus/features/violations/data/mappers/corrective_action_mapper.dart';
 import 'package:coalnexus/features/violations/domain/entities/corrective_action.dart';

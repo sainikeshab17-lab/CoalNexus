@@ -11,7 +11,6 @@ import 'package:coalnexus/features/inspections/domain/entities/inspection.dart';
 import 'package:coalnexus/features/inspections/domain/entities/inspection_finding.dart';
 import 'package:coalnexus/features/violations/domain/entities/violation.dart';
 import 'package:coalnexus/features/violations/domain/entities/corrective_action.dart';
-import 'package:coalnexus/core/sync/domain/entities/audit_trail.dart';
 
 part 'local_database.g.dart';
 
