@@ -85,6 +85,16 @@ class FakeSyncRepository implements SyncRepository {
   }
 
   @override
+  Future<String?> getServerId(String feature, String localId) async {
+    return _queue[localId]?.serverId;
+  }
+
+  @override
+  Future<void> clearFailedOperations() async {
+    _queue.removeWhere((key, value) => value.syncStatus == SyncStatus.failed);
+  }
+
+  @override
   Future<SyncQueueItem?> getSyncItemByLocalId(String localId) async {
     return _queue[localId];
   }

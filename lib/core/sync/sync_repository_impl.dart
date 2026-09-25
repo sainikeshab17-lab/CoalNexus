@@ -83,6 +83,25 @@ class SyncRepositoryImpl implements SyncRepository {
   }
 
   @override
+  Future<String?> getServerId(String feature, String localId) async {
+    final featureLower = feature.toLowerCase();
+    if (featureLower.contains('mine')) {
+      final query = _database.select(_database.mines)..where((t) => t.localId.equals(localId));
+      final row = await query.getSingleOrNull();
+      return row?.serverId;
+    } else if (featureLower.contains('inspection') && !featureLower.contains('finding')) {
+      final query = _database.select(_database.inspections)..where((t) => t.localId.equals(localId));
+      final row = await query.getSingleOrNull();
+      return row?.serverId;
+    } else if (featureLower.contains('violation')) {
+      final query = _database.select(_database.violations)..where((t) => t.localId.equals(localId));
+      final row = await query.getSingleOrNull();
+      return row?.serverId;
+    }
+    return null;
+  }
+
+  @override
   Future<SyncQueueItem?> getSyncItemByLocalId(String localId) async {
     final query = _database.select(_database.syncQueue)..where((t) => t.localId.equals(localId));
     final row = await query.getSingleOrNull();
@@ -98,5 +117,12 @@ class SyncRepositoryImpl implements SyncRepository {
                       t.syncStatus.equals(SyncStatus.syncing.name)));
     final rows = await query.get();
     return rows.isNotEmpty;
+  }
+
+  @override
+  Future<void> clearFailedOperations() async {
+    await (_database.delete(_database.syncQueue)
+          ..where((t) => t.syncStatus.equals(SyncStatus.failed.name)))
+        .go();
   }
 }

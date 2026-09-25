@@ -60,6 +60,19 @@ class ViolationModel extends Violation {
   }
 
   Map<String, dynamic> toJson() {
+    String apiStatus = status.name;
+    // Map internal status to backend-expected enum if necessary
+    // Backend ViolationStatus: open, resolved, inProgress, closed
+    if (apiStatus == 'detected' || apiStatus == 'recorded') {
+      apiStatus = 'open';
+    } else if (apiStatus == 'assigned' || apiStatus == 'correctiveAction' || apiStatus == 'evidenceSubmitted' || apiStatus == 'verification') {
+      apiStatus = 'inProgress';
+    } else if (apiStatus == 'closed') {
+      apiStatus = 'closed';
+    } else if (apiStatus == 'overdue') {
+      apiStatus = 'open';
+    }
+
     return {
       'local_id': localId,
       'server_id': serverId,
@@ -69,7 +82,7 @@ class ViolationModel extends Violation {
       'title': title,
       'description': description,
       'severity': severity.name,
-      'status': status.name,
+      'status': apiStatus,
       'assigned_to': assignedTo,
       'due_date': dueDate?.toIso8601String(),
       'detected_at': detectedAt.toIso8601String(),
@@ -89,7 +102,17 @@ class ViolationModel extends Violation {
       title: json['title'] as String,
       description: json['description'] as String,
       severity: ViolationSeverity.values.firstWhere((e) => e.name == json['severity']),
-      status: ViolationStatus.values.firstWhere((e) => e.name == json['status']),
+      status: ViolationStatus.values.firstWhere(
+        (e) => e.name == json['status'],
+        orElse: () {
+          final s = json['status'] as String;
+          if (s == 'open') return ViolationStatus.detected;
+          if (s == 'inProgress') return ViolationStatus.assigned;
+          if (s == 'resolved') return ViolationStatus.evidenceSubmitted;
+          if (s == 'closed') return ViolationStatus.closed;
+          return ViolationStatus.detected;
+        },
+      ),
       assignedTo: (json['assigned_to'] ?? json['assignedTo']) as String?,
       dueDate: (json['due_date'] ?? json['dueDate']) != null ? DateTime.parse((json['due_date'] ?? json['dueDate']) as String) : null,
       detectedAt: DateTime.parse((json['detected_at'] ?? json['detectedAt']) as String),

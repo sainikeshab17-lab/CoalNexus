@@ -1,3 +1,5 @@
+import 'package:coalnexus/features/auth/presentation/providers/auth_provider.dart';
+import 'package:coalnexus/shared/domain/entities/user.dart';
 import 'package:coalnexus/core/sync/sync_providers.dart';
 import 'package:coalnexus/core/widgets/audit_timeline.dart';
 import 'package:coalnexus/core/workflow/workflow_service.dart';
@@ -182,6 +184,9 @@ class _CorrectiveActionsSection extends ConsumerWidget {
   }
 
   void _showStatusTransitionDialog(BuildContext context, WidgetRef ref, CorrectiveAction action) {
+    final authState = ref.read(authNotifierProvider);
+    final user = authState.user;
+    
     showDialog(
       context: context,
       builder: (context) {
@@ -190,7 +195,16 @@ class _CorrectiveActionsSection extends ConsumerWidget {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: CorrectiveActionStatus.values.map((status) {
-              final allowed = WorkflowService.canTransitionCorrectiveAction(action.status, status);
+              final allowedWorkflow = WorkflowService.canTransitionCorrectiveAction(action.status, status);
+              
+              // RBAC Check
+              bool allowedRBAC = true;
+              if (status == CorrectiveActionStatus.verified) {
+                allowedRBAC = user?.hasPermission(UserPermission.verifyCorrectiveAction) ?? false;
+              }
+              
+              final allowed = allowedWorkflow && allowedRBAC;
+              
               return ListTile(
                 title: Text(WorkflowService.getStatusLabel(status)),
                 leading: Radio<CorrectiveActionStatus>(
@@ -204,6 +218,9 @@ class _CorrectiveActionsSection extends ConsumerWidget {
                   } : null,
                 ),
                 enabled: allowed,
+                subtitle: (allowedWorkflow && !allowedRBAC) 
+                  ? const Text('Insufficient permissions to verify', style: TextStyle(color: Colors.red, fontSize: 10))
+                  : null,
               );
             }).toList(),
           ),

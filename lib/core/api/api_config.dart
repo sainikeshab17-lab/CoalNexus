@@ -1,6 +1,6 @@
 class ApiConfig {
   static String get baseUrl {
-    return 'http://10.27.196.11:8000/api';
+    return 'http://10.70.41.204:8000/api';
   }
   static Map<String, String> get headers {
     return {

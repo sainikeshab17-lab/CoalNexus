@@ -60,7 +60,7 @@ class _AddFindingPageState extends ConsumerState<AddFindingPage> {
               ),
               const SizedBox(height: AppSpacing.md),
               DropdownButtonFormField<FindingStatus>(
-                initialValue: _selectedStatus,
+                value: _selectedStatus,
                 decoration: const InputDecoration(
                   labelText: 'Compliance Status',
                   border: OutlineInputBorder(),

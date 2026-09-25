@@ -181,7 +181,7 @@ class DashboardShellScreen extends ConsumerWidget {
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     child: TextButton(
-                      onPressed: () {},
+                      onPressed: () => context.push('/audit-trail'),
                       child: const Text('VIEW ALL AUDIT LOGS'),
                     ),
                   ),

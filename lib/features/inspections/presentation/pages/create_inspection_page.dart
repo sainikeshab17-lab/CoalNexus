@@ -59,7 +59,7 @@ class _CreateInspectionPageState extends ConsumerState<CreateInspectionPage> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   DropdownButtonFormField<String>(
-                    initialValue: _selectedMineId,
+                    value: _selectedMineId,
                     decoration: const InputDecoration(
                       labelText: 'Select Mine',
                       border: OutlineInputBorder(),

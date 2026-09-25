@@ -22,6 +22,7 @@ import 'package:coalnexus/features/violations/presentation/pages/edit_violation_
 import 'package:coalnexus/features/notifications/presentation/alerts_page.dart';
 import 'package:coalnexus/features/profile/presentation/profile_shell_screen.dart';
 import 'package:coalnexus/core/sync/presentation/pages/sync_queue_page.dart';
+import 'package:coalnexus/core/sync/presentation/pages/audit_trail_page.dart';
 import 'package:coalnexus/core/sync/presentation/widgets/sync_status_overlay.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey =
@@ -229,6 +230,14 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: '/sync',
             builder: (context, state) => const SyncQueuePage(),
           ),
+
+          // ------------------------------------------------------------------
+          // Audit Trail
+          // ------------------------------------------------------------------
+          GoRoute(
+            path: '/audit-trail',
+            builder: (context, state) => const AuditTrailPage(),
+          ),
         ],
       ),
     ],
@@ -285,8 +294,12 @@ class NavigationShell extends ConsumerWidget {
         return 4;
       }
 
-      if (location.startsWith('/profile')) {
+      if (location.startsWith('/audit-trail')) {
         return 5;
+      }
+
+      if (location.startsWith('/profile')) {
+        return 6;
       }
     } catch (_) {
       // Fallback for tests or contexts without an active route.
@@ -324,6 +337,10 @@ class NavigationShell extends ConsumerWidget {
         break;
 
       case 5:
+        router.go('/audit-trail');
+        break;
+
+      case 6:
         router.go('/profile');
         break;
     }
@@ -339,33 +356,38 @@ class NavigationShell extends ConsumerWidget {
     final isTablet = width >= 600;
     final isDesktop = width >= 900;
 
-    const destinations = [
-      NavigationDestination(
+    final destinations = [
+      const NavigationDestination(
         icon: Icon(Icons.dashboard_outlined),
         selectedIcon: Icon(Icons.dashboard),
         label: 'Home',
       ),
-      NavigationDestination(
+      const NavigationDestination(
         icon: Icon(Icons.layers_outlined),
         selectedIcon: Icon(Icons.layers),
         label: 'Mines',
       ),
-      NavigationDestination(
+      const NavigationDestination(
         icon: Icon(Icons.assignment_outlined),
         selectedIcon: Icon(Icons.assignment),
         label: 'Inspections',
       ),
-      NavigationDestination(
+      const NavigationDestination(
         icon: Icon(Icons.gavel_outlined),
         selectedIcon: Icon(Icons.gavel),
         label: 'Violations',
       ),
-      NavigationDestination(
+      const NavigationDestination(
         icon: Icon(Icons.warning_amber_outlined),
         selectedIcon: Icon(Icons.warning),
         label: 'Alerts',
       ),
-      NavigationDestination(
+      const NavigationDestination(
+        icon: Icon(Icons.history_outlined),
+        selectedIcon: Icon(Icons.history),
+        label: 'Audit',
+      ),
+      const NavigationDestination(
         icon: Icon(Icons.person_outline),
         selectedIcon: Icon(Icons.person),
         label: 'Profile',

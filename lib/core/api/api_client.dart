@@ -66,10 +66,22 @@ class ApiClient {
     if (response.statusCode >= 200 && response.statusCode < 300) {
       return ApiResponse(statusCode: response.statusCode, data: data);
     } else {
+      String? errorMessage;
+      if (data is Map) {
+        final detail = data['detail'];
+        if (detail is List) {
+          errorMessage = detail.map((e) => e.toString()).join(', ');
+        } else {
+          errorMessage = detail?.toString() ?? 'Unknown error';
+        }
+      } else {
+        errorMessage = 'Server error: ${response.statusCode}';
+      }
+
       return ApiResponse(
         statusCode: response.statusCode,
         data: data,
-        error: data is Map ? data['detail'] ?? 'Unknown error' : 'Server error',
+        error: errorMessage,
       );
     }
   }

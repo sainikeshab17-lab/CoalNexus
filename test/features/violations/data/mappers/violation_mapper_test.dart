@@ -108,7 +108,8 @@ void main() {
       final json = model.toJson();
       expect(json['local_id'], 'v1');
       expect(json['severity'], 'high');
-      expect(json['status'], 'recorded');
+      // recorded maps to open for backend
+      expect(json['status'], 'open');
     });
 
     test('fromJson should return valid ViolationModel', () {
@@ -116,7 +117,8 @@ void main() {
       final fromJson = ViolationModel.fromJson(json);
       expect(fromJson.localId, model.localId);
       expect(fromJson.severity, model.severity);
-      expect(fromJson.status, model.status);
+      // open maps back to detected
+      expect(fromJson.status, ViolationStatus.detected);
     });
   });
 }

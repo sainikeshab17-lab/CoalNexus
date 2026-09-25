@@ -43,17 +43,36 @@ class SyncProcessorImpl implements SyncProcessor {
       payload['local_id'] = item.localId;
       payload['local_version'] = item.localVersion;
 
+      // Dynamic Foreign Key Resolution
+      if (payload.containsKey('mine_id') && payload['mine_id'] != null) {
+        final mid = await _syncRepository.getServerId('mines', payload['mine_id'] as String);
+        if (mid != null) payload['mine_id'] = mid;
+      }
+      if (payload.containsKey('inspection_id') && payload['inspection_id'] != null) {
+        final iid = await _syncRepository.getServerId('inspections', payload['inspection_id'] as String);
+        if (iid != null) payload['inspection_id'] = iid;
+      }
+      if (payload.containsKey('violation_id') && payload['violation_id'] != null) {
+        final vid = await _syncRepository.getServerId('violations', payload['violation_id'] as String);
+        if (vid != null) payload['violation_id'] = vid;
+      }
+
       String path = '';
-      if (item.featureName.toLowerCase() == 'mines' || item.featureName.toLowerCase() == 'mine') {
+      final feat = item.featureName.toLowerCase();
+      if (feat == 'mines' || feat == 'mine') {
         path = '/mines';
-      } else if (item.featureName.toLowerCase() == 'inspections' || item.featureName.toLowerCase() == 'inspection') {
+      } else if (feat == 'inspections' || feat == 'inspection') {
         path = '/inspections';
-      } else if (item.featureName.toLowerCase().contains('finding')) {
+      } else if (feat.contains('finding')) {
         path = '/findings';
-      } else if (item.featureName.toLowerCase() == 'violations' || item.featureName.toLowerCase() == 'violation') {
+      } else if (feat == 'violations' || feat == 'violation') {
         path = '/violations';
-      } else if (item.featureName.toLowerCase() == 'alerts' || item.featureName.toLowerCase() == 'alert') {
+      } else if (feat == 'alerts' || feat == 'alert') {
         path = '/alerts';
+      } else if (feat.toLowerCase() == 'audittrail' || feat.contains('audit') || feat.contains('trail')) {
+        path = '/audit-trail';
+      } else if (feat.toLowerCase() == 'correctiveaction' || feat.contains('corrective')) {
+        path = '/corrective-actions';
       } else {
         throw Exception('Unknown feature: ${item.featureName}');
       }
@@ -64,7 +83,13 @@ class SyncProcessorImpl implements SyncProcessor {
       if (action.contains('CREATE')) {
         response = await _apiClient.post(path, payload);
       } else if (action.contains('UPDATE')) {
-        response = await _apiClient.put('$path/${item.serverId ?? item.localId}', payload);
+        final id = item.serverId ?? item.localId;
+        response = await _apiClient.put('$path/$id', payload);
+        
+        // Handle case where seeded/local record doesn't exist on server yet
+        if (response.statusCode == 404 && item.serverId == null) {
+          response = await _apiClient.post(path, payload);
+        }
       } else {
         // Fallback or not supported action type
         response = ApiResponse(statusCode: 200, data: {'id': item.serverId ?? 'srv_${item.localId}'});

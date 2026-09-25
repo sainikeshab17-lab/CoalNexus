@@ -65,6 +65,18 @@ class SyncQueuePage extends ConsumerWidget {
         title: const Text('Synchronization Queue'),
         actions: [
           IconButton(
+            onPressed: () async {
+              await ref.read(syncRepositoryProvider).clearFailedOperations();
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Cleared failed sync operations.')),
+                );
+              }
+            },
+            icon: const Icon(Icons.delete_sweep_outlined),
+            tooltip: 'Clear Failed',
+          ),
+          IconButton(
             onPressed: () => ref.read(syncProcessorProvider).processQueue(),
             icon: const Icon(Icons.sync),
             tooltip: 'Sync Now',
@@ -171,7 +183,9 @@ class _SyncQueueItemTile extends StatelessWidget {
                   width: double.infinity,
                   padding: const EdgeInsets.all(AppSpacing.sm),
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade100,
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.grey.shade900
+                        : Colors.grey.shade100,
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(

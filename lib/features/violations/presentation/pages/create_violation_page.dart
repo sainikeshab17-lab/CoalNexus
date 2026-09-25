@@ -184,7 +184,7 @@ class _CreateViolationPageState extends ConsumerState<CreateViolationPage> {
                 child: Column(
                   children: [
                     DropdownButtonFormField<ViolationSeverity>(
-                      initialValue: _severity,
+                      value: _severity,
                       decoration: const InputDecoration(labelText: 'Severity *'),
                       items: ViolationSeverity.values.map((s) {
                         return DropdownMenuItem(
@@ -198,7 +198,7 @@ class _CreateViolationPageState extends ConsumerState<CreateViolationPage> {
                     const SizedBox(height: AppSpacing.md),
 
                     DropdownButtonFormField<ViolationStatus>(
-                      initialValue: _status,
+                      value: _status,
                       decoration: const InputDecoration(labelText: 'Status *'),
                       items: ViolationStatus.values.map((s) {
                         return DropdownMenuItem(

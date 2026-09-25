@@ -102,6 +102,20 @@ class MockSyncRepository extends _i1.Mock implements _i3.SyncRepository {
   ) as _i2.Future<void>);
 
   @override
+  _i2.Future<String?> getServerId(String? feature, String? localId) =>
+      (super.noSuchMethod(
+        Invocation.method(#getServerId, [feature, localId]),
+        returnValue: _i2.Future<String?>.value(),
+      ) as _i2.Future<String?>);
+
+  @override
+  _i2.Future<void> clearFailedOperations() => (super.noSuchMethod(
+    Invocation.method(#clearFailedOperations, []),
+    returnValue: _i2.Future<void>.value(),
+    returnValueForMissingStub: _i2.Future<void>.value(),
+  ) as _i2.Future<void>);
+
+  @override
   _i2.Future<_i4.SyncQueueItem?> getSyncItemByLocalId(String? localId) =>
       (super.noSuchMethod(
         Invocation.method(#getSyncItemByLocalId, [localId]),

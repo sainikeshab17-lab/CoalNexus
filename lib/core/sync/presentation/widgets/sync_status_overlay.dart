@@ -12,7 +12,15 @@ import 'package:coalnexus/core/api/backend_health_provider.dart';
 final pendingSyncCountProvider = StreamProvider<int>((ref) {
   final db = ref.watch(appDatabaseProvider);
   return (db.select(db.syncQueue)
-        ..where((t) => t.syncStatus.equals(SyncStatus.pending.name) | t.syncStatus.equals(SyncStatus.failed.name)))
+        ..where((t) => t.syncStatus.equals(SyncStatus.pending.name)))
+      .watch()
+      .map((rows) => rows.length);
+});
+
+final failedSyncCountProvider = StreamProvider<int>((ref) {
+  final db = ref.watch(appDatabaseProvider);
+  return (db.select(db.syncQueue)
+        ..where((t) => t.syncStatus.equals(SyncStatus.failed.name)))
       .watch()
       .map((rows) => rows.length);
 });
@@ -30,6 +38,8 @@ class SyncStatusOverlay extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final pendingCount = ref.watch(pendingSyncCountProvider).value ?? 0;
+    final failedCount = ref.watch(failedSyncCountProvider).value ?? 0;
+    final totalPending = pendingCount + failedCount;
     final isSyncing = ref.watch(isSyncingProvider).value ?? false;
     final isConnected = ref.watch(connectivityServiceProvider).onConnectivityChanged;
     final backendHealth = ref.watch(backendHealthProvider).value ?? BackendHealthStatus.offline;
@@ -39,7 +49,7 @@ class SyncStatusOverlay extends ConsumerWidget {
       builder: (context, snapshot) {
         final online = snapshot.data ?? true;
         
-        if (pendingCount == 0 && online && !isSyncing && backendHealth == BackendHealthStatus.online) return const SizedBox.shrink();
+        if (totalPending == 0 && online && !isSyncing && backendHealth == BackendHealthStatus.online) return const SizedBox.shrink();
 
         return Positioned(
           bottom: 80,
@@ -52,7 +62,7 @@ class SyncStatusOverlay extends ConsumerWidget {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
                   decoration: BoxDecoration(
-                    color: _getColor(online, isSyncing, pendingCount, backendHealth),
+                    color: _getColor(online, isSyncing, pendingCount, failedCount, backendHealth),
                     borderRadius: BorderRadius.circular(AppRadius.lg),
                     boxShadow: [
                       BoxShadow(
@@ -73,13 +83,13 @@ class SyncStatusOverlay extends ConsumerWidget {
                         )
                       else
                         Icon(
-                          _getIcon(online, backendHealth),
+                          _getIcon(online, failedCount, backendHealth),
                           size: 16,
                           color: Colors.white,
                         ),
                       const SizedBox(width: AppSpacing.sm),
                       Text(
-                        _getText(online, isSyncing, pendingCount, backendHealth),
+                        _getText(online, isSyncing, pendingCount, failedCount, backendHealth),
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 12,
@@ -97,24 +107,27 @@ class SyncStatusOverlay extends ConsumerWidget {
     );
   }
 
-  Color _getColor(bool online, bool syncing, int pending, BackendHealthStatus health) {
+  Color _getColor(bool online, bool syncing, int pending, int failed, BackendHealthStatus health) {
     if (!online) return Colors.grey.shade700;
     if (health == BackendHealthStatus.backendUnavailable) return Colors.red.shade700;
     if (syncing) return Colors.blue.shade600;
+    if (failed > 0) return Colors.red.shade800;
     if (pending > 0) return Colors.orange.shade700;
     return Colors.green.shade600;
   }
 
-  IconData _getIcon(bool online, BackendHealthStatus health) {
+  IconData _getIcon(bool online, int failed, BackendHealthStatus health) {
     if (!online) return Icons.cloud_off;
     if (health == BackendHealthStatus.backendUnavailable) return Icons.report_problem;
+    if (failed > 0) return Icons.sync_problem;
     return Icons.cloud_done;
   }
 
-  String _getText(bool online, bool syncing, int pending, BackendHealthStatus health) {
-    if (!online) return 'OFFLINE ($pending PENDING)';
+  String _getText(bool online, bool syncing, int pending, int failed, BackendHealthStatus health) {
+    if (!online) return 'OFFLINE (${pending + failed} PENDING)';
     if (health == BackendHealthStatus.backendUnavailable) return 'BACKEND UNAVAILABLE';
     if (syncing) return 'SYNCING...';
+    if (failed > 0) return '$failed SYNC ERRORS';
     if (pending > 0) return '$pending PENDING SYNC';
     return 'ONLINE';
   }
