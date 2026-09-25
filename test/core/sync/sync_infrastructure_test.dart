@@ -5,6 +5,24 @@ import 'package:coalnexus/core/sync/sync_repository.dart';
 import 'package:coalnexus/core/sync/outbox_service.dart';
 import 'package:coalnexus/core/sync/sync_processor.dart';
 import 'package:coalnexus/core/network/connectivity_service.dart';
+import 'package:coalnexus/core/api/api_client.dart';
+
+class FakeApiClient implements ApiClient {
+  @override
+  Future<ApiResponse> post(String path, Map<String, dynamic> body) async {
+    return ApiResponse(statusCode: 201, data: {'id': 'srv_test'});
+  }
+
+  @override
+  Future<ApiResponse> put(String path, Map<String, dynamic> body) async {
+    return ApiResponse(statusCode: 200, data: {'id': 'srv_test'});
+  }
+
+  @override
+  Future<ApiResponse> get(String path) async {
+    return ApiResponse(statusCode: 200, data: {});
+  }
+}
 
 class FakeSyncRepository implements SyncRepository {
   final Map<String, SyncQueueItem> _queue = {};
@@ -60,6 +78,25 @@ class FakeSyncRepository implements SyncRepository {
       );
     }
   }
+
+  @override
+  Future<void> reconcileServerId(String feature, String localId, String serverId) async {
+    // Fake implementation for test
+  }
+
+  @override
+  Future<SyncQueueItem?> getSyncItemByLocalId(String localId) async {
+    return _queue[localId];
+  }
+
+  @override
+  Future<bool> hasPendingMutations(String localId) async {
+    final item = _queue[localId];
+    if (item == null) return false;
+    return item.syncStatus == SyncStatus.pending ||
+        item.syncStatus == SyncStatus.failed ||
+        item.syncStatus == SyncStatus.syncing;
+  }
 }
 
 class FakeConnectivityService implements ConnectivityService {
@@ -83,12 +120,14 @@ void main() {
   late FakeConnectivityService connectivityService;
   late OutboxService outboxService;
   late SyncProcessorImpl syncProcessor;
+  late FakeApiClient apiClient;
 
   setUp(() {
     syncRepository = FakeSyncRepository();
     connectivityService = FakeConnectivityService();
     outboxService = OutboxService(syncRepository);
-    syncProcessor = SyncProcessorImpl(syncRepository, connectivityService);
+    apiClient = FakeApiClient();
+    syncProcessor = SyncProcessorImpl(syncRepository, connectivityService, apiClient);
   });
 
   group('Offline-First Synchronization Infrastructure', () {
@@ -120,7 +159,7 @@ void main() {
       expect(pending.first.syncStatus, equals(SyncStatus.pending));
     });
 
-    test('should record failure and increment retry count if remote synchronization fails', () async {
+    test('should simulate deterministic successful synchronization and mark synced', () async {
       connectivityService.isOnline = true;
 
       await outboxService.enqueueOperation(
@@ -132,9 +171,8 @@ void main() {
       await syncProcessor.processQueue();
 
       final items = syncRepository._queue.values.toList();
-      expect(items.first.syncStatus, equals(SyncStatus.failed));
-      expect(items.first.retryCount, equals(1));
-      expect(items.first.lastError, contains('Remote transport for feature "mines" not implemented'));
+      expect(items.first.syncStatus, equals(SyncStatus.synced));
+      expect(items.first.serverId, startsWith('srv_'));
     });
 
     test('should explicit update and retain items marked as conflict', () async {

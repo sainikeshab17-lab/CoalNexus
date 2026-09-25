@@ -9,6 +9,7 @@ import 'package:coalnexus/features/inspections/presentation/providers/inspection
 import 'package:coalnexus/features/inspections/presentation/providers/inspection_sync_status_provider.dart';
 import 'package:coalnexus/features/mines/presentation/providers/mine_providers.dart';
 import 'package:coalnexus/core/sync/sync_models.dart';
+import 'package:coalnexus/features/inspections/presentation/providers/inspection_providers.dart';
 import 'package:intl/intl.dart';
 
 class InspectionDetailPage extends ConsumerWidget {
@@ -25,6 +26,13 @@ class InspectionDetailPage extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Inspection Detail'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () async {
+              await ref.read(inspectionRepositoryProvider).refreshFindings();
+              ref.read(inspectionDetailProvider(inspectionId).notifier).refresh();
+            },
+          ),
           if (syncStatusAsync.value != null && syncStatusAsync.value != SyncStatus.synced)
             Padding(
               padding: const EdgeInsets.only(right: AppSpacing.md),

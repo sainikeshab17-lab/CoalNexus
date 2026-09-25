@@ -20,6 +20,8 @@ import 'package:coalnexus/features/violations/presentation/pages/create_violatio
 import 'package:coalnexus/features/violations/presentation/pages/edit_violation_page.dart';
 import 'package:coalnexus/features/notifications/presentation/alerts_page.dart';
 import 'package:coalnexus/features/profile/presentation/profile_shell_screen.dart';
+import 'package:coalnexus/core/sync/presentation/pages/sync_queue_page.dart';
+import 'package:coalnexus/core/sync/presentation/widgets/sync_status_overlay.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey =
 GlobalKey<NavigatorState>(debugLabel: 'root');
@@ -202,6 +204,14 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: '/profile',
             builder: (context, state) =>
             const ProfileShellScreen(),
+          ),
+
+          // ------------------------------------------------------------------
+          // Sync
+          // ------------------------------------------------------------------
+          GoRoute(
+            path: '/sync',
+            builder: (context, state) => const SyncQueuePage(),
           ),
         ],
       ),
@@ -432,8 +442,13 @@ class NavigationShell extends ConsumerWidget {
     // Mobile
     // ------------------------------------------------------------------------
     return Scaffold(
-      body: SafeArea(
-        child: child,
+      body: Stack(
+        children: [
+          SafeArea(
+            child: child,
+          ),
+          const SyncStatusOverlay(),
+        ],
       ),
       bottomNavigationBar: LayoutBuilder(
         builder: (context, constraints) {

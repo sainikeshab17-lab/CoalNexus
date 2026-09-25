@@ -31,6 +31,27 @@ class FakeSyncRepository implements SyncRepository {
 
   @override
   Future<void> markSynced(String localId, String serverId) async {}
+
+  @override
+  Future<void> reconcileServerId(String feature, String localId, String serverId) async {}
+
+  @override
+  Future<SyncQueueItem?> getSyncItemByLocalId(String localId) async {
+    try {
+      return items.firstWhere((element) => element.localId == localId);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  @override
+  Future<bool> hasPendingMutations(String localId) async {
+    return items.any((element) =>
+        element.localId == localId &&
+        (element.syncStatus == SyncStatus.pending ||
+            element.syncStatus == SyncStatus.failed ||
+            element.syncStatus == SyncStatus.syncing));
+  }
 }
 
 class FakeInspectionLocalDataSource implements InspectionLocalDataSource {
@@ -72,6 +93,31 @@ class FakeInspectionLocalDataSource implements InspectionLocalDataSource {
   }
 
   @override
+  Future<InspectionFinding?> getFindingById(String id) async {
+    for (final list in findings.values) {
+      for (final finding in list) {
+        if (finding.localId == id) return finding;
+      }
+    }
+    return null;
+  }
+
+  @override
+  Future<void> updateFinding(InspectionFinding finding) async {
+    final list = findings[finding.inspectionId];
+    if (list != null) {
+      final index = list.indexWhere((element) => element.localId == finding.localId);
+      if (index != -1) {
+        list[index] = finding;
+      } else {
+        list.add(finding);
+      }
+    } else {
+      findings[finding.inspectionId] = [finding];
+    }
+  }
+
+  @override
   Future<T> transaction<T>(Future<T> Function() action) {
     return action();
   }
@@ -94,7 +140,7 @@ void main() {
     syncRepository = FakeSyncRepository();
     outboxService = OutboxService(syncRepository);
     localDataSource = FakeInspectionLocalDataSource();
-    repository = InspectionRepositoryImpl(localDataSource, outboxService);
+    repository = InspectionRepositoryImpl(localDataSource, outboxService, syncRepository);
 
     createInspection = CreateInspection(repository);
     getCachedInspections = GetCachedInspections(repository);

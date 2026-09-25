@@ -8,4 +8,6 @@ abstract class InspectionRepository {
   Future<void> updateInspection(Inspection inspection);
   Future<InspectionFinding> addFinding(InspectionFinding finding);
   Future<List<InspectionFinding>> getFindingsForInspection(String inspectionId);
+  Future<void> refreshInspections();
+  Future<void> refreshFindings();
 }

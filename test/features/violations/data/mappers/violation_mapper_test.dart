@@ -106,7 +106,7 @@ void main() {
 
     test('toJson should return valid map', () {
       final json = model.toJson();
-      expect(json['localId'], 'v1');
+      expect(json['local_id'], 'v1');
       expect(json['severity'], 'high');
       expect(json['status'], 'recorded');
     });

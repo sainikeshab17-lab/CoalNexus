@@ -1,12 +1,16 @@
 import 'package:uuid/uuid.dart';
 import 'package:coalnexus/core/sync/sync_models.dart';
 import 'package:coalnexus/core/sync/sync_repository.dart';
+import 'package:coalnexus/core/api/api_client.dart';
 
 class OutboxService {
   final SyncRepository _syncRepository;
   final Uuid _uuid;
+  final ApiClient apiClient;
 
-  OutboxService(this._syncRepository, [this._uuid = const Uuid()]);
+  OutboxService(this._syncRepository, {Uuid? uuid, ApiClient? apiClient})
+      : _uuid = uuid ?? const Uuid(),
+        apiClient = apiClient ?? ApiClient();
 
   Future<String> enqueueOperation({
     required String featureName,

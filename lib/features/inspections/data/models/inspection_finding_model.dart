@@ -53,29 +53,29 @@ class InspectionFindingModel {
 
   Map<String, dynamic> toJson() {
     return {
-      'localId': localId,
-      'serverId': serverId,
-      'inspectionId': inspectionId,
-      'requirementId': requirementId,
+      'local_id': localId,
+      'server_id': serverId,
+      'inspection_id': inspectionId,
+      'requirement_id': requirementId,
       'description': description,
       'status': status,
-      'createdAt': createdAt,
-      'updatedAt': updatedAt,
-      'localVersion': localVersion,
+      'created_at': createdAt,
+      'updated_at': updatedAt,
+      'local_version': localVersion,
     };
   }
 
   factory InspectionFindingModel.fromJson(Map<String, dynamic> json) {
     return InspectionFindingModel(
-      localId: json['localId'] as String,
-      serverId: json['serverId'] as String?,
-      inspectionId: json['inspectionId'] as String,
-      requirementId: json['requirementId'] as String,
+      localId: (json['local_id'] ?? json['localId']) as String,
+      serverId: (json['server_id'] ?? json['id'] ?? json['serverId']) as String?,
+      inspectionId: (json['inspection_id'] ?? json['inspectionId']) as String,
+      requirementId: (json['requirement_id'] ?? json['requirementId']) as String,
       description: json['description'] as String,
       status: json['status'] as String,
-      createdAt: json['createdAt'] as String,
-      updatedAt: json['updatedAt'] as String,
-      localVersion: json['localVersion'] as int,
+      createdAt: (json['created_at'] ?? json['createdAt']) as String,
+      updatedAt: (json['updated_at'] ?? json['updatedAt']) as String,
+      localVersion: (json['local_version'] ?? json['localVersion']) as int,
     );
   }
 }

@@ -61,41 +61,41 @@ class ViolationModel extends Violation {
 
   Map<String, dynamic> toJson() {
     return {
-      'localId': localId,
-      'serverId': serverId,
-      'inspectionId': inspectionId,
-      'findingId': findingId,
-      'mineId': mineId,
+      'local_id': localId,
+      'server_id': serverId,
+      'inspection_id': inspectionId,
+      'finding_id': findingId,
+      'mine_id': mineId,
       'title': title,
       'description': description,
       'severity': severity.name,
       'status': status.name,
-      'assignedTo': assignedTo,
-      'dueDate': dueDate?.toIso8601String(),
-      'detectedAt': detectedAt.toIso8601String(),
-      'createdAt': createdAt.toIso8601String(),
-      'updatedAt': updatedAt.toIso8601String(),
-      'localVersion': localVersion,
+      'assigned_to': assignedTo,
+      'due_date': dueDate?.toIso8601String(),
+      'detected_at': detectedAt.toIso8601String(),
+      'created_at': createdAt.toIso8601String(),
+      'updated_at': updatedAt.toIso8601String(),
+      'local_version': localVersion,
     };
   }
 
   factory ViolationModel.fromJson(Map<String, dynamic> json) {
     return ViolationModel(
-      localId: json['localId'] as String,
-      serverId: json['serverId'] as String?,
-      inspectionId: json['inspectionId'] as String,
-      findingId: json['findingId'] as String,
-      mineId: json['mineId'] as String,
+      localId: (json['local_id'] ?? json['localId']) as String,
+      serverId: (json['server_id'] ?? json['id'] ?? json['serverId']) as String?,
+      inspectionId: (json['inspection_id'] ?? json['inspectionId']) as String,
+      findingId: (json['finding_id'] ?? json['findingId']) as String,
+      mineId: (json['mine_id'] ?? json['mineId']) as String,
       title: json['title'] as String,
       description: json['description'] as String,
       severity: ViolationSeverity.values.firstWhere((e) => e.name == json['severity']),
       status: ViolationStatus.values.firstWhere((e) => e.name == json['status']),
-      assignedTo: json['assignedTo'] as String?,
-      dueDate: json['dueDate'] != null ? DateTime.parse(json['dueDate'] as String) : null,
-      detectedAt: DateTime.parse(json['detectedAt'] as String),
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: DateTime.parse(json['updatedAt'] as String),
-      localVersion: json['localVersion'] as int,
+      assignedTo: (json['assigned_to'] ?? json['assignedTo']) as String?,
+      dueDate: (json['due_date'] ?? json['dueDate']) != null ? DateTime.parse((json['due_date'] ?? json['dueDate']) as String) : null,
+      detectedAt: DateTime.parse((json['detected_at'] ?? json['detectedAt']) as String),
+      createdAt: DateTime.parse((json['created_at'] ?? json['createdAt']) as String),
+      updatedAt: DateTime.parse((json['updated_at'] ?? json['updatedAt']) as String),
+      localVersion: (json['local_version'] ?? json['localVersion']) as int,
     );
   }
 }

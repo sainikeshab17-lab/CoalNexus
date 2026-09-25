@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:coalnexus/core/sync/outbox_service.dart';
+import 'package:coalnexus/core/sync/sync_repository.dart';
 import 'package:coalnexus/features/inspections/data/datasources/inspection_local_data_source.dart';
 import 'package:coalnexus/features/inspections/data/models/inspection_model.dart';
 import 'package:coalnexus/features/inspections/data/models/inspection_finding_model.dart';
@@ -10,8 +11,9 @@ import 'package:coalnexus/features/inspections/domain/repositories/inspection_re
 class InspectionRepositoryImpl implements InspectionRepository {
   final InspectionLocalDataSource _localDataSource;
   final OutboxService _outboxService;
+  final SyncRepository _syncRepository;
 
-  InspectionRepositoryImpl(this._localDataSource, this._outboxService);
+  InspectionRepositoryImpl(this._localDataSource, this._outboxService, this._syncRepository);
 
   @override
   Future<Inspection> createInspection(Inspection inspection) async {
@@ -74,5 +76,63 @@ class InspectionRepositoryImpl implements InspectionRepository {
   @override
   Future<List<InspectionFinding>> getFindingsForInspection(String inspectionId) async {
     return await _localDataSource.getFindingsForInspection(inspectionId);
+  }
+
+  @override
+  Future<void> refreshInspections() async {
+    try {
+      final response = await _outboxService.apiClient.get('/inspections');
+      if (response.isSuccess) {
+        final List<dynamic> data = response.data;
+        final models = data.map((json) => InspectionModel.fromJson(json)).toList();
+
+        await _localDataSource.transaction(() async {
+          for (final model in models) {
+            final hasPending = await _syncRepository.hasPendingMutations(model.localId);
+            if (hasPending) continue;
+
+            final existing = await _localDataSource.getInspectionById(model.localId);
+            if (existing == null) {
+              await _localDataSource.saveInspection(model.toDomain());
+            } else if (model.localVersion >= existing.localVersion) {
+              await _localDataSource.updateInspection(model.toDomain().copyWith(
+                localVersion: model.localVersion
+              ));
+            }
+          }
+        });
+      }
+    } catch (e) {
+      print('Failed to refresh inspections: $e');
+    }
+  }
+
+  @override
+  Future<void> refreshFindings() async {
+    try {
+      final response = await _outboxService.apiClient.get('/findings');
+      if (response.isSuccess) {
+        final List<dynamic> data = response.data;
+        final models = data.map((json) => InspectionFindingModel.fromJson(json)).toList();
+
+        await _localDataSource.transaction(() async {
+          for (final model in models) {
+            final hasPending = await _syncRepository.hasPendingMutations(model.localId);
+            if (hasPending) continue;
+
+            final existing = await _localDataSource.getFindingById(model.localId);
+            if (existing == null) {
+              await _localDataSource.saveFinding(model.toDomain());
+            } else if (model.localVersion >= existing.localVersion) {
+              await _localDataSource.updateFinding(model.toDomain().copyWith(
+                localVersion: model.localVersion
+              ));
+            }
+          }
+        });
+      }
+    } catch (e) {
+      print('Failed to refresh findings: $e');
+    }
   }
 }

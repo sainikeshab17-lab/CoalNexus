@@ -20,7 +20,8 @@ final violationLocalDataSourceProvider = Provider<ViolationLocalDataSource>((ref
 final violationRepositoryProvider = Provider<ViolationRepository>((ref) {
   final localDataSource = ref.watch(violationLocalDataSourceProvider);
   final outboxService = ref.watch(outboxServiceProvider);
-  return ViolationRepositoryImpl(localDataSource, outboxService);
+  final syncRepository = ref.watch(syncRepositoryProvider);
+  return ViolationRepositoryImpl(localDataSource, outboxService, syncRepository);
 });
 
 final getCachedViolationsProvider = Provider<GetCachedViolations>((ref) {

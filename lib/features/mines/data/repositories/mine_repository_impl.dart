@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:coalnexus/core/sync/outbox_service.dart';
+import 'package:coalnexus/core/sync/sync_repository.dart';
 import 'package:coalnexus/features/mines/data/datasources/mine_local_data_source.dart';
 import 'package:coalnexus/features/mines/data/models/mine_model.dart';
 import 'package:coalnexus/features/mines/domain/entities/mine.dart';
@@ -8,8 +9,9 @@ import 'package:coalnexus/features/mines/domain/repositories/mine_repository.dar
 class MineRepositoryImpl implements MineRepository {
   final MineLocalDataSource _localDataSource;
   final OutboxService _outboxService;
+  final SyncRepository _syncRepository;
 
-  MineRepositoryImpl(this._localDataSource, this._outboxService);
+  MineRepositoryImpl(this._localDataSource, this._outboxService, this._syncRepository);
 
   @override
   Future<List<Mine>> getCachedMines() async {
@@ -31,8 +33,35 @@ class MineRepositoryImpl implements MineRepository {
 
   @override
   Future<void> refreshMines() async {
-    // Remote API is not implemented yet. This acts as a placeholder boundary.
-    return;
+    try {
+      final response = await _outboxService.apiClient.get('/mines');
+      if (response.isSuccess) {
+        final List<dynamic> data = response.data;
+        final models = data.map((json) => MineModel.fromJson(json)).toList();
+        
+        await _localDataSource.transaction(() async {
+          for (final model in models) {
+            // Check for pending local mutations
+            final hasPending = await _syncRepository.hasPendingMutations(model.localId);
+            if (hasPending) {
+              // Protecting pending local changes: skip refresh for this entity
+              continue;
+            }
+
+            final existing = await _localDataSource.getMineById(model.localId);
+            if (existing == null) {
+              await _localDataSource.saveMine(model.toDomain(), localVersion: model.localVersion);
+            } else if (model.localVersion >= existing.localVersion) {
+              // Server version is same or newer, safe to update
+              // Using force update since we checked hasPendingMutations above
+              await _localDataSource.updateMine(model.toDomain(), expectedVersion: null);
+            }
+          }
+        });
+      }
+    } catch (e) {
+      print('Failed to refresh mines: $e');
+    }
   }
 
   @override

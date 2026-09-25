@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:coalnexus/core/sync/outbox_service.dart';
+import 'package:coalnexus/core/sync/sync_repository.dart';
 import 'package:coalnexus/features/violations/data/datasources/violation_local_data_source.dart';
 import 'package:coalnexus/features/violations/data/models/violation_model.dart';
 import 'package:coalnexus/features/violations/domain/entities/violation.dart';
@@ -8,8 +9,9 @@ import 'package:coalnexus/features/violations/domain/repositories/violation_repo
 class ViolationRepositoryImpl implements ViolationRepository {
   final ViolationLocalDataSource _localDataSource;
   final OutboxService _outboxService;
+  final SyncRepository _syncRepository;
 
-  ViolationRepositoryImpl(this._localDataSource, this._outboxService);
+  ViolationRepositoryImpl(this._localDataSource, this._outboxService, this._syncRepository);
 
   @override
   Future<List<Violation>> getCachedViolations() async {
@@ -43,8 +45,29 @@ class ViolationRepositoryImpl implements ViolationRepository {
 
   @override
   Future<void> refreshViolations() async {
-    // Remote API is not implemented yet.
-    return;
+    try {
+      final response = await _outboxService.apiClient.get('/violations');
+      if (response.isSuccess) {
+        final List<dynamic> data = response.data;
+        final models = data.map((json) => ViolationModel.fromJson(json)).toList();
+        
+        await _localDataSource.transaction(() async {
+          for (final model in models) {
+            final hasPending = await _syncRepository.hasPendingMutations(model.localId);
+            if (hasPending) continue;
+
+            final existing = await _localDataSource.getViolationById(model.localId);
+            if (existing == null) {
+              await _localDataSource.saveViolation(model.toDomain());
+            } else if (model.localVersion >= existing.localVersion) {
+              await _localDataSource.updateViolation(model.toDomain(), expectedVersion: null);
+            }
+          }
+        });
+      }
+    } catch (e) {
+      print('Failed to refresh violations: $e');
+    }
   }
 
   @override

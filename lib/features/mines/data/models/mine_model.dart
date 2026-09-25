@@ -46,31 +46,31 @@ class MineModel extends Mine {
 
   Map<String, dynamic> toJson() {
     return {
-      'localId': localId,
-      'serverId': serverId,
+      'local_id': localId,
+      'server_id': serverId,
       'name': name,
-      'mineCode': mineCode,
+      'mine_code': mineCode,
       'latitude': latitude,
       'longitude': longitude,
       'status': status.name,
-      'createdAt': createdAt.toIso8601String(),
-      'updatedAt': updatedAt.toIso8601String(),
-      'localVersion': localVersion,
+      'created_at': createdAt.toIso8601String(),
+      'updated_at': updatedAt.toIso8601String(),
+      'local_version': localVersion,
     };
   }
 
   factory MineModel.fromJson(Map<String, dynamic> json) {
     return MineModel(
-      localId: json['localId'] as String,
-      serverId: json['serverId'] as String?,
+      localId: json['local_id'] ?? json['localId'] as String,
+      serverId: (json['id'] ?? json['serverId']) as String?,
       name: json['name'] as String,
-      mineCode: json['mineCode'] as String,
+      mineCode: json['mine_code'] ?? json['mineCode'] as String,
       latitude: (json['latitude'] as num).toDouble(),
       longitude: (json['longitude'] as num).toDouble(),
       status: MineStatus.values.firstWhere((e) => e.name == json['status']),
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: DateTime.parse(json['updatedAt'] as String),
-      localVersion: json['localVersion'] as int,
+      createdAt: DateTime.parse((json['created_at'] ?? json['createdAt']) as String),
+      updatedAt: DateTime.parse((json['updated_at'] ?? json['updatedAt']) as String),
+      localVersion: (json['local_version'] ?? json['localVersion']) as int,
     );
   }
 }

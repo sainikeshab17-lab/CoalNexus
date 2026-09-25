@@ -19,7 +19,8 @@ final inspectionLocalDataSourceProvider = Provider<InspectionLocalDataSource>((r
 final inspectionRepositoryProvider = Provider<InspectionRepository>((ref) {
   final localDataSource = ref.watch(inspectionLocalDataSourceProvider);
   final outboxService = ref.watch(outboxServiceProvider);
-  return InspectionRepositoryImpl(localDataSource, outboxService);
+  final syncRepository = ref.watch(syncRepositoryProvider);
+  return InspectionRepositoryImpl(localDataSource, outboxService, syncRepository);
 });
 
 final createInspectionProvider = Provider<CreateInspection>((ref) {

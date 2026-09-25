@@ -6,6 +6,9 @@ import 'package:coalnexus/core/sync/sync_repository.dart';
 import 'package:coalnexus/core/sync/sync_repository_impl.dart';
 import 'package:coalnexus/core/sync/outbox_service.dart';
 import 'package:coalnexus/core/sync/sync_processor.dart';
+import 'package:coalnexus/core/api/api_providers.dart';
+import 'package:coalnexus/features/inspections/presentation/providers/inspection_providers.dart';
+import 'package:coalnexus/features/violations/presentation/providers/violation_providers.dart';
 
 final connectivityProvider = Provider<Connectivity>((ref) => Connectivity());
 
@@ -27,5 +30,21 @@ final outboxServiceProvider = Provider<OutboxService>((ref) {
 final syncProcessorProvider = Provider<SyncProcessor>((ref) {
   final repository = ref.watch(syncRepositoryProvider);
   final connectivityService = ref.watch(connectivityServiceProvider);
-  return SyncProcessorImpl(repository, connectivityService);
+  final apiClient = ref.watch(apiClientProvider);
+  final processor = SyncProcessorImpl(repository, connectivityService, apiClient);
+  
+  // Start background sync monitoring
+  connectivityService.onConnectivityChanged.listen((connected) {
+    if (connected) {
+      processor.processQueue();
+      
+      // Also trigger refresh for critical data
+      ref.read(mineRepositoryProvider).refreshMines();
+      ref.read(inspectionRepositoryProvider).refreshInspections();
+      ref.read(violationRepositoryProvider).refreshViolations();
+      ref.read(alertRepositoryProvider).refreshAlerts();
+    }
+  });
+  
+  return processor;
 });

@@ -47,4 +47,48 @@ class SyncRepositoryImpl implements SyncRepository {
       updatedAt: Value(DateTime.now()),
     ));
   }
+
+  @override
+  Future<void> reconcileServerId(String feature, String localId, String serverId) async {
+    final featureLower = feature.toLowerCase();
+    if (featureLower.contains('mine')) {
+      await (_database.update(_database.mines)
+            ..where((t) => t.localId.equals(localId)))
+          .write(MinesCompanion(serverId: Value(serverId)));
+    } else if (featureLower.contains('inspection') && !featureLower.contains('finding')) {
+      await (_database.update(_database.inspections)
+            ..where((t) => t.localId.equals(localId)))
+          .write(InspectionsCompanion(serverId: Value(serverId)));
+    } else if (featureLower.contains('finding')) {
+      await (_database.update(_database.inspectionFindings)
+            ..where((t) => t.localId.equals(localId)))
+          .write(InspectionFindingsCompanion(serverId: Value(serverId)));
+    } else if (featureLower.contains('violation')) {
+      await (_database.update(_database.violations)
+            ..where((t) => t.localId.equals(localId)))
+          .write(ViolationsCompanion(serverId: Value(serverId)));
+    } else if (featureLower.contains('alert')) {
+      await (_database.update(_database.alerts)
+            ..where((t) => t.localId.equals(localId)))
+          .write(AlertsCompanion(serverId: Value(serverId)));
+    }
+  }
+
+  @override
+  Future<SyncQueueItem?> getSyncItemByLocalId(String localId) async {
+    final query = _database.select(_database.syncQueue)..where((t) => t.localId.equals(localId));
+    final row = await query.getSingleOrNull();
+    return row != null ? SyncMapper.fromEntity(row) : null;
+  }
+
+  @override
+  Future<bool> hasPendingMutations(String localId) async {
+    final query = _database.select(_database.syncQueue)
+      ..where((t) => t.localId.equals(localId) & 
+                     (t.syncStatus.equals(SyncStatus.pending.name) | 
+                      t.syncStatus.equals(SyncStatus.failed.name) | 
+                      t.syncStatus.equals(SyncStatus.syncing.name)));
+    final rows = await query.get();
+    return rows.isNotEmpty;
+  }
 }

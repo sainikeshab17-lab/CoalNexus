@@ -76,6 +76,27 @@ class FakeSyncRepository implements SyncRepository {
 
   @override
   Future<void> markSynced(String localId, String serverId) async {}
+
+  @override
+  Future<void> reconcileServerId(String feature, String localId, String serverId) async {}
+
+  @override
+  Future<SyncQueueItem?> getSyncItemByLocalId(String localId) async {
+    try {
+      return _queue.firstWhere((element) => element.localId == localId);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  @override
+  Future<bool> hasPendingMutations(String localId) async {
+    return _queue.any((element) =>
+        element.localId == localId &&
+        (element.syncStatus == SyncStatus.pending ||
+            element.syncStatus == SyncStatus.failed ||
+            element.syncStatus == SyncStatus.syncing));
+  }
 }
 
 void main() {
@@ -101,7 +122,7 @@ void main() {
     localDataSource = FakeMineLocalDataSource();
     syncRepository = FakeSyncRepository();
     outboxService = OutboxService(syncRepository);
-    repository = MineRepositoryImpl(localDataSource, outboxService);
+    repository = MineRepositoryImpl(localDataSource, outboxService, syncRepository);
   });
 
   group('Mine Repository & Use Cases Data Flow', () {

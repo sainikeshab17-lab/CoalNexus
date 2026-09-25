@@ -6,9 +6,18 @@
 
 import 'dart:async' as _i3;
 
-import 'package:coalnexus/core/sync/outbox_service.dart' as _i2;
+import 'package:coalnexus/core/api/api_client.dart' as _i2;
+import 'package:coalnexus/core/sync/outbox_service.dart' as _i4;
+import 'package:coalnexus/core/sync/sync_models.dart' as _i7;
+import 'package:coalnexus/core/sync/sync_repository.dart' as _i6;
+import 'package:coalnexus/features/violations/data/datasources/violation_local_data_source.dart'
+    as _i8;
+import 'package:coalnexus/features/violations/data/models/violation_model.dart'
+    as _i9;
+import 'package:coalnexus/features/violations/domain/entities/violation.dart'
+    as _i10;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:mockito/src/dummies.dart' as _i4;
+import 'package:mockito/src/dummies.dart' as _i5;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -26,13 +35,29 @@ import 'package:mockito/src/dummies.dart' as _i4;
 // ignore_for_file: subtype_of_sealed_class
 // ignore_for_file: invalid_use_of_internal_member
 
+class _FakeApiClient_0 extends _i1.SmartFake implements _i2.ApiClient {
+  _FakeApiClient_0(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeFuture_1<T1> extends _i1.SmartFake implements _i3.Future<T1> {
+  _FakeFuture_1(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
 /// A class which mocks [OutboxService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockOutboxService extends _i1.Mock implements _i2.OutboxService {
+class MockOutboxService extends _i1.Mock implements _i4.OutboxService {
   MockOutboxService() {
     _i1.throwOnMissingStub(this);
   }
+
+  @override
+  _i2.ApiClient get apiClient => (super.noSuchMethod(
+    Invocation.getter(#apiClient),
+    returnValue: _FakeApiClient_0(this, Invocation.getter(#apiClient)),
+  ) as _i2.ApiClient);
 
   @override
   _i3.Future<String> enqueueOperation({
@@ -48,7 +73,7 @@ class MockOutboxService extends _i1.Mock implements _i2.OutboxService {
       #localId: localId,
     }),
     returnValue: _i3.Future<String>.value(
-      _i4.dummyValue<String>(
+      _i5.dummyValue<String>(
         this,
         Invocation.method(#enqueueOperation, [], {
           #featureName: featureName,
@@ -59,4 +84,188 @@ class MockOutboxService extends _i1.Mock implements _i2.OutboxService {
       ),
     ),
   ) as _i3.Future<String>);
+}
+
+/// A class which mocks [SyncRepository].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockSyncRepository extends _i1.Mock implements _i6.SyncRepository {
+  MockSyncRepository() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i3.Future<void> enqueue(_i7.SyncQueueItem? item) => (super.noSuchMethod(
+    Invocation.method(#enqueue, [item]),
+    returnValue: _i3.Future<void>.value(),
+    returnValueForMissingStub: _i3.Future<void>.value(),
+  ) as _i3.Future<void>);
+
+  @override
+  _i3.Future<List<_i7.SyncQueueItem>> getPendingOperations() =>
+      (super.noSuchMethod(
+        Invocation.method(#getPendingOperations, []),
+        returnValue: _i3.Future<List<_i7.SyncQueueItem>>.value(
+          <_i7.SyncQueueItem>[],
+        ),
+      ) as _i3.Future<List<_i7.SyncQueueItem>>);
+
+  @override
+  _i3.Future<void> updateStatus(
+    String? localId,
+    _i7.SyncStatus? status, {
+    String? lastError,
+    int? retryCount,
+  }) => (super.noSuchMethod(
+    Invocation.method(
+      #updateStatus,
+      [localId, status],
+      {#lastError: lastError, #retryCount: retryCount},
+    ),
+    returnValue: _i3.Future<void>.value(),
+    returnValueForMissingStub: _i3.Future<void>.value(),
+  ) as _i3.Future<void>);
+
+  @override
+  _i3.Future<void> markSynced(String? localId, String? serverId) =>
+      (super.noSuchMethod(
+        Invocation.method(#markSynced, [localId, serverId]),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
+
+  @override
+  _i3.Future<void> reconcileServerId(
+    String? feature,
+    String? localId,
+    String? serverId,
+  ) => (super.noSuchMethod(
+    Invocation.method(#reconcileServerId, [feature, localId, serverId]),
+    returnValue: _i3.Future<void>.value(),
+    returnValueForMissingStub: _i3.Future<void>.value(),
+  ) as _i3.Future<void>);
+
+  @override
+  _i3.Future<_i7.SyncQueueItem?> getSyncItemByLocalId(String? localId) =>
+      (super.noSuchMethod(
+        Invocation.method(#getSyncItemByLocalId, [localId]),
+        returnValue: _i3.Future<_i7.SyncQueueItem?>.value(),
+      ) as _i3.Future<_i7.SyncQueueItem?>);
+
+  @override
+  _i3.Future<bool> hasPendingMutations(String? localId) => (super.noSuchMethod(
+    Invocation.method(#hasPendingMutations, [localId]),
+    returnValue: _i3.Future<bool>.value(false),
+  ) as _i3.Future<bool>);
+}
+
+/// A class which mocks [ViolationLocalDataSource].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockViolationLocalDataSource extends _i1.Mock
+    implements _i8.ViolationLocalDataSource {
+  MockViolationLocalDataSource() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i3.Future<List<_i9.ViolationModel>> getCachedViolations() =>
+      (super.noSuchMethod(
+        Invocation.method(#getCachedViolations, []),
+        returnValue: _i3.Future<List<_i9.ViolationModel>>.value(
+          <_i9.ViolationModel>[],
+        ),
+      ) as _i3.Future<List<_i9.ViolationModel>>);
+
+  @override
+  _i3.Future<_i9.ViolationModel?> getViolationById(String? id) =>
+      (super.noSuchMethod(
+        Invocation.method(#getViolationById, [id]),
+        returnValue: _i3.Future<_i9.ViolationModel?>.value(),
+      ) as _i3.Future<_i9.ViolationModel?>);
+
+  @override
+  _i3.Future<List<_i9.ViolationModel>> searchViolations(String? query) =>
+      (super.noSuchMethod(
+        Invocation.method(#searchViolations, [query]),
+        returnValue: _i3.Future<List<_i9.ViolationModel>>.value(
+          <_i9.ViolationModel>[],
+        ),
+      ) as _i3.Future<List<_i9.ViolationModel>>);
+
+  @override
+  _i3.Future<List<_i9.ViolationModel>> getViolationsForMine(String? mineId) =>
+      (super.noSuchMethod(
+        Invocation.method(#getViolationsForMine, [mineId]),
+        returnValue: _i3.Future<List<_i9.ViolationModel>>.value(
+          <_i9.ViolationModel>[],
+        ),
+      ) as _i3.Future<List<_i9.ViolationModel>>);
+
+  @override
+  _i3.Future<List<_i9.ViolationModel>> getViolationsForInspection(
+    String? inspectionId,
+  ) => (super.noSuchMethod(
+    Invocation.method(#getViolationsForInspection, [inspectionId]),
+    returnValue: _i3.Future<List<_i9.ViolationModel>>.value(
+      <_i9.ViolationModel>[],
+    ),
+  ) as _i3.Future<List<_i9.ViolationModel>>);
+
+  @override
+  _i3.Future<void> saveViolation(
+    _i10.Violation? violation, {
+    int? localVersion = 1,
+  }) => (super.noSuchMethod(
+    Invocation.method(
+      #saveViolation,
+      [violation],
+      {#localVersion: localVersion},
+    ),
+    returnValue: _i3.Future<void>.value(),
+    returnValueForMissingStub: _i3.Future<void>.value(),
+  ) as _i3.Future<void>);
+
+  @override
+  _i3.Future<void> updateViolation(
+    _i10.Violation? violation, {
+    int? expectedVersion,
+  }) => (super.noSuchMethod(
+    Invocation.method(
+      #updateViolation,
+      [violation],
+      {#expectedVersion: expectedVersion},
+    ),
+    returnValue: _i3.Future<void>.value(),
+    returnValueForMissingStub: _i3.Future<void>.value(),
+  ) as _i3.Future<void>);
+
+  @override
+  _i3.Future<void> deleteViolation(String? id) => (super.noSuchMethod(
+    Invocation.method(#deleteViolation, [id]),
+    returnValue: _i3.Future<void>.value(),
+    returnValueForMissingStub: _i3.Future<void>.value(),
+  ) as _i3.Future<void>);
+
+  @override
+  _i3.Future<void> clearAllViolations() => (super.noSuchMethod(
+    Invocation.method(#clearAllViolations, []),
+    returnValue: _i3.Future<void>.value(),
+    returnValueForMissingStub: _i3.Future<void>.value(),
+  ) as _i3.Future<void>);
+
+  @override
+  _i3.Future<T> transaction<T>(_i3.Future<T> Function()? action) =>
+      (super.noSuchMethod(
+        Invocation.method(#transaction, [action]),
+        returnValue:
+            _i5.ifNotNull(
+              _i5.dummyValueOrNull<T>(
+                this,
+                Invocation.method(#transaction, [action]),
+              ),
+              (T v) => _i3.Future<T>.value(v),
+            ) ??
+            _FakeFuture_1<T>(this, Invocation.method(#transaction, [action])),
+      ) as _i3.Future<T>);
 }

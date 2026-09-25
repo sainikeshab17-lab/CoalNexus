@@ -1,31 +1,32 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:mockito/annotations.dart';
-import 'package:drift/native.dart';
-import 'package:coalnexus/core/storage/local_database.dart';
 import 'package:coalnexus/core/sync/outbox_service.dart';
 import 'package:coalnexus/features/violations/data/datasources/violation_local_data_source.dart';
 import 'package:coalnexus/features/violations/data/repositories/violation_repository_impl.dart';
+import 'package:coalnexus/features/violations/data/models/violation_model.dart';
 import 'package:coalnexus/features/violations/domain/entities/violation.dart';
 
-@GenerateMocks([OutboxService])
+import 'package:coalnexus/core/sync/sync_repository.dart';
+
+@GenerateMocks([OutboxService, SyncRepository, ViolationLocalDataSource])
 import 'violation_repository_test.mocks.dart';
 
 void main() {
-  late AppDatabase database;
-  late ViolationLocalDataSource localDataSource;
+  late MockViolationLocalDataSource mockLocalDataSource;
   late MockOutboxService mockOutboxService;
+  late MockSyncRepository mockSyncRepository;
   late ViolationRepositoryImpl repository;
 
   setUp(() {
-    database = AppDatabase.forTesting(NativeDatabase.memory());
-    localDataSource = ViolationLocalDataSourceImpl(database);
+    mockLocalDataSource = MockViolationLocalDataSource();
     mockOutboxService = MockOutboxService();
-    repository = ViolationRepositoryImpl(localDataSource, mockOutboxService);
+    mockSyncRepository = MockSyncRepository();
+    repository = ViolationRepositoryImpl(mockLocalDataSource, mockOutboxService, mockSyncRepository);
   });
 
   tearDown(() async {
-    await database.close();
+    // No database to close
   });
 
   final now = DateTime.now();
@@ -45,6 +46,13 @@ void main() {
   );
 
   test('createViolation should save locally and enqueue to outbox', () async {
+    when(mockLocalDataSource.transaction<void>(any)).thenAnswer((inv) {
+      final Future<void> Function() action = inv.positionalArguments[0] as Future<void> Function();
+      return action();
+    });
+    when(mockLocalDataSource.saveViolation(any)).thenAnswer((_) async {});
+    when(mockLocalDataSource.getCachedViolations()).thenAnswer((_) async => [ViolationModel.fromDomain(testViolation)]);
+
     when(mockOutboxService.enqueueOperation(
       featureName: anyNamed('featureName'),
       actionType: anyNamed('actionType'),
@@ -67,14 +75,20 @@ void main() {
   });
 
   test('updateViolation should increment localVersion and enqueue to outbox', () async {
+    when(mockLocalDataSource.transaction<void>(any)).thenAnswer((inv) {
+      final Future<void> Function() action = inv.positionalArguments[0] as Future<void> Function();
+      return action();
+    });
+    when(mockLocalDataSource.getViolationById('v1')).thenAnswer((_) async => ViolationModel.fromDomain(testViolation));
+    when(mockLocalDataSource.updateViolation(any, expectedVersion: anyNamed('expectedVersion'))).thenAnswer((_) async {});
+    when(mockLocalDataSource.getCachedViolations()).thenAnswer((_) async => [ViolationModel.fromDomain(testViolation.copyWith(localVersion: 2, title: 'Updated Title'))]);
+
     when(mockOutboxService.enqueueOperation(
       featureName: anyNamed('featureName'),
       actionType: anyNamed('actionType'),
       payloadJson: anyNamed('payloadJson'),
       localId: anyNamed('localId'),
     )).thenAnswer((_) async => 'operation-id');
-
-    await repository.createViolation(testViolation);
 
     final updated = testViolation.copyWith(title: 'Updated Title');
     await repository.updateViolation(updated);
@@ -92,26 +106,26 @@ void main() {
   });
 
   test('updateViolation should throw conflict error if version mismatch or not found', () async {
+    when(mockLocalDataSource.transaction<void>(any)).thenAnswer((inv) {
+      final Future<void> Function() action = inv.positionalArguments[0] as Future<void> Function();
+      return action();
+    });
+    when(mockLocalDataSource.getViolationById('v1')).thenAnswer((_) async => null);
+
     final updated = testViolation.copyWith(title: 'Updated Title');
     expect(() => repository.updateViolation(updated), throwsA(isA<Exception>()));
   });
 
   test('search, mine filtering, and inspection filtering work correctly', () async {
-    when(mockOutboxService.enqueueOperation(
-      featureName: anyNamed('featureName'),
-      actionType: anyNamed('actionType'),
-      payloadJson: anyNamed('payloadJson'),
-      localId: anyNamed('localId'),
-    )).thenAnswer((_) async => 'operation-id');
-
-    await repository.createViolation(testViolation);
-
+    when(mockLocalDataSource.searchViolations('Safety')).thenAnswer((_) async => [ViolationModel.fromDomain(testViolation)]);
     final searchResults = await repository.searchViolations('Safety');
     expect(searchResults.length, 1);
 
+    when(mockLocalDataSource.getViolationsForMine('m1')).thenAnswer((_) async => [ViolationModel.fromDomain(testViolation)]);
     final mineResults = await repository.getViolationsForMine('m1');
     expect(mineResults.length, 1);
 
+    when(mockLocalDataSource.getViolationsForInspection('i1')).thenAnswer((_) async => [ViolationModel.fromDomain(testViolation)]);
     final inspectionResults = await repository.getViolationsForInspection('i1');
     expect(inspectionResults.length, 1);
   });

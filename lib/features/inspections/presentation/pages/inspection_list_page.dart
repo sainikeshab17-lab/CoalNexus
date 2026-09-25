@@ -8,6 +8,7 @@ import 'package:coalnexus/features/inspections/presentation/providers/inspection
 import 'package:coalnexus/features/inspections/presentation/providers/inspection_sync_status_provider.dart';
 import 'package:coalnexus/features/mines/presentation/providers/mine_providers.dart';
 import 'package:coalnexus/core/sync/sync_models.dart';
+import 'package:coalnexus/features/inspections/presentation/providers/inspection_providers.dart';
 import 'package:intl/intl.dart';
 
 class InspectionListPage extends ConsumerWidget {
@@ -20,6 +21,15 @@ class InspectionListPage extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Inspections'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () async {
+              await ref.read(inspectionRepositoryProvider).refreshInspections();
+              ref.read(inspectionListProvider.notifier).loadInspections();
+            },
+          ),
+        ],
       ),
       body: state.when(
         loading: () => const AppLoadingIndicator(message: 'Loading inspections...'),

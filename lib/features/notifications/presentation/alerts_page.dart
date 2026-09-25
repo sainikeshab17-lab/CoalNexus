@@ -45,6 +45,11 @@ class _AlertsPageState extends ConsumerState<AlertsPage> {
         ),
         actions: [
           IconButton(
+            icon: const Icon(Icons.refresh),
+            tooltip: 'Refresh Alerts',
+            onPressed: () => ref.read(alertRepositoryProvider).refreshAlerts(),
+          ),
+          IconButton(
             icon: const Icon(Icons.bolt, color: Colors.orange),
             tooltip: 'Trigger Demo Critical Event',
             onPressed: () {
