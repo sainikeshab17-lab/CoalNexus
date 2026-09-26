@@ -10,7 +10,7 @@ class MineStatus(str, Enum):
     underMaintenance = "underMaintenance"
 
 class SyncBase(BaseModel):
-    local_id: str
+    local_id: Optional[str] = None
     local_version: int = 1
     operation_id: Optional[str] = None
 
@@ -29,7 +29,7 @@ class MineUpdate(MineBase, SyncBase):
 
 class Mine(MineBase):
     id: str
-    local_id: str
+    local_id: Optional[str] = None
     local_version: int
     created_at: datetime
     updated_at: datetime
@@ -54,7 +54,7 @@ class InspectionCreate(InspectionBase, SyncBase):
 
 class Inspection(InspectionBase):
     id: str
-    local_id: str
+    local_id: Optional[str] = None
     local_version: int
     created_at: datetime
     updated_at: datetime
@@ -81,7 +81,7 @@ class FindingCreate(FindingBase, SyncBase):
 
 class Finding(FindingBase):
     id: str
-    local_id: str
+    local_id: Optional[str] = None
     local_version: int
     created_at: datetime
     updated_at: datetime
@@ -117,7 +117,7 @@ class ViolationCreate(ViolationBase, SyncBase):
 
 class Violation(ViolationBase):
     id: str
-    local_id: str
+    local_id: Optional[str] = None
     local_version: int
     created_at: datetime
     updated_at: datetime
@@ -136,7 +136,7 @@ class AlertCreate(AlertBase, SyncBase):
 
 class Alert(AlertBase):
     id: str
-    local_id: str
+    local_id: Optional[str] = None
     created_at: datetime
     
     model_config = ConfigDict(from_attributes=True)
@@ -158,7 +158,7 @@ class CorrectiveActionCreate(CorrectiveActionBase, SyncBase):
 
 class CorrectiveAction(CorrectiveActionBase):
     id: str
-    local_id: str
+    local_id: Optional[str] = None
     local_version: int
     created_at: datetime
     updated_at: datetime
@@ -180,7 +180,7 @@ class AuditTrailCreate(AuditTrailBase, SyncBase):
 
 class AuditTrail(AuditTrailBase):
     id: str
-    local_id: str
+    local_id: Optional[str] = None
     created_at: datetime
     
     model_config = ConfigDict(from_attributes=True)

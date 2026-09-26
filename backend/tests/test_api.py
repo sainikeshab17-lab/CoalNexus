@@ -9,6 +9,19 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app.main import app
 from app.database import Base, get_db
+from app.models.models import UserRole, Profile, UserMineAssignment, Mine
+from geoalchemy2 import Geometry
+import geoalchemy2.admin.dialects.sqlite
+
+# Bypass GeoAlchemy2 initialization for SQLite testing
+setattr(geoalchemy2.admin.dialects.sqlite, 'after_create', lambda *a, **kw: None)
+setattr(geoalchemy2.admin.dialects.sqlite, 'before_create', lambda *a, **kw: None)
+setattr(geoalchemy2.admin.dialects.sqlite, 'before_drop', lambda *a, **kw: None)
+setattr(geoalchemy2.admin.dialects.sqlite, 'after_drop', lambda *a, **kw: None)
+
+# Also remove the index from the metadata for SQLite to avoid index creation errors
+for table in Base.metadata.tables.values():
+    table.indexes = {idx for idx in table.indexes if not any(isinstance(c.type, Geometry) for c in idx.columns)}
 
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
 

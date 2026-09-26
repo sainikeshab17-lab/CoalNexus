@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 from typing import List
 import uuid
@@ -10,8 +11,12 @@ from ..models import models as db_models
 from ..repositories.repositories import mine_repo, inspection_repo, violation_repo, alert_repo, operation_repo, finding_repo, corrective_action_repo, audit_trail_repo, telemetry_repo
 from ..services.workflow import workflow_service
 from ..schemas import telemetry as tel_schemas
+from ..core.security import get_current_user_profile, RoleChecker, MineAccessChecker
+from ..models.models import UserRole, Profile
 
 router = APIRouter()
+
+mine_access_checker = MineAccessChecker()
 
 @router.get("/health", response_model=sync_schemas.HealthResponse)
 def health_check():
@@ -24,18 +29,25 @@ def check_idempotency(db: Session, operation_id: str or None):
 
 # --- MINES ---
 @router.get("/mines", response_model=List[schemas.Mine])
-def get_mines(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    return mine_repo.get_all(db, skip=skip, limit=limit)
+def get_mines(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: Profile = Depends(get_current_user_profile)):
+    # If admin, return all mines. Otherwise return only assigned ones.
+    if current_user.role == UserRole.ADMIN.value:
+        return mine_repo.get_all(db, skip=skip, limit=limit)
+    
+    assigned_mine_ids = [assignment.mine_id for assignment in current_user.mine_assignments]
+    all_mines = mine_repo.get_all(db, skip=skip, limit=limit)
+    return [m for m in all_mines if m.id in assigned_mine_ids]
 
 @router.get("/mines/{mine_id}", response_model=schemas.Mine)
-def get_mine(mine_id: str, db: Session = Depends(get_db)):
+def get_mine(mine_id: str, db: Session = Depends(get_db), current_user: Profile = Depends(get_current_user_profile)):
     db_obj = mine_repo.get_by_id(db, mine_id) or mine_repo.get_by_local_id(db, mine_id)
     if not db_obj:
         raise HTTPException(status_code=404, detail="Mine not found")
+    mine_access_checker.check_mine_access(db, current_user, db_obj.id)
     return db_obj
 
 @router.post("/mines", response_model=schemas.Mine)
-def create_mine(mine_in: schemas.MineCreate, db: Session = Depends(get_db)):
+def create_mine(mine_in: schemas.MineCreate, db: Session = Depends(get_db), current_user: Profile = Depends(RoleChecker([UserRole.ADMIN.value]))):
     if mine_in.operation_id and check_idempotency(db, mine_in.operation_id):
         existing = mine_repo.get_by_local_id(db, mine_in.local_id)
         if existing:
@@ -62,7 +74,7 @@ def create_mine(mine_in: schemas.MineCreate, db: Session = Depends(get_db)):
     return db_obj
 
 @router.put("/mines/{mine_id}", response_model=schemas.Mine)
-def update_mine(mine_id: str, mine_in: schemas.MineUpdate, db: Session = Depends(get_db)):
+def update_mine(mine_id: str, mine_in: schemas.MineUpdate, db: Session = Depends(get_db), current_user: Profile = Depends(RoleChecker([UserRole.ADMIN.value]))):
     db_obj = mine_repo.get_by_id(db, mine_id) or mine_repo.get_by_local_id(db, mine_in.local_id)
     if not db_obj:
         raise HTTPException(status_code=404, detail="Mine not found")
@@ -75,11 +87,11 @@ def update_mine(mine_id: str, mine_in: schemas.MineUpdate, db: Session = Depends
         # Server version is newer, return 409 Conflict with current server object
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail={
+            detail=jsonable_encoder({
                 "message": "Conflict detected: server version is newer",
                 "server_version": db_obj.local_version,
                 "current_server_obj": schemas.Mine.from_orm(db_obj).dict()
-            }
+            })
         )
 
     update_data = {
@@ -143,11 +155,11 @@ def update_inspection(insp_id: str, insp_in: schemas.InspectionCreate, db: Sessi
     if insp_in.local_version < db_obj.local_version:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail={
+            detail=jsonable_encoder({
                 "message": "Conflict detected: server version is newer",
                 "server_version": db_obj.local_version,
                 "current_server_obj": schemas.Inspection.from_orm(db_obj).dict()
-            }
+            })
         )
 
     if insp_in.status.value != db_obj.status:
@@ -224,11 +236,11 @@ def update_violation(viol_id: str, viol_in: schemas.ViolationCreate, db: Session
     if viol_in.local_version < db_obj.local_version:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail={
+            detail=jsonable_encoder({
                 "message": "Conflict detected: server version is newer",
                 "server_version": db_obj.local_version,
                 "current_server_obj": schemas.Violation.from_orm(db_obj).dict()
-            }
+            })
         )
 
     if viol_in.status.value != db_obj.status:
@@ -306,11 +318,11 @@ def update_finding(finding_id: str, finding_in: schemas.FindingCreate, db: Sessi
     if finding_in.local_version < db_obj.local_version:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail={
+            detail=jsonable_encoder({
                 "message": "Conflict detected: server version is newer",
                 "server_version": db_obj.local_version,
                 "current_server_obj": schemas.Finding.from_orm(db_obj).dict()
-            }
+            })
         )
 
     insp_obj = inspection_repo.get_by_id(db, finding_in.inspection_id) or inspection_repo.get_by_local_id(db, finding_in.inspection_id)
@@ -416,11 +428,11 @@ def update_corrective_action(ca_id: str, ca_in: schemas.CorrectiveActionCreate, 
     if ca_in.local_version < db_obj.local_version:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail={
+            detail=jsonable_encoder({
                 "message": "Conflict detected: server version is newer",
                 "server_version": db_obj.local_version,
                 "current_server_obj": schemas.CorrectiveAction.from_orm(db_obj).dict()
-            }
+            })
         )
 
     if ca_in.status != db_obj.status:
