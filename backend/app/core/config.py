@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     API_V1_STR: str = "/api"
     
     # CORS
-    ALLOWED_ORIGINS: str = os.getenv("ALLOWED_ORIGINS", "*")
+    ALLOWED_ORIGINS: str = os.getenv("ALLOWED_ORIGINS", "")
     
     # Database
     DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./coalnexus.db")
@@ -22,6 +22,7 @@ class Settings(BaseSettings):
     
     # Authentication
     SECRET_KEY: str = os.getenv("SECRET_KEY", "DEVELOPMENT_SECRET_DO_NOT_USE_IN_PROD")
+    ENVIRONMENT: str = os.getenv("ENVIRONMENT", "development")
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8
     
     class Config:

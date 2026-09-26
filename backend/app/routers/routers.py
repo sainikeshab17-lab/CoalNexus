@@ -13,6 +13,7 @@ from ..services.workflow import workflow_service
 from ..schemas import telemetry as tel_schemas
 from ..core.security import get_current_user_profile, RoleChecker, MineAccessChecker
 from ..models.models import UserRole, Profile
+from .websocket import notify_telemetry_update
 
 router = APIRouter()
 
@@ -507,7 +508,18 @@ def create_telemetry(tel_in: tel_schemas.TelemetryCreate, db: Session = Depends(
         timestamp=tel_in.timestamp,
         readings=tel_in.readings.dict()
     )
-    return telemetry_repo.create(db, db_obj)
+    created = telemetry_repo.create(db, db_obj)
+    
+    # Broadcast to websocket clients
+    import asyncio
+    try:
+        loop = asyncio.get_running_loop()
+        loop.create_task(notify_telemetry_update(jsonable_encoder(created)))
+    except RuntimeError:
+        # No running loop (likely in synchronous test environment)
+        pass
+    
+    return created
 
 @router.get("/telemetry", response_model=List[tel_schemas.Telemetry])
 def get_telemetry(limit: int = 100, db: Session = Depends(get_db)):

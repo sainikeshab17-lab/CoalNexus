@@ -18,3 +18,5 @@ xgboost==2.0.3
 minio==7.2.4
 passlib[bcrypt]==1.7.4
 bcrypt==4.1.2
+PyJWT
+websockets==12.0

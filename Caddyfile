@@ -1,0 +1,16 @@
+:80 {
+    # Frontend assets and routing
+    reverse_proxy /assets/* frontend:80
+    reverse_proxy /index.html frontend:80
+    reverse_proxy /favicon.ico frontend:80
+
+    # Backend REST API
+    reverse_proxy /api/* backend:8000
+
+    # Real-time Telemetry WebSockets
+    reverse_proxy /ws/* backend:8000
+
+    # Fallback to frontend for single page app routing
+    try_files {path} /index.html
+    reverse_proxy frontend:80
+}

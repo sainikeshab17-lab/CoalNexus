@@ -1,56 +1,63 @@
 services:
+  caddy:
+    image: caddy:2-alpine
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - frontend
+      - backend
+
   postgres:
     image: postgis/postgis:15-3.3
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_DB=${POSTGRES_DB:-coalnexus}
-      - POSTGRES_USER=${POSTGRES_USER:-postgres}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-password}
-    ports:
-      - "5432:5432"
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
       timeout: 5s
       retries: 5
+    restart: always
 
   redis:
     image: redis:7-alpine
-    ports:
-      - "6379:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
+      interval: 10s
       timeout: 5s
       retries: 5
+    restart: always
 
   mosquitto:
     image: eclipse-mosquitto:2
-    ports:
-      - "1883:1883"
     volumes:
       - mosquitto_data:/mosquitto/data
       - mosquitto_log:/mosquitto/log
+    restart: always
 
   minio:
     image: quay.io/minio/aistor/minio:RELEASE.2026-03-26T21-24-40Z
-    ports:
-      - "9000:9000"
-      - "9002:9002"
     environment:
-      - MINIO_ROOT_USER=${MINIO_ROOT_USER:-admin}
-      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD:-password123}
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
     volumes:
       - minio_data:/data
     command: server /data --console-address ":9002"
+    restart: always
 
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    ports:
-      - "8000:8000"
     depends_on:
       postgres:
         condition: service_healthy
@@ -59,22 +66,23 @@ services:
     env_file:
       - .env
     environment:
-      - DATABASE_URL=postgresql+psycopg://postgres:password@postgres:5432/coalnexus
+      - DATABASE_URL=postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
       - REDIS_URL=redis://redis:6379/0
       - MQTT_HOST=mosquitto
       - MINIO_ENDPOINT=minio:9000
+      - ENVIRONMENT=production
+      - SECRET_KEY=${SECRET_KEY}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
     restart: always
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    ports:
-      - "80:80"
     depends_on:
       - backend
     environment:
-      - VITE_API_URL=http://localhost:8000/api
+      - VITE_API_URL=/api
     restart: always
 
 volumes:
@@ -82,3 +90,5 @@ volumes:
   minio_data:
   mosquitto_data:
   mosquitto_log:
+  caddy_data:
+  caddy_config:

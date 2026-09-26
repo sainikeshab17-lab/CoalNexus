@@ -1,0 +1,20 @@
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {
+      colors: {
+        coal: {
+          950: '#0a0a0a',
+          900: '#171717',
+          800: '#262626',
+          700: '#404040',
+        }
+      }
+    },
+  },
+  plugins: [],
+}

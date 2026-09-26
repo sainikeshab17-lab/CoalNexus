@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .database import engine, Base
 from .routers.routers import router
+from .routers.websocket import router as ws_router
 from .core.config import settings
 
 # Create database tables
@@ -13,7 +14,10 @@ app = FastAPI(
 )
 
 # Configure CORS
-origins = settings.ALLOWED_ORIGINS.split(",")
+origins = settings.ALLOWED_ORIGINS.split(",") if settings.ALLOWED_ORIGINS else []
+if settings.ENVIRONMENT != "production" and not origins:
+    origins = ["*"]
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -23,6 +27,7 @@ app.add_middleware(
 )
 
 app.include_router(router, prefix=settings.API_V1_STR)
+app.include_router(ws_router)
 
 if __name__ == "__main__":
     import uvicorn

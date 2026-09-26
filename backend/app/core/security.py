@@ -15,11 +15,13 @@ def get_current_user_profile(
 ) -> Profile:
     token = credentials.credentials
     try:
-        # Since it's linked with Supabase Auth, the token is a JWT from Supabase.
-        # We can decode it using the Supabase Secret Key if available, or just extract claims if validating locally/development mode.
-        # In full production, we validate using SUPABASE_SECRET_KEY or jwt public keys.
-        # If SECRET_KEY/SUPABASE_SECRET_KEY is configured, we decode properly.
         secret = settings.SUPABASE_SECRET_KEY or settings.SECRET_KEY
+        if not secret and settings.ENVIRONMENT == "production":
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Security configuration error: SECRET_KEY not set",
+            )
+            
         payload = jwt.decode(token, secret, algorithms=["HS256"], options={"verify_aud": False})
         
         user_id: str = payload.get("sub")
@@ -30,7 +32,12 @@ def get_current_user_profile(
             )
     except jwt.PyJWTError:
         # Fallback for easier testing/development or token simulation with basic strings or demo profiles
-        # If token matches a demo profile id directly, allow it during transition phase
+        # In production, we MUST fail here.
+        if settings.ENVIRONMENT == "production":
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token",
+            )
         user_id = token
         
     profile = db.query(Profile).filter(Profile.id == user_id).first()
