@@ -19,9 +19,14 @@ setattr(geoalchemy2.admin.dialects.sqlite, 'before_create', lambda *a, **kw: Non
 setattr(geoalchemy2.admin.dialects.sqlite, 'before_drop', lambda *a, **kw: None)
 setattr(geoalchemy2.admin.dialects.sqlite, 'after_drop', lambda *a, **kw: None)
 
-# Also remove the index from the metadata for SQLite to avoid index creation errors
+# Also remove the index and geometry columns from the metadata for SQLite to avoid creation errors
 for table in Base.metadata.tables.values():
     table.indexes = {idx for idx in table.indexes if not any(isinstance(c.type, Geometry) for c in idx.columns)}
+    for column in table.columns:
+        if isinstance(column.type, Geometry):
+            # Change Geometry to a simple type for SQLite
+            from sqlalchemy import Text
+            column.type = Text()
 
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
 
@@ -36,6 +41,29 @@ Base.metadata.create_all(bind=engine)
 def run_around_tests():
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
+    
+    # Seed a demo admin profile for auth tests
+    db = TestingSessionLocal()
+    admin = Profile(
+        id="demo-admin-id-111",
+        email="admin@coalnexus.com",
+        full_name="Admin User",
+        role=UserRole.ADMIN.value,
+        is_active=True
+    )
+    db.add(admin)
+    
+    inspector = Profile(
+        id="demo-inspector-id-333",
+        email="inspector@coalnexus.com",
+        full_name="Inspector User",
+        role=UserRole.INSPECTOR.value,
+        is_active=True
+    )
+    db.add(inspector)
+    db.commit()
+    db.close()
+
     yield
     Base.metadata.drop_all(bind=engine)
 
@@ -65,7 +93,7 @@ def test_create_mine():
         "status": "active",
         "operation_id": "op_123"
     }
-    response = client.post("/api/mines", json=mine_data)
+    response = client.post("/api/mines", json=mine_data, headers={"Authorization": "Bearer demo-admin-id-111"})
     assert response.status_code == 200
     data = response.json()
     assert data["name"] == "Test Mine"
@@ -82,11 +110,11 @@ def test_idempotency():
         "status": "active",
         "operation_id": "op_456"
     }
-    response1 = client.post("/api/mines", json=mine_data)
+    response1 = client.post("/api/mines", json=mine_data, headers={"Authorization": "Bearer demo-admin-id-111"})
     assert response1.status_code == 200
     id1 = response1.json()["id"]
 
-    response2 = client.post("/api/mines", json=mine_data)
+    response2 = client.post("/api/mines", json=mine_data, headers={"Authorization": "Bearer demo-admin-id-111"})
     assert response2.status_code == 200
     id2 = response2.json()["id"]
     
@@ -116,7 +144,7 @@ def test_telemetry_ingestion():
         "longitude": 0,
         "status": "active",
         "operation_id": "op_tel_1"
-    })
+    }, headers={"Authorization": "Bearer demo-admin-id-111"})
     
     response = client.post("/api/telemetry", json=telemetry_data)
     assert response.status_code == 200
@@ -157,7 +185,7 @@ def test_corrective_action_workflow():
     # 1. Create Mine
     client.post("/api/mines", json={
         "local_id": "m1", "name": "M1", "mine_code": "M1", "latitude": 0, "longitude": 0, "status": "active", "operation_id": "op1"
-    })
+    }, headers={"Authorization": "Bearer demo-admin-id-111"})
     # 2. Create Inspection
     client.post("/api/inspections", json={
         "local_id": "i1", "mine_id": "m1", "inspector_id": "u1", "status": "draft", "category": "safety", "operation_id": "op2"

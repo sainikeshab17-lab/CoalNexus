@@ -407,7 +407,7 @@ def create_corrective_action(ca_in: schemas.CorrectiveActionCreate, db: Session 
         status=ca_in.status,
         submitted_at=ca_in.submitted_at,
         verified_at=ca_in.verified_at,
-        evidence=ca_in.evidence,
+        evidence_deprecated=ca_in.evidence,
         local_version=ca_in.local_version,
         operation_id=ca_in.operation_id
     )
@@ -451,7 +451,7 @@ def update_corrective_action(ca_id: str, ca_in: schemas.CorrectiveActionCreate, 
         "status": ca_in.status,
         "submitted_at": ca_in.submitted_at,
         "verified_at": ca_in.verified_at,
-        "evidence": ca_in.evidence,
+        "evidence_deprecated": ca_in.evidence,
         "local_version": ca_in.local_version,
         "operation_id": ca_in.operation_id
     }

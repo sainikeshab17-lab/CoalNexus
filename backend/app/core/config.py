@@ -9,6 +9,9 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "CoalNexus API"
     API_V1_STR: str = "/api"
     
+    # CORS
+    ALLOWED_ORIGINS: str = os.getenv("ALLOWED_ORIGINS", "*")
+    
     # Database
     DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./coalnexus.db")
     

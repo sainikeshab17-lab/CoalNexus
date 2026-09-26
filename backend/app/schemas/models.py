@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, model_validator
 from typing import Optional
 from datetime import datetime
 from enum import Enum
@@ -164,6 +164,29 @@ class CorrectiveAction(CorrectiveActionBase):
     updated_at: datetime
     
     model_config = ConfigDict(from_attributes=True)
+
+    @model_validator(mode='before')
+    @classmethod
+    def resolve_evidence_clash(cls, data):
+        if hasattr(data, "evidence_deprecated"):
+            return {
+                "id": data.id,
+                "local_id": data.local_id,
+                "violation_id": data.violation_id,
+                "title": data.title,
+                "description": data.description,
+                "assigned_to": data.assigned_to,
+                "priority": data.priority,
+                "due_date": data.due_date,
+                "status": data.status,
+                "submitted_at": data.submitted_at,
+                "verified_at": data.verified_at,
+                "evidence": data.evidence_deprecated,
+                "local_version": data.local_version,
+                "created_at": data.created_at,
+                "updated_at": data.updated_at,
+            }
+        return data
 
 class AuditTrailBase(BaseModel):
     entity_type: str
