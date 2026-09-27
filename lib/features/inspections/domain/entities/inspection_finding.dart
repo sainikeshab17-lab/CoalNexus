@@ -9,12 +9,7 @@ enum FindingStatus {
   notApplicable,
 }
 
-enum FindingSeverity {
-  low,
-  medium,
-  high,
-  critical,
-}
+enum FindingSeverity { low, medium, high, critical }
 
 @immutable
 class InspectionFinding {

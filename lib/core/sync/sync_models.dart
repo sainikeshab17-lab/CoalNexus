@@ -1,10 +1,4 @@
-enum SyncStatus {
-  pending,
-  syncing,
-  synced,
-  failed,
-  conflict
-}
+enum SyncStatus { pending, syncing, synced, failed, conflict }
 
 class SyncQueueItem {
   final String localId;

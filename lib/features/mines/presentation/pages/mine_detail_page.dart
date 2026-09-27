@@ -36,7 +36,9 @@ class MineDetailPage extends ConsumerWidget {
         future: mineAsync,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const AppLoadingIndicator(message: 'Loading mine details...');
+            return const AppLoadingIndicator(
+              message: 'Loading mine details...',
+            );
           }
 
           if (snapshot.hasError) {
@@ -65,7 +67,7 @@ class _MineDetailContent extends ConsumerWidget {
     final syncStatusAsync = ref.watch(mineSyncStatusProvider(mine.localId));
     final riskAsync = ref.watch(mineRiskProvider(mine.localId));
     final violationsAsync = ref.watch(violationListProvider);
-    
+
     final dateFormat = DateFormat('MMM dd, yyyy HH:mm');
 
     return SingleChildScrollView(
@@ -76,8 +78,11 @@ class _MineDetailContent extends ConsumerWidget {
           // Risk Intelligence Section
           riskAsync.when(
             data: (risk) => _MineRiskCard(risk: risk),
-            loading: () => const AppCard(child: Center(child: CircularProgressIndicator())),
-            error: (err, _) => AppCard(child: Text('Error loading risk data: $err')),
+            loading: () => const AppCard(
+              child: Center(child: CircularProgressIndicator()),
+            ),
+            error: (err, _) =>
+                AppCard(child: Text('Error loading risk data: $err')),
           ),
           const SizedBox(height: AppSpacing.md),
 
@@ -95,9 +100,8 @@ class _MineDetailContent extends ConsumerWidget {
                     Expanded(
                       child: Text(
                         mine.name,
-                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
+                        style: Theme.of(context).textTheme.headlineSmall
+                            ?.copyWith(fontWeight: FontWeight.bold),
                       ),
                     ),
                     if (syncStatusAsync.value != null)
@@ -107,40 +111,56 @@ class _MineDetailContent extends ConsumerWidget {
                 const SizedBox(height: AppSpacing.xs),
                 Text(
                   mine.mineCode,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Theme.of(context).disabledColor,
-                      ),
+                  style: Theme.of(context).textTheme.titleMedium
+                      ?.copyWith(color: Theme.of(context).disabledColor),
                 ),
                 const Divider(height: AppSpacing.lg),
-                _DetailRow(label: 'Status', value: mine.status.name.toUpperCase()),
+                _DetailRow(
+                  label: 'Status',
+                  value: mine.status.name.toUpperCase(),
+                ),
                 _DetailRow(
                   label: 'Location',
-                  value: '${mine.latitude.toStringAsFixed(6)}, ${mine.longitude.toStringAsFixed(6)}',
+                  value:
+                      '${mine.latitude.toStringAsFixed(6)}, ${mine.longitude.toStringAsFixed(6)}',
                 ),
-                _DetailRow(label: 'Created', value: dateFormat.format(mine.createdAt)),
-                _DetailRow(label: 'Last Updated', value: dateFormat.format(mine.updatedAt)),
+                _DetailRow(
+                  label: 'Created',
+                  value: dateFormat.format(mine.createdAt),
+                ),
+                _DetailRow(
+                  label: 'Last Updated',
+                  value: dateFormat.format(mine.updatedAt),
+                ),
               ],
             ),
           ),
-          
+
           const SizedBox(height: AppSpacing.md),
           const AppSectionHeader(title: 'Recent Violations'),
           violationsAsync.when(
             data: (violations) {
-              final mineViolations = violations.where((v) => v.mineId == mine.localId).toList();
+              final mineViolations = violations
+                  .where((v) => v.mineId == mine.localId)
+                  .toList();
               if (mineViolations.isEmpty) {
                 return const AppCard(child: Text('No active violations.'));
               }
               return Column(
-                children: mineViolations.take(3).map((v) => Card(
-                  margin: const EdgeInsets.only(bottom: AppSpacing.sm),
-                  child: ListTile(
-                    title: Text(v.title),
-                    subtitle: Text(v.severity.name.toUpperCase()),
-                    trailing: _ViolationStatusChip(status: v.status),
-                    onTap: () => context.push('/violations/${v.localId}'),
-                  ),
-                )).toList(),
+                children: mineViolations
+                    .take(3)
+                    .map(
+                      (v) => Card(
+                        margin: const EdgeInsets.only(bottom: AppSpacing.sm),
+                        child: ListTile(
+                          title: Text(v.title),
+                          subtitle: Text(v.severity.name.toUpperCase()),
+                          trailing: _ViolationStatusChip(status: v.status),
+                          onTap: () => context.push('/violations/${v.localId}'),
+                        ),
+                      ),
+                    )
+                    .toList(),
               );
             },
             loading: () => const Center(child: CircularProgressIndicator()),
@@ -152,7 +172,10 @@ class _MineDetailContent extends ConsumerWidget {
           AppCard(
             child: Column(
               children: [
-                _DetailRow(label: 'Mine Registry ID', value: mine.localId.toUpperCase()),
+                _DetailRow(
+                  label: 'Mine Registry ID',
+                  value: mine.localId.toUpperCase(),
+                ),
                 if (mine.serverId != null)
                   _DetailRow(label: 'Sync Authority ID', value: mine.serverId!),
               ],
@@ -199,10 +222,10 @@ class _MineRiskCard extends StatelessWidget {
               Text(
                 'SAFETY RISK INTELLIGENCE',
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      letterSpacing: 1.2,
-                      fontWeight: FontWeight.bold,
-                      color: color,
-                    ),
+                  letterSpacing: 1.2,
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                ),
               ),
               AppStatusChip(label: risk.level.label, color: color),
             ],
@@ -212,18 +235,20 @@ class _MineRiskCard extends StatelessWidget {
             children: [
               Text(
                 risk.score.toStringAsFixed(1),
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: color,
-                    ),
+                style: Theme.of(context).textTheme.headlineMedium
+                    ?.copyWith(fontWeight: FontWeight.bold, color: color),
               ),
               const SizedBox(width: AppSpacing.xs),
-              Text('/ 100',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Theme.of(context).disabledColor)),
+              Text(
+                '/ 100',
+                style: Theme.of(context).textTheme.titleMedium
+                    ?.copyWith(color: Theme.of(context).disabledColor),
+              ),
               const Spacer(),
               Text(
                 'Updated: ${DateFormat('HH:mm').format(risk.updatedAt)}',
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Theme.of(context).disabledColor),
+                style: Theme.of(context).textTheme.labelSmall
+                    ?.copyWith(color: Theme.of(context).disabledColor),
               ),
             ],
           ),
@@ -238,7 +263,8 @@ class _MineRiskCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.md),
           Text(
             'Risk Factors Breakdown:',
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+            style: Theme.of(context).textTheme.titleSmall
+                ?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: AppSpacing.sm),
           ...risk.factors.map((f) => _RiskFactorRow(factor: f, color: color)),
@@ -270,20 +296,20 @@ class _RiskFactorRow extends StatelessWidget {
             children: [
               Text(
                 factor.title,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
+                style: Theme.of(context).textTheme.bodySmall
+                    ?.copyWith(fontWeight: FontWeight.bold),
               ),
               Text(
                 '+${factor.weight.toStringAsFixed(0)}',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: color,
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: Theme.of(context).textTheme.bodySmall
+                    ?.copyWith(color: color, fontWeight: FontWeight.bold),
               ),
             ],
           ),
           Text(
             factor.description,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).hintColor),
+            style: Theme.of(context).textTheme.bodySmall
+                ?.copyWith(color: Theme.of(context).hintColor),
           ),
         ],
       ),
@@ -311,7 +337,11 @@ class _WhyIsThisHighRisk extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.auto_awesome, size: 16, color: theme.colorScheme.primary),
+              Icon(
+                Icons.auto_awesome,
+                size: 16,
+                color: theme.colorScheme.primary,
+              ),
               const SizedBox(width: AppSpacing.xs),
               Text(
                 'Why is this mine ${risk.level.name} risk?',
@@ -325,7 +355,9 @@ class _WhyIsThisHighRisk extends StatelessWidget {
           const SizedBox(height: AppSpacing.xs),
           Text(
             _generateRiskExplanation(risk),
-            style: theme.textTheme.bodySmall?.copyWith(fontStyle: FontStyle.italic),
+            style: theme.textTheme.bodySmall?.copyWith(
+              fontStyle: FontStyle.italic,
+            ),
           ),
         ],
       ),
@@ -357,7 +389,11 @@ class _DetailRow extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500)),
+          Text(
+            label,
+            style: Theme.of(context).textTheme.bodyMedium
+                ?.copyWith(fontWeight: FontWeight.w500),
+          ),
           Flexible(
             child: Text(
               value,

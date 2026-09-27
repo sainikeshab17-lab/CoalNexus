@@ -27,7 +27,8 @@ final failedSyncCountProvider = StreamProvider<int>((ref) {
 
 final isSyncingProvider = StreamProvider<bool>((ref) {
   final db = ref.watch(appDatabaseProvider);
-  return (db.select(db.syncQueue)..where((t) => t.syncStatus.equals(SyncStatus.syncing.name)))
+  return (db.select(db.syncQueue)
+        ..where((t) => t.syncStatus.equals(SyncStatus.syncing.name)))
       .watch()
       .map((rows) => rows.isNotEmpty);
 });
@@ -41,15 +42,22 @@ class SyncStatusOverlay extends ConsumerWidget {
     final failedCount = ref.watch(failedSyncCountProvider).value ?? 0;
     final totalPending = pendingCount + failedCount;
     final isSyncing = ref.watch(isSyncingProvider).value ?? false;
-    final isConnected = ref.watch(connectivityServiceProvider).onConnectivityChanged;
-    final backendHealth = ref.watch(backendHealthProvider).value ?? BackendHealthStatus.offline;
-    
+    final isConnected = ref
+        .watch(connectivityServiceProvider)
+        .onConnectivityChanged;
+    final backendHealth =
+        ref.watch(backendHealthProvider).value ?? BackendHealthStatus.offline;
+
     return StreamBuilder<bool>(
       stream: isConnected,
       builder: (context, snapshot) {
         final online = snapshot.data ?? true;
-        
-        if (totalPending == 0 && online && !isSyncing && backendHealth == BackendHealthStatus.online) return const SizedBox.shrink();
+
+        if (totalPending == 0 &&
+            online &&
+            !isSyncing &&
+            backendHealth == BackendHealthStatus.online)
+          return const SizedBox.shrink();
 
         return Positioned(
           bottom: 80,
@@ -60,9 +68,18 @@ class SyncStatusOverlay extends ConsumerWidget {
               child: InkWell(
                 onTap: () => context.push('/sync'),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.md,
+                    vertical: AppSpacing.sm,
+                  ),
                   decoration: BoxDecoration(
-                    color: _getColor(online, isSyncing, pendingCount, failedCount, backendHealth),
+                    color: _getColor(
+                      online,
+                      isSyncing,
+                      pendingCount,
+                      failedCount,
+                      backendHealth,
+                    ),
                     borderRadius: BorderRadius.circular(AppRadius.lg),
                     boxShadow: [
                       BoxShadow(
@@ -79,7 +96,10 @@ class SyncStatusOverlay extends ConsumerWidget {
                         const SizedBox(
                           width: 12,
                           height: 12,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
                         )
                       else
                         Icon(
@@ -89,7 +109,13 @@ class SyncStatusOverlay extends ConsumerWidget {
                         ),
                       const SizedBox(width: AppSpacing.sm),
                       Text(
-                        _getText(online, isSyncing, pendingCount, failedCount, backendHealth),
+                        _getText(
+                          online,
+                          isSyncing,
+                          pendingCount,
+                          failedCount,
+                          backendHealth,
+                        ),
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 12,
@@ -103,13 +129,20 @@ class SyncStatusOverlay extends ConsumerWidget {
             ),
           ),
         );
-      }
+      },
     );
   }
 
-  Color _getColor(bool online, bool syncing, int pending, int failed, BackendHealthStatus health) {
+  Color _getColor(
+    bool online,
+    bool syncing,
+    int pending,
+    int failed,
+    BackendHealthStatus health,
+  ) {
     if (!online) return Colors.grey.shade700;
-    if (health == BackendHealthStatus.backendUnavailable) return Colors.red.shade700;
+    if (health == BackendHealthStatus.backendUnavailable)
+      return Colors.red.shade700;
     if (syncing) return Colors.blue.shade600;
     if (failed > 0) return Colors.red.shade800;
     if (pending > 0) return Colors.orange.shade700;
@@ -118,14 +151,22 @@ class SyncStatusOverlay extends ConsumerWidget {
 
   IconData _getIcon(bool online, int failed, BackendHealthStatus health) {
     if (!online) return Icons.cloud_off;
-    if (health == BackendHealthStatus.backendUnavailable) return Icons.report_problem;
+    if (health == BackendHealthStatus.backendUnavailable)
+      return Icons.report_problem;
     if (failed > 0) return Icons.sync_problem;
     return Icons.cloud_done;
   }
 
-  String _getText(bool online, bool syncing, int pending, int failed, BackendHealthStatus health) {
+  String _getText(
+    bool online,
+    bool syncing,
+    int pending,
+    int failed,
+    BackendHealthStatus health,
+  ) {
     if (!online) return 'OFFLINE (${pending + failed} PENDING)';
-    if (health == BackendHealthStatus.backendUnavailable) return 'BACKEND UNAVAILABLE';
+    if (health == BackendHealthStatus.backendUnavailable)
+      return 'BACKEND UNAVAILABLE';
     if (syncing) return 'SYNCING...';
     if (failed > 0) return '$failed SYNC ERRORS';
     if (pending > 0) return '$pending PENDING SYNC';

@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:connectivity_plus/connectivity_plus.dart';
 
 abstract class ConnectivityService {
@@ -19,7 +20,9 @@ class ConnectivityServiceImpl implements ConnectivityService {
 
   @override
   Stream<bool> get onConnectivityChanged {
-    return _connectivity.onConnectivityChanged.map((result) => _hasNetwork(result));
+    return _connectivity.onConnectivityChanged.map(
+      (result) => _hasNetwork(result),
+    );
   }
 
   bool _hasNetwork(List<ConnectivityResult> results) {

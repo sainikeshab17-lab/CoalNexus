@@ -64,9 +64,8 @@ class AuditTimeline extends StatelessWidget {
                         children: [
                           Text(
                             event.action.toUpperCase(),
-                            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
+                            style: Theme.of(context).textTheme.titleSmall
+                                ?.copyWith(fontWeight: FontWeight.bold),
                           ),
                           Text(
                             DateFormat('MMM dd, HH:mm').format(event.timestamp),
@@ -79,14 +78,18 @@ class AuditTimeline extends StatelessWidget {
                         'By: ${event.actorId}',
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
-                      if (event.previousState != null || event.newState.isNotEmpty)
+                      if (event.previousState != null ||
+                          event.newState.isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.only(top: AppSpacing.xs),
                           child: Text(
                             '${event.previousState ?? "N/A"} → ${event.newState}',
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(
                                   fontStyle: FontStyle.italic,
-                                  color: Theme.of(context).colorScheme.secondary,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .secondary,
                                 ),
                           ),
                         ),
@@ -96,7 +99,9 @@ class AuditTimeline extends StatelessWidget {
                           child: Container(
                             padding: const EdgeInsets.all(AppSpacing.sm),
                             decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .surfaceContainerHighest,
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(

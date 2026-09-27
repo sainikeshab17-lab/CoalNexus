@@ -2,7 +2,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:coalnexus/features/inspections/domain/entities/inspection.dart';
 import 'package:coalnexus/features/inspections/presentation/providers/inspection_providers.dart';
 
-final inspectionListProvider = NotifierProvider<InspectionListNotifier, AsyncValue<List<Inspection>>>(InspectionListNotifier.new);
+final inspectionListProvider =
+    NotifierProvider<InspectionListNotifier, AsyncValue<List<Inspection>>>(
+      InspectionListNotifier.new,
+    );
 
 class InspectionListNotifier extends Notifier<AsyncValue<List<Inspection>>> {
   @override

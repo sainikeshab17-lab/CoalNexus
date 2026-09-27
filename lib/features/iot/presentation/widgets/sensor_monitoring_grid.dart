@@ -46,7 +46,7 @@ class _SensorCard extends StatelessWidget {
   Widget build(BuildContext context) {
     Color statusColor;
     Color backgroundColor;
-    
+
     switch (sensor.status) {
       case SensorStatus.critical:
         statusColor = Colors.red.shade700;
@@ -70,7 +70,9 @@ class _SensorCard extends StatelessWidget {
         color: backgroundColor,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: isAlert ? statusColor.withValues(alpha: 0.5) : Colors.transparent,
+          color: isAlert
+              ? statusColor.withValues(alpha: 0.5)
+              : Colors.transparent,
           width: isAlert ? 2 : 1,
         ),
         boxShadow: isAlert
@@ -79,7 +81,7 @@ class _SensorCard extends StatelessWidget {
                   color: statusColor.withValues(alpha: 0.2),
                   blurRadius: 8,
                   spreadRadius: 1,
-                )
+                ),
               ]
             : null,
       ),
@@ -104,11 +106,11 @@ class _SensorCard extends StatelessWidget {
               Text(
                 sensor.type.label.toUpperCase(),
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      fontSize: 8,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 0.5,
-                      color: statusColor.withValues(alpha: 0.8),
-                    ),
+                  fontSize: 8,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 0.5,
+                  color: statusColor.withValues(alpha: 0.8),
+                ),
               ),
             ],
           ),
@@ -117,10 +119,8 @@ class _SensorCard extends StatelessWidget {
             fit: BoxFit.scaleDown,
             child: Text(
               sensor.value.toStringAsFixed(1),
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w900,
-                    color: statusColor,
-                  ),
+              style: Theme.of(context).textTheme.titleMedium
+                  ?.copyWith(fontWeight: FontWeight.w900, color: statusColor),
             ),
           ),
           Text(
@@ -145,7 +145,8 @@ class _BlinkingDot extends StatefulWidget {
   State<_BlinkingDot> createState() => _BlinkingDotState();
 }
 
-class _BlinkingDotState extends State<_BlinkingDot> with SingleTickerProviderStateMixin {
+class _BlinkingDotState extends State<_BlinkingDot>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
   @override
@@ -157,7 +158,9 @@ class _BlinkingDotState extends State<_BlinkingDot> with SingleTickerProviderSta
     );
     // Avoid repeating infinitely in test environment to prevent pumpAndSettle timeouts
     if (!const bool.fromEnvironment('dart.vm.product') &&
-        WidgetsBinding.instance.toString().contains('TestWidgetsFlutterBinding')) {
+        WidgetsBinding.instance.toString().contains(
+          'TestWidgetsFlutterBinding',
+        )) {
       _controller.value = 1.0;
     } else {
       _controller.repeat(reverse: true);

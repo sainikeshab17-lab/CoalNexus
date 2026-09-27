@@ -31,14 +31,14 @@ def get_current_user_profile(
                 detail="Invalid authentication credentials (missing sub claim)",
             )
     except jwt.PyJWTError:
-        # Fallback for easier testing/development or token simulation with basic strings or demo profiles
-        # In production, we MUST fail here.
-        if settings.ENVIRONMENT == "production":
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid token",
-            )
-        user_id = token
+            # Fallback for easier testing/development or token simulation with basic strings or demo profiles
+            # In production, we MUST fail here.
+            if settings.ENVIRONMENT == "production":
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Invalid token",
+                )
+            user_id = token
         
     profile = db.query(Profile).filter(Profile.id == user_id).first()
     if not profile:

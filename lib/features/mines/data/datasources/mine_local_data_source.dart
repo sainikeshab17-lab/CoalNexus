@@ -28,7 +28,8 @@ class MineLocalDataSourceImpl implements MineLocalDataSource {
 
   @override
   Future<MineModel?> getMineById(String id) async {
-    final query = _database.select(_database.mines)..where((t) => t.localId.equals(id));
+    final query = _database.select(_database.mines)
+      ..where((t) => t.localId.equals(id));
     final row = await query.getSingleOrNull();
     if (row == null) return null;
     return MineMapper.fromEntity(row);
@@ -38,7 +39,9 @@ class MineLocalDataSourceImpl implements MineLocalDataSource {
   Future<List<MineModel>> searchMines(String query) async {
     final searchPattern = '%$query%';
     final dbQuery = _database.select(_database.mines)
-      ..where((t) => t.name.like(searchPattern) | t.mineCode.like(searchPattern));
+      ..where(
+        (t) => t.name.like(searchPattern) | t.mineCode.like(searchPattern),
+      );
     final rows = await dbQuery.get();
     return rows.map((row) => MineMapper.fromEntity(row)).toList();
   }
@@ -53,7 +56,7 @@ class MineLocalDataSourceImpl implements MineLocalDataSource {
   Future<void> updateMine(Mine mine, {int? expectedVersion}) async {
     final query = _database.update(_database.mines)
       ..where((t) => t.localId.equals(mine.localId));
-    
+
     if (expectedVersion != null) {
       query.where((t) => t.localVersion.equals(expectedVersion));
     }
@@ -79,7 +82,9 @@ class MineLocalDataSourceImpl implements MineLocalDataSource {
 
   @override
   Future<void> deleteMine(String id) async {
-    await (_database.delete(_database.mines)..where((t) => t.localId.equals(id))).go();
+    await (_database.delete(
+      _database.mines,
+    )..where((t) => t.localId.equals(id))).go();
   }
 
   @override

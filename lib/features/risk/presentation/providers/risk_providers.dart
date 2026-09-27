@@ -12,7 +12,10 @@ final riskPredictorServiceProvider = Provider<RiskPredictionService>((ref) {
   return RiskPredictionService();
 });
 
-final safetySimulationProvider = NotifierProvider<SafetyIncidentSimulationService, SimulationState>(SafetyIncidentSimulationService.new);
+final safetySimulationProvider =
+    NotifierProvider<SafetyIncidentSimulationService, SimulationState>(
+      SafetyIncidentSimulationService.new,
+    );
 
 final allMinesRiskProvider = Provider<AsyncValue<List<MineRisk>>>((ref) {
   final minesAsync = ref.watch(mineListProvider);
@@ -51,9 +54,14 @@ final allMinesRiskProvider = Provider<AsyncValue<List<MineRisk>>>((ref) {
   );
 });
 
-final mineRiskProvider = Provider.family<AsyncValue<MineRisk>, String>((ref, mineId) {
+final mineRiskProvider = Provider.family<AsyncValue<MineRisk>, String>((
+  ref,
+  mineId,
+) {
   final allRisksAsync = ref.watch(allMinesRiskProvider);
-  return allRisksAsync.whenData((risks) => risks.firstWhere((r) => r.mineId == mineId));
+  return allRisksAsync.whenData(
+    (risks) => risks.firstWhere((r) => r.mineId == mineId),
+  );
 });
 
 final riskOverviewProvider = Provider<AsyncValue<Map<RiskLevel, int>>>((ref) {

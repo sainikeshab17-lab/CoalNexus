@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:coalnexus/core/sync/outbox_service.dart';
 import 'package:coalnexus/core/sync/sync_repository.dart';
 import 'package:coalnexus/core/sync/domain/repositories/audit_repository.dart';
@@ -26,7 +27,7 @@ class InspectionRepositoryImpl implements InspectionRepository {
   Future<Inspection> createInspection(Inspection inspection) async {
     return await _localDataSource.transaction(() async {
       await _localDataSource.saveInspection(inspection);
-      
+
       final model = InspectionModel.fromDomain(inspection);
       await _outboxService.enqueueOperation(
         featureName: 'inspections',
@@ -42,7 +43,7 @@ class InspectionRepositoryImpl implements InspectionRepository {
         newState: inspection.status.name,
         comment: 'Inspection created',
       );
-      
+
       return inspection;
     });
   }
@@ -59,7 +60,9 @@ class InspectionRepositoryImpl implements InspectionRepository {
 
   @override
   Future<void> updateInspection(Inspection inspection) async {
-    final existing = await _localDataSource.getInspectionById(inspection.localId);
+    final existing = await _localDataSource.getInspectionById(
+      inspection.localId,
+    );
     final previousStatus = existing?.status.name;
 
     await _localDataSource.transaction(() async {
@@ -101,7 +104,9 @@ class InspectionRepositoryImpl implements InspectionRepository {
   }
 
   @override
-  Future<List<InspectionFinding>> getFindingsForInspection(String inspectionId) async {
+  Future<List<InspectionFinding>> getFindingsForInspection(
+    String inspectionId,
+  ) async {
     return await _localDataSource.getFindingsForInspection(inspectionId);
   }
 
@@ -111,20 +116,26 @@ class InspectionRepositoryImpl implements InspectionRepository {
       final response = await _outboxService.apiClient.get('/inspections');
       if (response.isSuccess) {
         final List<dynamic> data = response.data;
-        final models = data.map((json) => InspectionModel.fromJson(json)).toList();
+        final models = data
+            .map((json) => InspectionModel.fromJson(json))
+            .toList();
 
         await _localDataSource.transaction(() async {
           for (final model in models) {
-            final hasPending = await _syncRepository.hasPendingMutations(model.localId);
+            final hasPending = await _syncRepository.hasPendingMutations(
+              model.localId,
+            );
             if (hasPending) continue;
 
-            final existing = await _localDataSource.getInspectionById(model.localId);
+            final existing = await _localDataSource.getInspectionById(
+              model.localId,
+            );
             if (existing == null) {
               await _localDataSource.saveInspection(model.toDomain());
             } else if (model.localVersion >= existing.localVersion) {
-              await _localDataSource.updateInspection(model.toDomain().copyWith(
-                localVersion: model.localVersion
-              ));
+              await _localDataSource.updateInspection(
+                model.toDomain().copyWith(localVersion: model.localVersion),
+              );
             }
           }
         });
@@ -140,20 +151,26 @@ class InspectionRepositoryImpl implements InspectionRepository {
       final response = await _outboxService.apiClient.get('/findings');
       if (response.isSuccess) {
         final List<dynamic> data = response.data;
-        final models = data.map((json) => InspectionFindingModel.fromJson(json)).toList();
+        final models = data
+            .map((json) => InspectionFindingModel.fromJson(json))
+            .toList();
 
         await _localDataSource.transaction(() async {
           for (final model in models) {
-            final hasPending = await _syncRepository.hasPendingMutations(model.localId);
+            final hasPending = await _syncRepository.hasPendingMutations(
+              model.localId,
+            );
             if (hasPending) continue;
 
-            final existing = await _localDataSource.getFindingById(model.localId);
+            final existing = await _localDataSource.getFindingById(
+              model.localId,
+            );
             if (existing == null) {
               await _localDataSource.saveFinding(model.toDomain());
             } else if (model.localVersion >= existing.localVersion) {
-              await _localDataSource.updateFinding(model.toDomain().copyWith(
-                localVersion: model.localVersion
-              ));
+              await _localDataSource.updateFinding(
+                model.toDomain().copyWith(localVersion: model.localVersion),
+              );
             }
           }
         });

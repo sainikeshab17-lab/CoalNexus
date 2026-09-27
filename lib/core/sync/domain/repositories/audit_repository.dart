@@ -9,6 +9,6 @@ abstract class AuditRepository {
     required String newState,
     String? comment,
   });
-  
+
   Future<List<AuditTrail>> getAuditTrail(String entityId);
 }

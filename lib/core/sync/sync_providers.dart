@@ -13,7 +13,7 @@ import 'package:coalnexus/features/violations/presentation/providers/corrective_
 import 'package:coalnexus/core/sync/domain/repositories/audit_repository.dart';
 import 'package:coalnexus/core/sync/data/repositories/audit_repository_impl.dart';
 import 'package:coalnexus/core/sync/domain/entities/audit_trail.dart';
-
+import 'package:coalnexus/core/sync/sync_websocket_client.dart';
 
 final connectivityProvider = Provider<Connectivity>((ref) => Connectivity());
 
@@ -36,13 +36,20 @@ final syncProcessorProvider = Provider<SyncProcessor>((ref) {
   final repository = ref.watch(syncRepositoryProvider);
   final connectivityService = ref.watch(connectivityServiceProvider);
   final apiClient = ref.watch(apiClientProvider);
-  final processor = SyncProcessorImpl(repository, connectivityService, apiClient);
-  
+  final processor = SyncProcessorImpl(
+    repository,
+    connectivityService,
+    apiClient,
+  );
+
+  // Initialize WebSocket sync client
+  ref.watch(syncWebSocketClientProvider);
+
   // Start background sync monitoring
   connectivityService.onConnectivityChanged.listen((connected) {
     if (connected) {
       processor.processQueue();
-      
+
       // Also trigger refresh for critical data
       ref.read(mineRepositoryProvider).refreshMines();
       ref.read(inspectionRepositoryProvider).refreshInspections();
@@ -51,7 +58,7 @@ final syncProcessorProvider = Provider<SyncProcessor>((ref) {
       ref.read(correctiveActionRepositoryProvider).refreshActions();
     }
   });
-  
+
   return processor;
 });
 
@@ -61,7 +68,10 @@ final auditRepositoryProvider = Provider<AuditRepository>((ref) {
   return AuditRepositoryImpl(db, syncRepo);
 });
 
-final auditTrailProvider = FutureProvider.family<List<AuditTrail>, String>((ref, entityId) async {
+final auditTrailProvider = FutureProvider.family<List<AuditTrail>, String>((
+  ref,
+  entityId,
+) async {
   final repository = ref.watch(auditRepositoryProvider);
   return repository.getAuditTrail(entityId);
 });

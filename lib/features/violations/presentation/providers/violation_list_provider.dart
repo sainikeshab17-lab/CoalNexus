@@ -2,7 +2,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:coalnexus/features/violations/domain/entities/violation.dart';
 import 'package:coalnexus/features/violations/presentation/providers/violation_providers.dart';
 
-final violationListProvider = NotifierProvider<ViolationListNotifier, AsyncValue<List<Violation>>>(ViolationListNotifier.new);
+final violationListProvider =
+    NotifierProvider<ViolationListNotifier, AsyncValue<List<Violation>>>(
+      ViolationListNotifier.new,
+    );
 
 class ViolationListNotifier extends Notifier<AsyncValue<List<Violation>>> {
   String _query = '';
@@ -39,7 +42,9 @@ class ViolationListNotifier extends Notifier<AsyncValue<List<Violation>>> {
   void updateLocalViolation(Violation violation) {
     state.whenData((list) {
       state = AsyncValue.data(
-        list.map((v) => v.localId == violation.localId ? violation : v).toList(),
+        list
+            .map((v) => v.localId == violation.localId ? violation : v)
+            .toList(),
       );
     });
   }

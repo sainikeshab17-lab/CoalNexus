@@ -16,7 +16,8 @@ class CreateInspectionPage extends ConsumerStatefulWidget {
   const CreateInspectionPage({super.key});
 
   @override
-  ConsumerState<CreateInspectionPage> createState() => _CreateInspectionPageState();
+  ConsumerState<CreateInspectionPage> createState() =>
+      _CreateInspectionPageState();
 }
 
 class _CreateInspectionPageState extends ConsumerState<CreateInspectionPage> {
@@ -29,9 +30,7 @@ class _CreateInspectionPageState extends ConsumerState<CreateInspectionPage> {
     final minesAsync = ref.watch(getCachedMinesProvider).call();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('New Inspection'),
-      ),
+      appBar: AppBar(title: const Text('New Inspection')),
       body: FutureBuilder<List<Mine>>(
         future: minesAsync,
         builder: (context, snapshot) {
@@ -70,8 +69,10 @@ class _CreateInspectionPageState extends ConsumerState<CreateInspectionPage> {
                         child: Text(mine.name),
                       );
                     }).toList(),
-                    onChanged: (value) => setState(() => _selectedMineId = value),
-                    validator: (value) => value == null ? 'Please select a mine' : null,
+                    onChanged: (value) =>
+                        setState(() => _selectedMineId = value),
+                    validator: (value) =>
+                        value == null ? 'Please select a mine' : null,
                   ),
                   const SizedBox(height: AppSpacing.xl),
                   AppButton(
@@ -108,7 +109,7 @@ class _CreateInspectionPageState extends ConsumerState<CreateInspectionPage> {
       );
 
       await ref.read(createInspectionProvider).call(inspection);
-      
+
       // Update local list
       ref.read(inspectionListProvider.notifier).addLocalInspection(inspection);
 
@@ -117,9 +118,8 @@ class _CreateInspectionPageState extends ConsumerState<CreateInspectionPage> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${e.toString()}')),
-        );
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
       }
     } finally {
       if (mounted) {

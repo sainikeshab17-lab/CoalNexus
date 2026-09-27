@@ -19,7 +19,7 @@ class _AlertsPageState extends ConsumerState<AlertsPage> {
   @override
   Widget build(BuildContext context) {
     final db = ref.watch(appDatabaseProvider);
-    
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Safety Alerts'),
@@ -54,9 +54,15 @@ class _AlertsPageState extends ConsumerState<AlertsPage> {
             tooltip: 'Trigger Demo Critical Event',
             onPressed: () {
               // Trigger for the first seeded mine for demo purposes
-              ref.read(sensorRepositoryProvider).triggerDemoCriticalValues('seed_m1');
+              ref
+                  .read(sensorRepositoryProvider)
+                  .triggerDemoCriticalValues('seed_m1');
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Simulating critical sensor event at Jharia Coalfield...')),
+                const SnackBar(
+                  content: Text(
+                    'Simulating critical sensor event at Jharia Coalfield...',
+                  ),
+                ),
               );
             },
           ),
@@ -96,7 +102,8 @@ class _AlertsPageState extends ConsumerState<AlertsPage> {
           return ListView.separated(
             padding: const EdgeInsets.all(AppSpacing.md),
             itemCount: filtered.length,
-            separatorBuilder: (context, index) => const SizedBox(height: AppSpacing.sm),
+            separatorBuilder: (context, index) =>
+                const SizedBox(height: AppSpacing.sm),
             itemBuilder: (context, index) {
               final alert = filtered[index];
               Color severityColor;
@@ -127,29 +134,46 @@ class _AlertsPageState extends ConsumerState<AlertsPage> {
                           Expanded(
                             child: Text(
                               alert.title,
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    fontWeight: alert.isRead ? FontWeight.normal : FontWeight.bold,
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(
+                                    fontWeight: alert.isRead
+                                        ? FontWeight.normal
+                                        : FontWeight.bold,
                                   ),
                             ),
                           ),
-                          AppStatusChip(label: alert.severity, color: severityColor),
+                          AppStatusChip(
+                            label: alert.severity,
+                            color: severityColor,
+                          ),
                         ],
                       ),
                       const SizedBox(height: AppSpacing.xs),
-                      Text(alert.message, style: Theme.of(context).textTheme.bodyMedium),
+                      Text(
+                        alert.message,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
                       const SizedBox(height: AppSpacing.sm),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            DateFormat('MMM dd, yyyy HH:mm').format(alert.createdAt),
+                            DateFormat('MMM dd, yyyy HH:mm')
+                                .format(alert.createdAt),
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                           if (!alert.isRead)
                             TextButton.icon(
-                              onPressed: () => db.markAlertAsRead(alert.localId),
-                              icon: const Icon(Icons.check_circle_outline, size: 16),
-                              label: const Text('Mark as Read', style: TextStyle(fontSize: 12)),
+                              onPressed: () =>
+                                  db.markAlertAsRead(alert.localId),
+                              icon: const Icon(
+                                Icons.check_circle_outline,
+                                size: 16,
+                              ),
+                              label: const Text(
+                                'Mark as Read',
+                                style: TextStyle(fontSize: 12),
+                              ),
                             ),
                         ],
                       ),

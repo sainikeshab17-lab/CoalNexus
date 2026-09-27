@@ -25,15 +25,17 @@ import 'package:coalnexus/core/sync/presentation/pages/sync_queue_page.dart';
 import 'package:coalnexus/core/sync/presentation/pages/audit_trail_page.dart';
 import 'package:coalnexus/core/sync/presentation/widgets/sync_status_overlay.dart';
 
-final GlobalKey<NavigatorState> _rootNavigatorKey =
-GlobalKey<NavigatorState>(debugLabel: 'root');
+final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(
+  debugLabel: 'root',
+);
 
-final GlobalKey<NavigatorState> _shellNavigatorKey =
-GlobalKey<NavigatorState>(debugLabel: 'shell');
+final GlobalKey<NavigatorState> _shellNavigatorKey = GlobalKey<NavigatorState>(
+  debugLabel: 'shell',
+);
 
 final routerProvider = Provider<GoRouter>((ref) {
   final listenable = _RiverpodRouterRefreshListenable(ref);
-  
+
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
     initialLocation: '/dashboard',
@@ -48,8 +50,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         return null;
       }
 
-      final isAuthenticated =
-          authState.status == AuthStatus.authenticated;
+      final isAuthenticated = authState.status == AuthStatus.authenticated;
 
       if (!isAuthenticated && !isLoggingIn) {
         return '/login';
@@ -66,10 +67,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       // ----------------------------------------------------------------------
       // Authentication
       // ----------------------------------------------------------------------
-      GoRoute(
-        path: '/login',
-        builder: (context, state) => const LoginPage(),
-      ),
+      GoRoute(path: '/login', builder: (context, state) => const LoginPage()),
 
       // ----------------------------------------------------------------------
       // Main application shell
@@ -85,8 +83,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           // ------------------------------------------------------------------
           GoRoute(
             path: '/dashboard',
-            builder: (context, state) =>
-            const DashboardShellScreen(),
+            builder: (context, state) => const DashboardShellScreen(),
           ),
 
           // ------------------------------------------------------------------
@@ -124,33 +121,26 @@ final routerProvider = Provider<GoRouter>((ref) {
           // ------------------------------------------------------------------
           GoRoute(
             path: '/inspections',
-            builder: (context, state) =>
-            const InspectionListPage(),
+            builder: (context, state) => const InspectionListPage(),
             routes: [
               GoRoute(
                 path: 'create',
-                builder: (context, state) =>
-                const CreateInspectionPage(),
+                builder: (context, state) => const CreateInspectionPage(),
               ),
               GoRoute(
                 path: ':id',
                 builder: (context, state) {
                   final id = state.pathParameters['id']!;
 
-                  return InspectionDetailPage(
-                    inspectionId: id,
-                  );
+                  return InspectionDetailPage(inspectionId: id);
                 },
                 routes: [
                   GoRoute(
                     path: 'add_finding',
                     builder: (context, state) {
-                      final id =
-                      state.pathParameters['id']!;
+                      final id = state.pathParameters['id']!;
 
-                      return AddFindingPage(
-                        inspectionId: id,
-                      );
+                      return AddFindingPage(inspectionId: id);
                     },
                   ),
                 ],
@@ -198,7 +188,10 @@ final routerProvider = Provider<GoRouter>((ref) {
                     builder: (context, state) {
                       final id = state.pathParameters['id']!;
                       final actionId = state.pathParameters['actionId']!;
-                      return CorrectiveActionFormPage(violationId: id, actionId: actionId);
+                      return CorrectiveActionFormPage(
+                        violationId: id,
+                        actionId: actionId,
+                      );
                     },
                   ),
                 ],
@@ -219,8 +212,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           // ------------------------------------------------------------------
           GoRoute(
             path: '/profile',
-            builder: (context, state) =>
-            const ProfileShellScreen(),
+            builder: (context, state) => const ProfileShellScreen(),
           ),
 
           // ------------------------------------------------------------------
@@ -253,7 +245,7 @@ class _RiverpodRouterRefreshListenable extends ChangeNotifier {
     _subscription = ref.listen(authNotifierProvider, (previous, current) {
       notifyListeners();
     });
-    
+
     ref.onDispose(() {
       _subscription.close();
     });
@@ -264,15 +256,11 @@ class _RiverpodRouterRefreshListenable extends ChangeNotifier {
 class NavigationShell extends ConsumerWidget {
   final Widget child;
 
-  const NavigationShell({
-    super.key,
-    required this.child,
-  });
+  const NavigationShell({super.key, required this.child});
 
   int _calculateSelectedIndex(BuildContext context) {
     try {
-      final location =
-          GoRouterState.of(context).uri.path;
+      final location = GoRouterState.of(context).uri.path;
 
       if (location.startsWith('/dashboard')) {
         return 0;
@@ -309,10 +297,7 @@ class NavigationShell extends ConsumerWidget {
     return 0;
   }
 
-  void _onItemTapped(
-      int index,
-      BuildContext context,
-      ) {
+  void _onItemTapped(int index, BuildContext context) {
     final router = GoRouter.of(context);
 
     switch (index) {
@@ -347,10 +332,7 @@ class NavigationShell extends ConsumerWidget {
   }
 
   @override
-  Widget build(
-      BuildContext context,
-      WidgetRef ref,
-      ) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final width = MediaQuery.sizeOf(context).width;
 
     final isTablet = width >= 600;
@@ -403,22 +385,15 @@ class NavigationShell extends ConsumerWidget {
           children: [
             NavigationRail(
               extended: isDesktop,
-              selectedIndex:
-              _calculateSelectedIndex(context),
+              selectedIndex: _calculateSelectedIndex(context),
               onDestinationSelected: (index) {
                 _onItemTapped(index, context);
               },
               leading: Padding(
-                padding:
-                const EdgeInsets.symmetric(
-                  vertical: 16,
-                ),
+                padding: const EdgeInsets.symmetric(vertical: 16),
                 child: Icon(
                   Icons.shield,
-                  color:
-                  Theme.of(context)
-                      .colorScheme
-                      .primary,
+                  color: Theme.of(context).colorScheme.primary,
                   size: 36,
                 ),
               ),
@@ -426,21 +401,11 @@ class NavigationShell extends ConsumerWidget {
                 child: Align(
                   alignment: Alignment.bottomCenter,
                   child: Padding(
-                    padding:
-                    const EdgeInsets.only(
-                      bottom: 16,
-                    ),
+                    padding: const EdgeInsets.only(bottom: 16),
                     child: IconButton(
-                      icon: const Icon(
-                        Icons.logout,
-                      ),
+                      icon: const Icon(Icons.logout),
                       onPressed: () {
-                        ref
-                            .read(
-                          authNotifierProvider
-                              .notifier,
-                        )
-                            .logout();
+                        ref.read(authNotifierProvider.notifier).logout();
                       },
                     ),
                   ),
@@ -448,29 +413,18 @@ class NavigationShell extends ConsumerWidget {
               ),
               destinations: destinations
                   .map(
-                    (destination) =>
-                    NavigationRailDestination(
+                    (destination) => NavigationRailDestination(
                       icon: destination.icon,
-                      selectedIcon:
-                      destination.selectedIcon,
-                      label: Text(
-                        destination.label,
-                      ),
+                      selectedIcon: destination.selectedIcon,
+                      label: Text(destination.label),
                     ),
-              )
+                  )
                   .toList(),
             ),
 
-            const VerticalDivider(
-              thickness: 1,
-              width: 1,
-            ),
+            const VerticalDivider(thickness: 1, width: 1),
 
-            Expanded(
-              child: SafeArea(
-                child: child,
-              ),
-            ),
+            Expanded(child: SafeArea(child: child)),
           ],
         ),
       );
@@ -482,29 +436,23 @@ class NavigationShell extends ConsumerWidget {
     return Scaffold(
       body: Stack(
         children: [
-          SafeArea(
-            child: child,
-          ),
+          SafeArea(child: child),
           const SyncStatusOverlay(),
         ],
       ),
       bottomNavigationBar: LayoutBuilder(
         builder: (context, constraints) {
-          final isCompact =
-              constraints.maxWidth < 380;
+          final isCompact = constraints.maxWidth < 380;
 
           return NavigationBar(
-            selectedIndex:
-            _calculateSelectedIndex(context),
+            selectedIndex: _calculateSelectedIndex(context),
             onDestinationSelected: (index) {
               _onItemTapped(index, context);
             },
             destinations: destinations,
             labelBehavior: isCompact
-                ? NavigationDestinationLabelBehavior
-                .alwaysHide
-                : NavigationDestinationLabelBehavior
-                .onlyShowSelected,
+                ? NavigationDestinationLabelBehavior.alwaysHide
+                : NavigationDestinationLabelBehavior.onlyShowSelected,
           );
         },
       ),

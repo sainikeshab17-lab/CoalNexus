@@ -34,11 +34,27 @@ async def websocket_endpoint(websocket: WebSocket):
     await manager.connect(websocket)
     try:
         while True:
-            # Keep connection alive
-            await websocket.receive_text()
+            # Keep connection alive and handle incoming entity updates
+            message = await websocket.receive_text()
+            try:
+                payload = json.loads(message)
+                # If it's an entity update event, broadcast it
+                if payload.get("event") == "entity.updated" or "entity_type" in payload:
+                    await manager.broadcast(message)
+            except Exception:
+                pass
     except WebSocketDisconnect:
         manager.disconnect(websocket)
 
 # Helper for other routers/services
 async def notify_telemetry_update(data: dict):
-    await manager.broadcast(json.dumps(data))
+    await manager.broadcast(json.dumps({"event": "telemetry.updated", "data": data}))
+
+async def notify_entity_update(entity_type: str, action: str, data: dict):
+    payload = {
+        "event": "entity.updated",
+        "entity_type": entity_type,
+        "action": action,
+        "data": data
+    }
+    await manager.broadcast(json.dumps(payload))

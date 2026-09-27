@@ -1,4 +1,3 @@
-
 import 'package:coalnexus/core/storage/token_storage.dart';
 import 'package:coalnexus/features/auth/data/models/user_model.dart';
 import 'package:coalnexus/features/auth/domain/repositories/auth_repository.dart';
@@ -17,7 +16,7 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<User> login(String username, String password) async {
     // Basic validation / trim
     final emailTrimmed = username.trim().toLowerCase();
-    
+
     if (emailTrimmed.isEmpty || password.isEmpty) {
       throw Exception('Username and password are required');
     }

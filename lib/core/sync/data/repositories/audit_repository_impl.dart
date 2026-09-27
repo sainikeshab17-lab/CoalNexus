@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 import 'package:coalnexus/core/storage/local_database.dart';
@@ -70,20 +71,26 @@ class AuditRepositoryImpl implements AuditRepository {
   Future<List<AuditTrail>> getAuditTrail(String entityId) async {
     final query = _database.select(_database.auditTrails)
       ..where((t) => t.entityId.equals(entityId))
-      ..orderBy([(t) => OrderingTerm(expression: t.timestamp, mode: OrderingMode.desc)]);
-    
+      ..orderBy([
+        (t) => OrderingTerm(expression: t.timestamp, mode: OrderingMode.desc),
+      ]);
+
     final rows = await query.get();
-    return rows.map((row) => AuditTrail(
-      localId: row.localId,
-      serverId: row.serverId,
-      entityType: row.entityType,
-      entityId: row.entityId,
-      action: row.action,
-      previousState: row.previousState,
-      newState: row.newState,
-      actorId: row.actorId,
-      timestamp: row.timestamp,
-      comment: row.comment,
-    )).toList();
+    return rows
+        .map(
+          (row) => AuditTrail(
+            localId: row.localId,
+            serverId: row.serverId,
+            entityType: row.entityType,
+            entityId: row.entityId,
+            action: row.action,
+            previousState: row.previousState,
+            newState: row.newState,
+            actorId: row.actorId,
+            timestamp: row.timestamp,
+            comment: row.comment,
+          ),
+        )
+        .toList();
   }
 }

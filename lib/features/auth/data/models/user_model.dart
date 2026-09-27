@@ -19,10 +19,12 @@ class UserModel extends User {
 
     final permissionsList = json['permissions'] as List<dynamic>? ?? [];
     final permissions = permissionsList
-        .map((p) => UserPermission.values.firstWhere(
-              (e) => e.name == p.toString(),
-              orElse: () => UserPermission.viewDashboard,
-            ))
+        .map(
+          (p) => UserPermission.values.firstWhere(
+            (e) => e.name == p.toString(),
+            orElse: () => UserPermission.viewDashboard,
+          ),
+        )
         .toSet();
 
     return UserModel(

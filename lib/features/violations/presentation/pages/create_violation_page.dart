@@ -15,7 +15,8 @@ class CreateViolationPage extends ConsumerStatefulWidget {
   const CreateViolationPage({super.key, this.initialData});
 
   @override
-  ConsumerState<CreateViolationPage> createState() => _CreateViolationPageState();
+  ConsumerState<CreateViolationPage> createState() =>
+      _CreateViolationPageState();
 }
 
 class _CreateViolationPageState extends ConsumerState<CreateViolationPage> {
@@ -26,7 +27,7 @@ class _CreateViolationPageState extends ConsumerState<CreateViolationPage> {
   late final TextEditingController _inspectionIdController;
   late final TextEditingController _findingIdController;
   late final TextEditingController _assignedToController;
-  
+
   ViolationSeverity _severity = ViolationSeverity.medium;
   ViolationStatus _status = ViolationStatus.recorded;
   DateTime? _dueDate;
@@ -36,10 +37,18 @@ class _CreateViolationPageState extends ConsumerState<CreateViolationPage> {
   void initState() {
     super.initState();
     _titleController = TextEditingController();
-    _descriptionController = TextEditingController(text: widget.initialData?['description'] as String?);
-    _mineIdController = TextEditingController(text: widget.initialData?['mineId'] as String?);
-    _inspectionIdController = TextEditingController(text: widget.initialData?['inspectionId'] as String?);
-    _findingIdController = TextEditingController(text: widget.initialData?['findingId'] as String?);
+    _descriptionController = TextEditingController(
+      text: widget.initialData?['description'] as String?,
+    );
+    _mineIdController = TextEditingController(
+      text: widget.initialData?['mineId'] as String?,
+    );
+    _inspectionIdController = TextEditingController(
+      text: widget.initialData?['inspectionId'] as String?,
+    );
+    _findingIdController = TextEditingController(
+      text: widget.initialData?['findingId'] as String?,
+    );
     _assignedToController = TextEditingController();
   }
 
@@ -82,7 +91,9 @@ class _CreateViolationPageState extends ConsumerState<CreateViolationPage> {
         description: _descriptionController.text.trim(),
         severity: _severity,
         status: _status,
-        assignedTo: _assignedToController.text.isEmpty ? null : _assignedToController.text.trim(),
+        assignedTo: _assignedToController.text.isEmpty
+            ? null
+            : _assignedToController.text.trim(),
         dueDate: _dueDate,
         detectedAt: now,
         createdAt: now,
@@ -90,7 +101,7 @@ class _CreateViolationPageState extends ConsumerState<CreateViolationPage> {
       );
 
       await ref.read(createViolationProvider)(violation);
-      
+
       // Update local list state
       ref.read(violationListProvider.notifier).addLocalViolation(violation);
 
@@ -116,9 +127,7 @@ class _CreateViolationPageState extends ConsumerState<CreateViolationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Report Violation'),
-      ),
+      appBar: AppBar(title: const Text('Report Violation')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.md),
         child: Form(
@@ -135,7 +144,8 @@ class _CreateViolationPageState extends ConsumerState<CreateViolationPage> {
                         labelText: 'Violation Title *',
                         hintText: 'Brief summary of the violation',
                       ),
-                      validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
+                      validator: (v) =>
+                          (v == null || v.isEmpty) ? 'Required' : null,
                     ),
                     const SizedBox(height: AppSpacing.md),
                     TextFormField(
@@ -145,7 +155,8 @@ class _CreateViolationPageState extends ConsumerState<CreateViolationPage> {
                         hintText: 'Detailed description of the violation',
                       ),
                       maxLines: 3,
-                      validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
+                      validator: (v) =>
+                          (v == null || v.isEmpty) ? 'Required' : null,
                     ),
                   ],
                 ),
@@ -159,21 +170,28 @@ class _CreateViolationPageState extends ConsumerState<CreateViolationPage> {
                       controller: _mineIdController,
                       decoration: const InputDecoration(labelText: 'Mine ID *'),
                       readOnly: widget.initialData?['mineId'] != null,
-                      validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
+                      validator: (v) =>
+                          (v == null || v.isEmpty) ? 'Required' : null,
                     ),
                     const SizedBox(height: AppSpacing.md),
                     TextFormField(
                       controller: _inspectionIdController,
-                      decoration: const InputDecoration(labelText: 'Inspection ID *'),
+                      decoration: const InputDecoration(
+                        labelText: 'Inspection ID *',
+                      ),
                       readOnly: widget.initialData?['inspectionId'] != null,
-                      validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
+                      validator: (v) =>
+                          (v == null || v.isEmpty) ? 'Required' : null,
                     ),
                     const SizedBox(height: AppSpacing.md),
                     TextFormField(
                       controller: _findingIdController,
-                      decoration: const InputDecoration(labelText: 'Finding ID *'),
+                      decoration: const InputDecoration(
+                        labelText: 'Finding ID *',
+                      ),
                       readOnly: widget.initialData?['findingId'] != null,
-                      validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
+                      validator: (v) =>
+                          (v == null || v.isEmpty) ? 'Required' : null,
                     ),
                   ],
                 ),
@@ -185,7 +203,9 @@ class _CreateViolationPageState extends ConsumerState<CreateViolationPage> {
                   children: [
                     DropdownButtonFormField<ViolationSeverity>(
                       value: _severity,
-                      decoration: const InputDecoration(labelText: 'Severity *'),
+                      decoration: const InputDecoration(
+                        labelText: 'Severity *',
+                      ),
                       items: ViolationSeverity.values.map((s) {
                         return DropdownMenuItem(
                           value: s,
@@ -226,7 +246,11 @@ class _CreateViolationPageState extends ConsumerState<CreateViolationPage> {
                     const SizedBox(height: AppSpacing.md),
                     ListTile(
                       title: const Text('Due Date'),
-                      subtitle: Text(_dueDate == null ? 'Not set' : DateFormat.yMMMd().format(_dueDate!)),
+                      subtitle: Text(
+                        _dueDate == null
+                            ? 'Not set'
+                            : DateFormat.yMMMd().format(_dueDate!),
+                      ),
                       trailing: const Icon(Icons.calendar_today),
                       onTap: _selectDueDate,
                       contentPadding: EdgeInsets.zero,

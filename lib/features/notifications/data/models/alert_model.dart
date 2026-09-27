@@ -53,7 +53,8 @@ class AlertModel {
   factory AlertModel.fromJson(Map<String, dynamic> json) {
     return AlertModel(
       localId: (json['local_id'] ?? json['localId']) as String,
-      serverId: (json['server_id'] ?? json['id'] ?? json['serverId']) as String?,
+      serverId:
+          (json['server_id'] ?? json['id'] ?? json['serverId']) as String?,
       mineId: (json['mine_id'] ?? json['mineId']) as String,
       title: json['title'] as String,
       message: json['message'] as String,

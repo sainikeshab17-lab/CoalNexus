@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'app_colors.dart';
 import 'app_typography.dart';
 import 'app_radius.dart';
@@ -55,7 +56,9 @@ class AppTheme {
         }),
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return AppTypography.label.copyWith(color: AppColors.industrialBlue);
+            return AppTypography.label.copyWith(
+              color: AppColors.industrialBlue,
+            );
           }
           return AppTypography.label.copyWith(color: AppColors.grey500);
         }),
@@ -96,7 +99,9 @@ class AppTheme {
       ),
       textTheme: TextTheme(
         displayLarge: AppTypography.display.copyWith(color: AppColors.grey100),
-        headlineMedium: AppTypography.headline.copyWith(color: AppColors.grey100),
+        headlineMedium: AppTypography.headline.copyWith(
+          color: AppColors.grey100,
+        ),
         titleLarge: AppTypography.title.copyWith(color: AppColors.grey100),
         bodyLarge: AppTypography.body.copyWith(color: AppColors.grey300),
         labelLarge: AppTypography.label.copyWith(color: AppColors.grey300),
@@ -113,7 +118,9 @@ class AppTheme {
         }),
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return AppTypography.label.copyWith(color: AppColors.industrialBlue);
+            return AppTypography.label.copyWith(
+              color: AppColors.industrialBlue,
+            );
           }
           return AppTypography.label.copyWith(color: AppColors.grey400);
         }),

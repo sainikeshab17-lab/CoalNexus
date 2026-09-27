@@ -35,9 +35,7 @@ class _AddFindingPageState extends ConsumerState<AddFindingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Add Finding'),
-      ),
+      appBar: AppBar(title: const Text('Add Finding')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.lg),
         child: Form(
@@ -49,14 +47,16 @@ class _AddFindingPageState extends ConsumerState<AddFindingPage> {
                 controller: _requirementController,
                 labelText: 'Requirement ID',
                 hintText: 'e.g., MSHA-30-CFR-75.1711',
-                validator: (value) => value == null || value.isEmpty ? 'Required' : null,
+                validator: (value) =>
+                    value == null || value.isEmpty ? 'Required' : null,
               ),
               const SizedBox(height: AppSpacing.md),
               AppTextField(
                 controller: _descriptionController,
                 labelText: 'Description',
                 hintText: 'Detail what was observed...',
-                validator: (value) => value == null || value.isEmpty ? 'Required' : null,
+                validator: (value) =>
+                    value == null || value.isEmpty ? 'Required' : null,
               ),
               const SizedBox(height: AppSpacing.md),
               DropdownButtonFormField<FindingStatus>(
@@ -108,18 +108,19 @@ class _AddFindingPageState extends ConsumerState<AddFindingPage> {
       );
 
       await ref.read(addInspectionFindingProvider).call(finding);
-      
+
       // Update local detail state
-      ref.read(inspectionDetailProvider(widget.inspectionId).notifier).addLocalFinding(finding);
+      ref
+          .read(inspectionDetailProvider(widget.inspectionId).notifier)
+          .addLocalFinding(finding);
 
       if (mounted) {
         context.pop();
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${e.toString()}')),
-        );
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
       }
     } finally {
       if (mounted) {

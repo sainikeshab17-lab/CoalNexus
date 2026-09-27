@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:coalnexus/core/sync/outbox_service.dart';
 import 'package:coalnexus/core/sync/sync_repository.dart';
 import 'package:coalnexus/core/sync/domain/repositories/audit_repository.dart';
@@ -24,7 +25,7 @@ class CorrectiveActionRepositoryImpl implements CorrectiveActionRepository {
   Future<CorrectiveAction> createAction(CorrectiveAction action) async {
     return await _localDataSource.transaction(() async {
       await _localDataSource.saveAction(action);
-      
+
       final model = CorrectiveActionModel.fromDomain(action);
       await _outboxService.enqueueOperation(
         featureName: 'CorrectiveAction',
@@ -40,7 +41,7 @@ class CorrectiveActionRepositoryImpl implements CorrectiveActionRepository {
         newState: action.status.name,
         comment: 'Corrective action assigned',
       );
-      
+
       return action;
     });
   }
@@ -73,7 +74,9 @@ class CorrectiveActionRepositoryImpl implements CorrectiveActionRepository {
   }
 
   @override
-  Future<List<CorrectiveAction>> getActionsForViolation(String violationId) async {
+  Future<List<CorrectiveAction>> getActionsForViolation(
+    String violationId,
+  ) async {
     return await _localDataSource.getActionsForViolation(violationId);
   }
 
@@ -85,17 +88,25 @@ class CorrectiveActionRepositoryImpl implements CorrectiveActionRepository {
   @override
   Future<void> refreshActions() async {
     try {
-      final response = await _outboxService.apiClient.get('/corrective-actions');
+      final response = await _outboxService.apiClient.get(
+        '/corrective-actions',
+      );
       if (response.isSuccess) {
         final List<dynamic> data = response.data;
-        final models = data.map((json) => CorrectiveActionModel.fromJson(json)).toList();
+        final models = data
+            .map((json) => CorrectiveActionModel.fromJson(json))
+            .toList();
 
         await _localDataSource.transaction(() async {
           for (final model in models) {
-            final hasPending = await _syncRepository.hasPendingMutations(model.localId);
+            final hasPending = await _syncRepository.hasPendingMutations(
+              model.localId,
+            );
             if (hasPending) continue;
 
-            final existing = await _localDataSource.getActionById(model.localId);
+            final existing = await _localDataSource.getActionById(
+              model.localId,
+            );
             if (existing == null) {
               await _localDataSource.saveAction(model.toDomain());
             } else if (model.localVersion >= existing.localVersion) {

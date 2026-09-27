@@ -21,15 +21,20 @@ class DashboardShellScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final inspectionCount = ref.watch(inspectionListProvider).value?.length ?? 0;
+    final inspectionCount =
+        ref.watch(inspectionListProvider).value?.length ?? 0;
     final violationCount = ref.watch(violationListProvider).value?.length ?? 0;
-    
+
     final allRisks = ref.watch(allMinesRiskProvider).value ?? [];
-    final highRiskMinesCount = allRisks.where((r) => r.level == RiskLevel.high || r.level == RiskLevel.critical).length;
-    
+    final highRiskMinesCount = allRisks
+        .where(
+          (r) => r.level == RiskLevel.high || r.level == RiskLevel.critical,
+        )
+        .length;
+
     final alertsAsync = ref.watch(alertsStreamProvider);
     final criticalAlertsAsync = ref.watch(criticalAlertsStreamProvider);
-    
+
     final simulationState = ref.watch(safetySimulationProvider);
     final simulationService = ref.read(safetySimulationProvider.notifier);
     final sensorRepository = ref.read(sensorRepositoryProvider);
@@ -65,7 +70,8 @@ class DashboardShellScreen extends ConsumerWidget {
             // Quick Stats Row
             LayoutBuilder(
               builder: (context, constraints) {
-                final double itemWidth = (constraints.maxWidth - (AppSpacing.xs * 3)) / 4;
+                final double itemWidth =
+                    (constraints.maxWidth - (AppSpacing.xs * 3)) / 4;
                 return Wrap(
                   spacing: AppSpacing.xs,
                   runSpacing: AppSpacing.xs,
@@ -94,14 +100,18 @@ class DashboardShellScreen extends ConsumerWidget {
                         count: highRiskMinesCount.toString().padLeft(2, '0'),
                         label: 'High Risk',
                         icon: Icons.report_problem_outlined,
-                        color: highRiskMinesCount > 0 ? Colors.red.shade700 : null,
+                        color: highRiskMinesCount > 0
+                            ? Colors.red.shade700
+                            : null,
                         onTap: () => context.go('/mines'),
                       ),
                     ),
                     SizedBox(
                       width: itemWidth.clamp(70.0, double.infinity),
                       child: _StatCard(
-                        count: (alertsAsync.value?.length ?? 0).toString().padLeft(2, '0'),
+                        count: (alertsAsync.value?.length ?? 0)
+                            .toString()
+                            .padLeft(2, '0'),
                         label: 'Alerts',
                         icon: Icons.notifications_active_outlined,
                         onTap: () => context.go('/alerts'),
@@ -138,7 +148,9 @@ class DashboardShellScreen extends ConsumerWidget {
                   );
                 }
                 return Column(
-                  children: criticalAlerts.map((alert) => AlertListTile(alert: alert)).toList(),
+                  children: criticalAlerts
+                      .map((alert) => AlertListTile(alert: alert))
+                      .toList(),
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
@@ -164,19 +176,45 @@ class DashboardShellScreen extends ConsumerWidget {
                   ListTile(
                     leading: CircleAvatar(
                       backgroundColor: Colors.blue.shade50,
-                      child: const Icon(Icons.assignment_turned_in, size: 20, color: Colors.blue),
+                      child: const Icon(
+                        Icons.assignment_turned_in,
+                        size: 20,
+                        color: Colors.blue,
+                      ),
                     ),
-                    title: const Text('Routine Inspection Completed', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                    subtitle: const Text('WCL Umrer • 2 hours ago', style: TextStyle(fontSize: 11)),
+                    title: const Text(
+                      'Routine Inspection Completed',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                      ),
+                    ),
+                    subtitle: const Text(
+                      'WCL Umrer • 2 hours ago',
+                      style: TextStyle(fontSize: 11),
+                    ),
                   ),
                   const Divider(indent: 70),
                   ListTile(
                     leading: CircleAvatar(
                       backgroundColor: Colors.amber.shade50,
-                      child: const Icon(Icons.warning_amber, size: 20, color: Colors.amber),
+                      child: const Icon(
+                        Icons.warning_amber,
+                        size: 20,
+                        color: Colors.amber,
+                      ),
                     ),
-                    title: const Text('Sensor Calibration Alert', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                    subtitle: const Text('Methane Node 042 • 4 hours ago', style: TextStyle(fontSize: 11)),
+                    title: const Text(
+                      'Sensor Calibration Alert',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                      ),
+                    ),
+                    subtitle: const Text(
+                      'Methane Node 042 • 4 hours ago',
+                      style: TextStyle(fontSize: 11),
+                    ),
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8),
@@ -219,7 +257,10 @@ class _StatCard extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs, vertical: AppSpacing.sm),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.xs,
+            vertical: AppSpacing.sm,
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -239,11 +280,12 @@ class _StatCard extends StatelessWidget {
               Text(
                 label.toUpperCase(),
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      fontSize: 8,
-                      letterSpacing: 0.5,
-                      fontWeight: FontWeight.w800,
-                      color: color?.withValues(alpha: 0.8) ?? Colors.blueGrey.shade600,
-                    ),
+                  fontSize: 8,
+                  letterSpacing: 0.5,
+                  fontWeight: FontWeight.w800,
+                  color:
+                      color?.withValues(alpha: 0.8) ?? Colors.blueGrey.shade600,
+                ),
                 textAlign: TextAlign.center,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -263,7 +305,8 @@ class _BlinkingLiveTag extends StatefulWidget {
   State<_BlinkingLiveTag> createState() => _BlinkingLiveTagState();
 }
 
-class _BlinkingLiveTagState extends State<_BlinkingLiveTag> with SingleTickerProviderStateMixin {
+class _BlinkingLiveTagState extends State<_BlinkingLiveTag>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
   @override
@@ -274,7 +317,9 @@ class _BlinkingLiveTagState extends State<_BlinkingLiveTag> with SingleTickerPro
       duration: const Duration(milliseconds: 800),
     );
     if (!const bool.fromEnvironment('dart.vm.product') &&
-        WidgetsBinding.instance.toString().contains('TestWidgetsFlutterBinding')) {
+        WidgetsBinding.instance.toString().contains(
+          'TestWidgetsFlutterBinding',
+        )) {
       _controller.value = 1.0;
     } else {
       _controller.repeat(reverse: true);
@@ -299,7 +344,11 @@ class _BlinkingLiveTagState extends State<_BlinkingLiveTag> with SingleTickerPro
         ),
         child: const Text(
           'LIVE',
-          style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white),
+          style: TextStyle(
+            fontSize: 10,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
         ),
       ),
     );
@@ -341,7 +390,9 @@ class AlertListTile extends StatelessWidget {
         color: isCritical ? color.withValues(alpha: 0.05) : null,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: isCritical ? color.withValues(alpha: 0.3) : Theme.of(context).dividerColor.withValues(alpha: 0.1),
+          color: isCritical
+              ? color.withValues(alpha: 0.3)
+              : Theme.of(context).dividerColor.withValues(alpha: 0.1),
         ),
       ),
       child: ListTile(
@@ -384,7 +435,8 @@ class AlertListTile extends StatelessWidget {
           children: [
             Text(
               DateFormat('HH:mm').format(alert.createdAt),
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 10),
+              style: Theme.of(context).textTheme.bodySmall
+                  ?.copyWith(fontSize: 10),
             ),
             if (isCritical)
               const Icon(Icons.priority_high, size: 16, color: Colors.red),
@@ -411,10 +463,13 @@ class _SimulationControlPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isCompleted = state.currentStep == SimulationStep.alertGenerated && !state.isBusy;
+    final bool isCompleted =
+        state.currentStep == SimulationStep.alertGenerated && !state.isBusy;
 
     return AppCard(
-      backgroundColor: state.isActive ? Colors.blue.shade50.withValues(alpha: 0.3) : null,
+      backgroundColor: state.isActive
+          ? Colors.blue.shade50.withValues(alpha: 0.3)
+          : null,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -432,24 +487,22 @@ class _SimulationControlPanel extends StatelessWidget {
                     Text(
                       'SAFETY INCIDENT SIMULATOR',
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1.1,
-                            color: Colors.blueGrey.shade700,
-                          ),
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.1,
+                        color: Colors.blueGrey.shade700,
+                      ),
                     ),
                     Text(
                       'WCL Umrer Emergency Scenario',
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w900,
-                            color: Colors.black87,
-                          ),
+                        fontWeight: FontWeight.w900,
+                        color: Colors.black87,
+                      ),
                     ),
                   ],
                 ),
               ),
-              if (state.isActive && !isCompleted) ...[
-                const _BlinkingLiveTag(),
-              ],
+              if (state.isActive && !isCompleted) ...[const _BlinkingLiveTag()],
               if (isCompleted)
                 const Icon(Icons.check_circle, color: Colors.green, size: 20),
             ],
@@ -466,23 +519,33 @@ class _SimulationControlPanel extends StatelessWidget {
                       ? const SizedBox(
                           width: 18,
                           height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
                         )
                       : Icon(isCompleted ? Icons.replay : Icons.play_arrow),
                   label: Text(
                     state.isBusy
                         ? 'RUNNING DRILL...'
                         : isCompleted
-                            ? 'RUN AGAIN'
-                            : 'START SAFETY DRILL',
-                    style: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: 0.5),
+                        ? 'RUN AGAIN'
+                        : 'START SAFETY DRILL',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 0.5,
+                    ),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: isCompleted ? Colors.blueGrey.shade700 : Colors.blue.shade700,
+                    backgroundColor: isCompleted
+                        ? Colors.blueGrey.shade700
+                        : Colors.blue.shade700,
                     foregroundColor: Colors.white,
                     elevation: 0,
                     padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
                 ),
               ),
@@ -494,7 +557,9 @@ class _SimulationControlPanel extends StatelessWidget {
                 icon: const Icon(Icons.refresh),
                 tooltip: 'Reset Data',
                 style: IconButton.styleFrom(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                   padding: const EdgeInsets.all(12),
                 ),
               ),
@@ -522,18 +587,18 @@ class _SimulationControlPanel extends StatelessWidget {
                 Text(
                   'CURRENT PHASE: ${state.currentStep.title.toUpperCase()}',
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        fontWeight: FontWeight.w900,
-                        color: _getStepColor(state.currentStep),
-                        fontSize: 9,
-                      ),
+                    fontWeight: FontWeight.w900,
+                    color: _getStepColor(state.currentStep),
+                    fontSize: 9,
+                  ),
                 ),
                 Text(
                   '${(_getProgress(state.currentStep) * 100).toInt()}%',
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        fontWeight: FontWeight.w900,
-                        color: Colors.blueGrey,
-                        fontSize: 9,
-                      ),
+                    fontWeight: FontWeight.w900,
+                    color: Colors.blueGrey,
+                    fontSize: 9,
+                  ),
                 ),
               ],
             ),
@@ -545,11 +610,13 @@ class _SimulationControlPanel extends StatelessWidget {
 
   double _getProgress(SimulationStep step) {
     if (step == SimulationStep.idle) return 0;
-    return (SimulationStep.values.indexOf(step)) / (SimulationStep.values.length - 1);
+    return (SimulationStep.values.indexOf(step)) /
+        (SimulationStep.values.length - 1);
   }
 
   Color _getStepColor(SimulationStep step) {
-    if (step == SimulationStep.methaneCritical || step == SimulationStep.alertGenerated) {
+    if (step == SimulationStep.methaneCritical ||
+        step == SimulationStep.alertGenerated) {
       return Colors.red.shade600;
     }
     if (step == SimulationStep.idle) return Colors.grey;
@@ -582,10 +649,10 @@ class _SimulationTimeline extends StatelessWidget {
               Text(
                 'SIMULATION EVENT LOG',
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      letterSpacing: 1.2,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.grey.shade700,
-                    ),
+                  letterSpacing: 1.2,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey.shade700,
+                ),
               ),
             ],
           ),
@@ -594,7 +661,8 @@ class _SimulationTimeline extends StatelessWidget {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: timeline.length,
-            separatorBuilder: (_, __) => const Divider(height: 12, thickness: 0.5),
+            separatorBuilder: (_, __) =>
+                const Divider(height: 12, thickness: 0.5),
             itemBuilder: (context, index) {
               final event = timeline[index];
               final isLatest = index == 0;
@@ -606,8 +674,12 @@ class _SimulationTimeline extends StatelessWidget {
                     style: TextStyle(
                       fontFamily: 'monospace',
                       fontSize: 11,
-                      color: isLatest ? Colors.blue.shade700 : Colors.grey.shade600,
-                      fontWeight: isLatest ? FontWeight.bold : FontWeight.normal,
+                      color: isLatest
+                          ? Colors.blue.shade700
+                          : Colors.grey.shade600,
+                      fontWeight: isLatest
+                          ? FontWeight.bold
+                          : FontWeight.normal,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -617,12 +689,18 @@ class _SimulationTimeline extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 12,
                         color: isLatest ? Colors.black87 : Colors.black54,
-                        fontWeight: isLatest ? FontWeight.bold : FontWeight.normal,
+                        fontWeight: isLatest
+                            ? FontWeight.bold
+                            : FontWeight.normal,
                       ),
                     ),
                   ),
                   if (isLatest)
-                    const Icon(Icons.chevron_left, size: 14, color: Colors.blue),
+                    const Icon(
+                      Icons.chevron_left,
+                      size: 14,
+                      color: Colors.blue,
+                    ),
                 ],
               );
             },

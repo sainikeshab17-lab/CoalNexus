@@ -2,7 +2,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:coalnexus/features/mines/domain/entities/mine.dart';
 import 'package:coalnexus/features/mines/presentation/providers/mine_providers.dart';
 
-final mineListProvider = NotifierProvider<MineListNotifier, AsyncValue<List<Mine>>>(MineListNotifier.new);
+final mineListProvider =
+    NotifierProvider<MineListNotifier, AsyncValue<List<Mine>>>(
+      MineListNotifier.new,
+    );
 
 class MineListNotifier extends Notifier<AsyncValue<List<Mine>>> {
   String _query = '';

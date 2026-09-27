@@ -18,44 +18,66 @@ class SyncRepositoryImpl implements SyncRepository {
   @override
   Future<List<SyncQueueItem>> getPendingOperations() async {
     final query = _database.select(_database.syncQueue)
-      ..where((t) => t.syncStatus.equals(SyncStatus.pending.name) | t.syncStatus.equals(SyncStatus.failed.name))
-      ..orderBy([(t) => OrderingTerm(expression: t.createdAt, mode: OrderingMode.asc)]);
+      ..where(
+        (t) =>
+            t.syncStatus.equals(SyncStatus.pending.name) |
+            t.syncStatus.equals(SyncStatus.failed.name),
+      )
+      ..orderBy([
+        (t) => OrderingTerm(expression: t.createdAt, mode: OrderingMode.asc),
+      ]);
 
     final rows = await query.get();
     return rows.map((row) => SyncMapper.fromEntity(row)).toList();
   }
 
   @override
-  Future<void> updateStatus(String localId, SyncStatus status, {String? lastError, int? retryCount}) async {
-    await (_database.update(_database.syncQueue)
-          ..where((t) => t.localId.equals(localId)))
-        .write(SyncQueueCompanion(
-      syncStatus: Value(status),
-      lastError: lastError != null ? Value(lastError) : const Value.absent(),
-      retryCount: retryCount != null ? Value(retryCount) : const Value.absent(),
-      updatedAt: Value(DateTime.now()),
-    ));
+  Future<void> updateStatus(
+    String localId,
+    SyncStatus status, {
+    String? lastError,
+    int? retryCount,
+  }) async {
+    await (_database.update(
+      _database.syncQueue,
+    )..where((t) => t.localId.equals(localId))).write(
+      SyncQueueCompanion(
+        syncStatus: Value(status),
+        lastError: lastError != null ? Value(lastError) : const Value.absent(),
+        retryCount: retryCount != null
+            ? Value(retryCount)
+            : const Value.absent(),
+        updatedAt: Value(DateTime.now()),
+      ),
+    );
   }
 
   @override
   Future<void> markSynced(String localId, String serverId) async {
-    await (_database.update(_database.syncQueue)
-          ..where((t) => t.localId.equals(localId)))
-        .write(SyncQueueCompanion(
-      syncStatus: const Value(SyncStatus.synced),
-      serverId: Value(serverId),
-      updatedAt: Value(DateTime.now()),
-    ));
+    await (_database.update(
+      _database.syncQueue,
+    )..where((t) => t.localId.equals(localId))).write(
+      SyncQueueCompanion(
+        syncStatus: const Value(SyncStatus.synced),
+        serverId: Value(serverId),
+        updatedAt: Value(DateTime.now()),
+      ),
+    );
   }
 
   @override
-  Future<void> reconcileServerId(String feature, String localId, String serverId) async {
+  Future<void> reconcileServerId(
+    String feature,
+    String localId,
+    String serverId,
+  ) async {
     final featureLower = feature.toLowerCase();
     if (featureLower.contains('mine')) {
       await (_database.update(_database.mines)
             ..where((t) => t.localId.equals(localId)))
           .write(MinesCompanion(serverId: Value(serverId)));
-    } else if (featureLower.contains('inspection') && !featureLower.contains('finding')) {
+    } else if (featureLower.contains('inspection') &&
+        !featureLower.contains('finding')) {
       await (_database.update(_database.inspections)
             ..where((t) => t.localId.equals(localId)))
           .write(InspectionsCompanion(serverId: Value(serverId)));
@@ -86,15 +108,19 @@ class SyncRepositoryImpl implements SyncRepository {
   Future<String?> getServerId(String feature, String localId) async {
     final featureLower = feature.toLowerCase();
     if (featureLower.contains('mine')) {
-      final query = _database.select(_database.mines)..where((t) => t.localId.equals(localId));
+      final query = _database.select(_database.mines)
+        ..where((t) => t.localId.equals(localId));
       final row = await query.getSingleOrNull();
       return row?.serverId;
-    } else if (featureLower.contains('inspection') && !featureLower.contains('finding')) {
-      final query = _database.select(_database.inspections)..where((t) => t.localId.equals(localId));
+    } else if (featureLower.contains('inspection') &&
+        !featureLower.contains('finding')) {
+      final query = _database.select(_database.inspections)
+        ..where((t) => t.localId.equals(localId));
       final row = await query.getSingleOrNull();
       return row?.serverId;
     } else if (featureLower.contains('violation')) {
-      final query = _database.select(_database.violations)..where((t) => t.localId.equals(localId));
+      final query = _database.select(_database.violations)
+        ..where((t) => t.localId.equals(localId));
       final row = await query.getSingleOrNull();
       return row?.serverId;
     }
@@ -103,7 +129,8 @@ class SyncRepositoryImpl implements SyncRepository {
 
   @override
   Future<SyncQueueItem?> getSyncItemByLocalId(String localId) async {
-    final query = _database.select(_database.syncQueue)..where((t) => t.localId.equals(localId));
+    final query = _database.select(_database.syncQueue)
+      ..where((t) => t.localId.equals(localId));
     final row = await query.getSingleOrNull();
     return row != null ? SyncMapper.fromEntity(row) : null;
   }
@@ -111,18 +138,21 @@ class SyncRepositoryImpl implements SyncRepository {
   @override
   Future<bool> hasPendingMutations(String localId) async {
     final query = _database.select(_database.syncQueue)
-      ..where((t) => t.localId.equals(localId) & 
-                     (t.syncStatus.equals(SyncStatus.pending.name) | 
-                      t.syncStatus.equals(SyncStatus.failed.name) | 
-                      t.syncStatus.equals(SyncStatus.syncing.name)));
+      ..where(
+        (t) =>
+            t.localId.equals(localId) &
+            (t.syncStatus.equals(SyncStatus.pending.name) |
+                t.syncStatus.equals(SyncStatus.failed.name) |
+                t.syncStatus.equals(SyncStatus.syncing.name)),
+      );
     final rows = await query.get();
     return rows.isNotEmpty;
   }
 
   @override
   Future<void> clearFailedOperations() async {
-    await (_database.delete(_database.syncQueue)
-          ..where((t) => t.syncStatus.equals(SyncStatus.failed.name)))
-        .go();
+    await (_database.delete(
+      _database.syncQueue,
+    )..where((t) => t.syncStatus.equals(SyncStatus.failed.name))).go();
   }
 }

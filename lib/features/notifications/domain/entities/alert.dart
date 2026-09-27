@@ -1,11 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-enum AlertSeverity {
-  low,
-  medium,
-  high,
-  critical,
-}
+enum AlertSeverity { low, medium, high, critical }
 
 @immutable
 class Alert {

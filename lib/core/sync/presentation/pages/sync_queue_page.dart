@@ -12,8 +12,9 @@ import 'package:coalnexus/core/api/backend_health_provider.dart';
 
 final syncQueueListProvider = StreamProvider<List<SyncQueueItem>>((ref) {
   final db = ref.watch(appDatabaseProvider);
-  return (db.select(db.syncQueue)
-        ..orderBy([(t) => OrderingTerm(expression: t.createdAt, mode: OrderingMode.desc)]))
+  return (db.select(db.syncQueue)..orderBy([
+        (t) => OrderingTerm(expression: t.createdAt, mode: OrderingMode.desc),
+      ]))
       .watch()
       .map((rows) => rows.map((row) => row.toSyncQueueItem()).toList());
 });
@@ -69,7 +70,9 @@ class SyncQueuePage extends ConsumerWidget {
               await ref.read(syncRepositoryProvider).clearFailedOperations();
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Cleared failed sync operations.')),
+                  const SnackBar(
+                    content: Text('Cleared failed sync operations.'),
+                  ),
                 );
               }
             },
@@ -96,7 +99,11 @@ class SyncQueuePage extends ConsumerWidget {
                 const SizedBox(width: 8),
                 Text(
                   healthStatusStr,
-                  style: TextStyle(fontWeight: FontWeight.bold, color: healthColor, fontSize: 13),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: healthColor,
+                    fontSize: 13,
+                  ),
                 ),
               ],
             ),
@@ -114,7 +121,8 @@ class SyncQueuePage extends ConsumerWidget {
                 return ListView.separated(
                   padding: const EdgeInsets.all(AppSpacing.md),
                   itemCount: items.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
+                  separatorBuilder: (_, __) =>
+                      const SizedBox(height: AppSpacing.sm),
                   itemBuilder: (context, index) {
                     final item = items[index];
                     return _SyncQueueItemTile(item: item);
@@ -161,23 +169,32 @@ class _SyncQueueItemTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _InfoRow(label: 'Local ID', value: item.localId),
-                if (item.serverId != null) _InfoRow(label: 'Server ID', value: item.serverId!),
-                _InfoRow(label: 'Status', value: item.syncStatus.name.toUpperCase()),
+                if (item.serverId != null)
+                  _InfoRow(label: 'Server ID', value: item.serverId!),
+                _InfoRow(
+                  label: 'Status',
+                  value: item.syncStatus.name.toUpperCase(),
+                ),
                 if (item.lastError != null) ...[
                   const SizedBox(height: AppSpacing.sm),
                   Text(
                     'Last Error:',
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Colors.red, fontWeight: FontWeight.bold),
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: Colors.red,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   Text(
                     item.lastError!,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.red),
+                    style: Theme.of(context).textTheme.bodySmall
+                        ?.copyWith(color: Colors.red),
                   ),
                 ],
                 const SizedBox(height: AppSpacing.sm),
                 Text(
                   'Payload:',
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(fontWeight: FontWeight.bold),
+                  style: Theme.of(context).textTheme.labelSmall
+                      ?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 Container(
                   width: double.infinity,
@@ -190,7 +207,10 @@ class _SyncQueueItemTile extends StatelessWidget {
                   ),
                   child: Text(
                     item.payloadJson,
-                    style: const TextStyle(fontFamily: 'monospace', fontSize: 10),
+                    style: const TextStyle(
+                      fontFamily: 'monospace',
+                      fontSize: 10,
+                    ),
                   ),
                 ),
               ],
@@ -214,8 +234,14 @@ class _InfoRow extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 2),
       child: Row(
         children: [
-          Text('$label: ', style: Theme.of(context).textTheme.labelSmall?.copyWith(fontWeight: FontWeight.bold)),
-          Expanded(child: Text(value, style: Theme.of(context).textTheme.bodySmall)),
+          Text(
+            '$label: ',
+            style: Theme.of(context).textTheme.labelSmall
+                ?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          Expanded(
+            child: Text(value, style: Theme.of(context).textTheme.bodySmall),
+          ),
         ],
       ),
     );

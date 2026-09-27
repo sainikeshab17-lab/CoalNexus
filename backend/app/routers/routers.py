@@ -72,6 +72,16 @@ def create_mine(mine_in: schemas.MineCreate, db: Session = Depends(get_db), curr
     mine_repo.create(db, db_obj)
     if mine_in.operation_id:
         operation_repo.mark_processed(db, mine_in.operation_id)
+    
+    # Broadcast entity update via WebSocket
+    import asyncio
+    try:
+        from .websocket import notify_entity_update
+        loop = asyncio.get_running_loop()
+        loop.create_task(notify_entity_update("mine", "create", jsonable_encoder(db_obj)))
+    except Exception:
+        pass
+
     return db_obj
 
 @router.put("/mines/{mine_id}", response_model=schemas.Mine)
@@ -107,6 +117,16 @@ def update_mine(mine_id: str, mine_in: schemas.MineUpdate, db: Session = Depends
     updated = mine_repo.update(db, db_obj, update_data)
     if mine_in.operation_id:
         operation_repo.mark_processed(db, mine_in.operation_id)
+
+    # Broadcast entity update via WebSocket
+    import asyncio
+    try:
+        from .websocket import notify_entity_update
+        loop = asyncio.get_running_loop()
+        loop.create_task(notify_entity_update("mine", "update", jsonable_encoder(updated)))
+    except Exception:
+        pass
+
     return updated
 
 # --- INSPECTIONS ---
@@ -142,6 +162,16 @@ def create_inspection(insp_in: schemas.InspectionCreate, db: Session = Depends(g
     inspection_repo.create(db, db_obj)
     if insp_in.operation_id:
         operation_repo.mark_processed(db, insp_in.operation_id)
+
+    # Broadcast entity update via WebSocket
+    import asyncio
+    try:
+        from .websocket import notify_entity_update
+        loop = asyncio.get_running_loop()
+        loop.create_task(notify_entity_update("inspection", "create", jsonable_encoder(db_obj)))
+    except Exception:
+        pass
+
     return db_obj
 
 @router.put("/inspections/{insp_id}", response_model=schemas.Inspection)
@@ -180,6 +210,16 @@ def update_inspection(insp_id: str, insp_in: schemas.InspectionCreate, db: Sessi
     updated = inspection_repo.update(db, db_obj, update_data)
     if insp_in.operation_id:
         operation_repo.mark_processed(db, insp_in.operation_id)
+
+    # Broadcast entity update via WebSocket
+    import asyncio
+    try:
+        from .websocket import notify_entity_update
+        loop = asyncio.get_running_loop()
+        loop.create_task(notify_entity_update("inspection", "update", jsonable_encoder(updated)))
+    except Exception:
+        pass
+
     return updated
 
 # --- VIOLATIONS ---
@@ -223,6 +263,16 @@ def create_violation(viol_in: schemas.ViolationCreate, db: Session = Depends(get
     violation_repo.create(db, db_obj)
     if viol_in.operation_id:
         operation_repo.mark_processed(db, viol_in.operation_id)
+
+    # Broadcast entity update via WebSocket
+    import asyncio
+    try:
+        from .websocket import notify_entity_update
+        loop = asyncio.get_running_loop()
+        loop.create_task(notify_entity_update("violation", "create", jsonable_encoder(db_obj)))
+    except Exception:
+        pass
+
     return db_obj
 
 @router.put("/violations/{viol_id}", response_model=schemas.Violation)
@@ -270,6 +320,16 @@ def update_violation(viol_id: str, viol_in: schemas.ViolationCreate, db: Session
     updated = violation_repo.update(db, db_obj, update_data)
     if viol_in.operation_id:
         operation_repo.mark_processed(db, viol_in.operation_id)
+
+    # Broadcast entity update via WebSocket
+    import asyncio
+    try:
+        from .websocket import notify_entity_update
+        loop = asyncio.get_running_loop()
+        loop.create_task(notify_entity_update("violation", "update", jsonable_encoder(updated)))
+    except Exception:
+        pass
+
     return updated
 
 # --- FINDINGS ---
@@ -305,6 +365,16 @@ def create_finding(finding_in: schemas.FindingCreate, db: Session = Depends(get_
     finding_repo.create(db, db_obj)
     if finding_in.operation_id:
         operation_repo.mark_processed(db, finding_in.operation_id)
+
+    # Broadcast entity update via WebSocket
+    import asyncio
+    try:
+        from .websocket import notify_entity_update
+        loop = asyncio.get_running_loop()
+        loop.create_task(notify_entity_update("finding", "create", jsonable_encoder(db_obj)))
+    except Exception:
+        pass
+
     return db_obj
 
 @router.put("/findings/{finding_id}", response_model=schemas.Finding)
@@ -341,6 +411,16 @@ def update_finding(finding_id: str, finding_in: schemas.FindingCreate, db: Sessi
     updated = finding_repo.update(db, db_obj, update_data)
     if finding_in.operation_id:
         operation_repo.mark_processed(db, finding_in.operation_id)
+
+    # Broadcast entity update via WebSocket
+    import asyncio
+    try:
+        from .websocket import notify_entity_update
+        loop = asyncio.get_running_loop()
+        loop.create_task(notify_entity_update("finding", "update", jsonable_encoder(updated)))
+    except Exception:
+        pass
+
     return updated
 
 # --- ALERTS ---
@@ -375,6 +455,16 @@ def create_alert(alert_in: schemas.AlertCreate, db: Session = Depends(get_db)):
     alert_repo.create(db, db_obj)
     if alert_in.operation_id:
         operation_repo.mark_processed(db, alert_in.operation_id)
+
+    # Broadcast entity update via WebSocket
+    import asyncio
+    try:
+        from .websocket import notify_entity_update
+        loop = asyncio.get_running_loop()
+        loop.create_task(notify_entity_update("alert", "create", jsonable_encoder(db_obj)))
+    except Exception:
+        pass
+
     return db_obj
 
 # --- CORRECTIVE ACTIONS ---
@@ -415,6 +505,16 @@ def create_corrective_action(ca_in: schemas.CorrectiveActionCreate, db: Session 
     corrective_action_repo.create(db, db_obj)
     if ca_in.operation_id:
         operation_repo.mark_processed(db, ca_in.operation_id)
+
+    # Broadcast entity update via WebSocket
+    import asyncio
+    try:
+        from .websocket import notify_entity_update
+        loop = asyncio.get_running_loop()
+        loop.create_task(notify_entity_update("corrective_action", "create", jsonable_encoder(db_obj)))
+    except Exception:
+        pass
+
     return db_obj
 
 @router.put("/corrective-actions/{ca_id}", response_model=schemas.CorrectiveAction)
@@ -459,6 +559,16 @@ def update_corrective_action(ca_id: str, ca_in: schemas.CorrectiveActionCreate, 
     updated = corrective_action_repo.update(db, db_obj, update_data)
     if ca_in.operation_id:
         operation_repo.mark_processed(db, ca_in.operation_id)
+
+    # Broadcast entity update via WebSocket
+    import asyncio
+    try:
+        from .websocket import notify_entity_update
+        loop = asyncio.get_running_loop()
+        loop.create_task(notify_entity_update("corrective_action", "update", jsonable_encoder(updated)))
+    except Exception:
+        pass
+
     return updated
 
 # --- AUDIT TRAIL ---

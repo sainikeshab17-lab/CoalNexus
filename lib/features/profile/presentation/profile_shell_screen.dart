@@ -47,19 +47,28 @@ class ProfileShellScreen extends ConsumerWidget {
                       children: [
                         Text(
                           user?.name ?? 'Guest User',
-                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                         Text(
                           'Role: ${user?.role.name.toUpperCase() ?? 'N/A'}',
-                          style: const TextStyle(fontSize: 14, color: Colors.grey),
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey,
+                          ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
                         Text(
                           'ID: ${user?.id ?? 'N/A'}',
-                          style: const TextStyle(fontSize: 12, color: Colors.grey),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -77,10 +86,15 @@ class ProfileShellScreen extends ConsumerWidget {
               child: Column(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: AppSpacing.xs,
+                    ),
                     child: Row(
                       children: [
-                        const Icon(Icons.cloud_done_outlined, color: Colors.green),
+                        const Icon(
+                          Icons.cloud_done_outlined,
+                          color: Colors.green,
+                        ),
                         const SizedBox(width: AppSpacing.md),
                         const Expanded(
                           child: Column(
@@ -94,7 +108,10 @@ class ProfileShellScreen extends ConsumerWidget {
                               ),
                               Text(
                                 'Last sync: Today, 08:30 AM',
-                                style: TextStyle(fontSize: 12, color: Colors.grey),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey,
+                                ),
                               ),
                             ],
                           ),
@@ -104,7 +121,9 @@ class ProfileShellScreen extends ConsumerWidget {
                           onPressed: () => context.push('/sync'),
                           style: TextButton.styleFrom(
                             visualDensity: VisualDensity.compact,
-                            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: AppSpacing.sm,
+                            ),
                           ),
                           child: const Text('View Queue'),
                         ),
@@ -114,17 +133,32 @@ class ProfileShellScreen extends ConsumerWidget {
                   const Divider(),
                   ListTile(
                     contentPadding: EdgeInsets.zero,
-                    leading: const Icon(Icons.signal_cellular_4_bar, color: Colors.blue),
-                    title: const Text('Network Connectivity', style: TextStyle(fontSize: 14)),
-                    subtitle: const Text('Online (Server Connected)', style: TextStyle(fontSize: 12)),
+                    leading: const Icon(
+                      Icons.signal_cellular_4_bar,
+                      color: Colors.blue,
+                    ),
+                    title: const Text(
+                      'Network Connectivity',
+                      style: TextStyle(fontSize: 14),
+                    ),
+                    subtitle: const Text(
+                      'Online (Server Connected)',
+                      style: TextStyle(fontSize: 12),
+                    ),
                     onTap: () {},
                   ),
                   const Divider(),
                   ListTile(
                     contentPadding: EdgeInsets.zero,
                     leading: const Icon(Icons.storage_outlined),
-                    title: const Text('Pending Queue', style: TextStyle(fontSize: 14)),
-                    subtitle: const Text('0 items remaining in Outbox', style: TextStyle(fontSize: 12)),
+                    title: const Text(
+                      'Pending Queue',
+                      style: TextStyle(fontSize: 14),
+                    ),
+                    subtitle: const Text(
+                      '0 items remaining in Outbox',
+                      style: TextStyle(fontSize: 12),
+                    ),
                     onTap: () => context.push('/sync'),
                   ),
                 ],
@@ -138,8 +172,14 @@ class ProfileShellScreen extends ConsumerWidget {
               child: ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.history_outlined),
-                title: const Text('System Audit Trail', style: TextStyle(fontSize: 14)),
-                subtitle: const Text('Review all recorded compliance activities', style: TextStyle(fontSize: 12)),
+                title: const Text(
+                  'System Audit Trail',
+                  style: TextStyle(fontSize: 14),
+                ),
+                subtitle: const Text(
+                  'Review all recorded compliance activities',
+                  style: TextStyle(fontSize: 12),
+                ),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => context.push('/audit-trail'),
               ),
@@ -154,9 +194,9 @@ class ProfileShellScreen extends ConsumerWidget {
                   SwitchListTile.adaptive(
                     value: themeMode == ThemeMode.dark,
                     onChanged: (val) {
-                      ref.read(themeModeProvider.notifier).setThemeMode(
-                            val ? ThemeMode.dark : ThemeMode.light,
-                          );
+                      ref
+                          .read(themeModeProvider.notifier)
+                          .setThemeMode(val ? ThemeMode.dark : ThemeMode.light);
                     },
                     secondary: Icon(
                       themeMode == ThemeMode.dark

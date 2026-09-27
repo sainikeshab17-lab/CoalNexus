@@ -65,7 +65,10 @@ class ViolationModel extends Violation {
     // Backend ViolationStatus: open, resolved, inProgress, closed
     if (apiStatus == 'detected' || apiStatus == 'recorded') {
       apiStatus = 'open';
-    } else if (apiStatus == 'assigned' || apiStatus == 'correctiveAction' || apiStatus == 'evidenceSubmitted' || apiStatus == 'verification') {
+    } else if (apiStatus == 'assigned' ||
+        apiStatus == 'correctiveAction' ||
+        apiStatus == 'evidenceSubmitted' ||
+        apiStatus == 'verification') {
       apiStatus = 'inProgress';
     } else if (apiStatus == 'closed') {
       apiStatus = 'closed';
@@ -95,13 +98,16 @@ class ViolationModel extends Violation {
   factory ViolationModel.fromJson(Map<String, dynamic> json) {
     return ViolationModel(
       localId: (json['local_id'] ?? json['localId']) as String,
-      serverId: (json['server_id'] ?? json['id'] ?? json['serverId']) as String?,
+      serverId:
+          (json['server_id'] ?? json['id'] ?? json['serverId']) as String?,
       inspectionId: (json['inspection_id'] ?? json['inspectionId']) as String,
       findingId: (json['finding_id'] ?? json['findingId']) as String,
       mineId: (json['mine_id'] ?? json['mineId']) as String,
       title: json['title'] as String,
       description: json['description'] as String,
-      severity: ViolationSeverity.values.firstWhere((e) => e.name == json['severity']),
+      severity: ViolationSeverity.values.firstWhere(
+        (e) => e.name == json['severity'],
+      ),
       status: ViolationStatus.values.firstWhere(
         (e) => e.name == json['status'],
         orElse: () {
@@ -114,10 +120,18 @@ class ViolationModel extends Violation {
         },
       ),
       assignedTo: (json['assigned_to'] ?? json['assignedTo']) as String?,
-      dueDate: (json['due_date'] ?? json['dueDate']) != null ? DateTime.parse((json['due_date'] ?? json['dueDate']) as String) : null,
-      detectedAt: DateTime.parse((json['detected_at'] ?? json['detectedAt']) as String),
-      createdAt: DateTime.parse((json['created_at'] ?? json['createdAt']) as String),
-      updatedAt: DateTime.parse((json['updated_at'] ?? json['updatedAt']) as String),
+      dueDate: (json['due_date'] ?? json['dueDate']) != null
+          ? DateTime.parse((json['due_date'] ?? json['dueDate']) as String)
+          : null,
+      detectedAt: DateTime.parse(
+        (json['detected_at'] ?? json['detectedAt']) as String,
+      ),
+      createdAt: DateTime.parse(
+        (json['created_at'] ?? json['createdAt']) as String,
+      ),
+      updatedAt: DateTime.parse(
+        (json['updated_at'] ?? json['updatedAt']) as String,
+      ),
       localVersion: (json['local_version'] ?? json['localVersion']) as int,
     );
   }

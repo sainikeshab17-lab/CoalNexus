@@ -11,21 +11,28 @@ import 'package:coalnexus/core/sync/domain/entities/audit_trail.dart';
 
 final allAuditTrailsProvider = StreamProvider<List<AuditTrail>>((ref) {
   final db = ref.watch(appDatabaseProvider);
-  return (db.select(db.auditTrails)
-        ..orderBy([(t) => OrderingTerm(expression: t.timestamp, mode: OrderingMode.desc)]))
+  return (db.select(db.auditTrails)..orderBy([
+        (t) => OrderingTerm(expression: t.timestamp, mode: OrderingMode.desc),
+      ]))
       .watch()
-      .map((rows) => rows.map((row) => AuditTrail(
-            localId: row.localId,
-            serverId: row.serverId,
-            entityType: row.entityType,
-            entityId: row.entityId,
-            action: row.action,
-            previousState: row.previousState,
-            newState: row.newState,
-            actorId: row.actorId,
-            timestamp: row.timestamp,
-            comment: row.comment,
-          )).toList());
+      .map(
+        (rows) => rows
+            .map(
+              (row) => AuditTrail(
+                localId: row.localId,
+                serverId: row.serverId,
+                entityType: row.entityType,
+                entityId: row.entityId,
+                action: row.action,
+                previousState: row.previousState,
+                newState: row.newState,
+                actorId: row.actorId,
+                timestamp: row.timestamp,
+                comment: row.comment,
+              ),
+            )
+            .toList(),
+      );
 });
 
 class AuditTrailPage extends ConsumerWidget {
@@ -36,9 +43,7 @@ class AuditTrailPage extends ConsumerWidget {
     final auditAsync = ref.watch(allAuditTrailsProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('System Audit Trail'),
-      ),
+      appBar: AppBar(title: const Text('System Audit Trail')),
       body: auditAsync.when(
         data: (events) {
           if (events.isEmpty) {

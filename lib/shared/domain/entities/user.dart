@@ -1,10 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-enum UserRole {
-  admin,
-  inspector,
-  manager,
-}
+enum UserRole { admin, inspector, manager }
 
 enum UserPermission {
   viewDashboard,

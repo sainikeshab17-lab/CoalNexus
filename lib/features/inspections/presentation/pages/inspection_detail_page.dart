@@ -22,7 +22,9 @@ class InspectionDetailPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(inspectionDetailProvider(inspectionId));
-    final syncStatusAsync = ref.watch(inspectionSyncStatusProvider(inspectionId));
+    final syncStatusAsync = ref.watch(
+      inspectionSyncStatusProvider(inspectionId),
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -32,10 +34,13 @@ class InspectionDetailPage extends ConsumerWidget {
             icon: const Icon(Icons.refresh),
             onPressed: () async {
               await ref.read(inspectionRepositoryProvider).refreshFindings();
-              ref.read(inspectionDetailProvider(inspectionId).notifier).refresh();
+              ref
+                  .read(inspectionDetailProvider(inspectionId).notifier)
+                  .refresh();
             },
           ),
-          if (syncStatusAsync.value != null && syncStatusAsync.value != SyncStatus.synced)
+          if (syncStatusAsync.value != null &&
+              syncStatusAsync.value != SyncStatus.synced)
             Padding(
               padding: const EdgeInsets.only(right: AppSpacing.md),
               child: _SyncStatusWidget(status: syncStatusAsync.value!),
@@ -46,7 +51,9 @@ class InspectionDetailPage extends ConsumerWidget {
         loading: () => const AppLoadingIndicator(),
         error: (err, stack) => AppErrorView(
           message: err.toString(),
-          onRetry: () => ref.read(inspectionDetailProvider(inspectionId).notifier).loadData(inspectionId),
+          onRetry: () => ref
+              .read(inspectionDetailProvider(inspectionId).notifier)
+              .loadData(inspectionId),
         ),
         data: (inspection) {
           if (inspection == null) {
@@ -64,7 +71,8 @@ class InspectionDetailPage extends ConsumerWidget {
                   title: 'Findings',
                   trailing: IconButton(
                     icon: const Icon(Icons.add),
-                    onPressed: () => context.push('/inspections/$inspectionId/add_finding'),
+                    onPressed: () =>
+                        context.push('/inspections/$inspectionId/add_finding'),
                   ),
                 ),
                 const SizedBox(height: AppSpacing.sm),
@@ -79,10 +87,14 @@ class InspectionDetailPage extends ConsumerWidget {
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: findings.length,
-                      separatorBuilder: (context, index) => const SizedBox(height: AppSpacing.sm),
+                      separatorBuilder: (context, index) =>
+                          const SizedBox(height: AppSpacing.sm),
                       itemBuilder: (context, index) {
                         final finding = findings[index];
-                        return _FindingCard(finding: finding, mineId: inspection.mineId);
+                        return _FindingCard(
+                          finding: finding,
+                          mineId: inspection.mineId,
+                        );
                       },
                     );
                   },
@@ -97,7 +109,8 @@ class InspectionDetailPage extends ConsumerWidget {
                 state.auditTrail.when(
                   loading: () => const CircularProgressIndicator(),
                   error: (err, _) => Text('Error: $err'),
-                  data: (events) => AuditTimeline(events: events, shrinkWrap: true),
+                  data: (events) =>
+                      AuditTimeline(events: events, shrinkWrap: true),
                 ),
               ],
             ),
@@ -126,9 +139,8 @@ class _InspectionHeader extends ConsumerWidget {
             builder: (context, snapshot) {
               return Text(
                 snapshot.data?.name ?? 'Loading mine...',
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: Theme.of(context).textTheme.headlineSmall
+                    ?.copyWith(fontWeight: FontWeight.bold),
               );
             },
           ),
@@ -138,7 +150,8 @@ class _InspectionHeader extends ConsumerWidget {
             children: [
               Text(
                 'Status: ',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+                style: Theme.of(context).textTheme.bodyMedium
+                    ?.copyWith(fontWeight: FontWeight.bold),
               ),
               _StatusChip(status: inspection.status),
             ],
@@ -162,10 +175,7 @@ class _FindingCard extends StatelessWidget {
   final InspectionFinding finding;
   final String mineId;
 
-  const _FindingCard({
-    required this.finding,
-    required this.mineId,
-  });
+  const _FindingCard({required this.finding, required this.mineId});
 
   @override
   Widget build(BuildContext context) {
@@ -191,8 +201,10 @@ class _FindingCard extends StatelessWidget {
 
     return AppCard(
       backgroundColor: Theme.of(context).brightness == Brightness.dark
-          ? Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.1)
-          : Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+          ? Theme.of(context).colorScheme.surfaceContainerHighest
+                .withValues(alpha: 0.1)
+          : Theme.of(context).colorScheme.surfaceContainerHighest
+                .withValues(alpha: 0.3),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -202,7 +214,8 @@ class _FindingCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   finding.requirementId,
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                  style: Theme.of(context).textTheme.titleSmall
+                      ?.copyWith(fontWeight: FontWeight.bold),
                 ),
               ),
               AppStatusChip(label: finding.status.name, color: statusColor),
@@ -286,7 +299,11 @@ class _SyncStatusWidget extends StatelessWidget {
         const SizedBox(width: AppSpacing.xs),
         Text(
           label,
-          style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: color,
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ],
     );
@@ -339,17 +356,27 @@ class _WorkflowActionButtons extends ConsumerWidget {
             runSpacing: AppSpacing.sm,
             children: InspectionStatus.values.map((status) {
               final isCurrent = inspection.status == status;
-              final allowed = WorkflowService.canTransitionInspection(inspection.status, status);
+              final allowed = WorkflowService.canTransitionInspection(
+                inspection.status,
+                status,
+              );
 
               return ChoiceChip(
                 label: Text(status.name.toUpperCase()),
                 selected: isCurrent,
                 selectedColor: Colors.blue.withValues(alpha: 0.2),
-                onSelected: allowed ? (v) async {
-                  if (v) {
-                    await ref.read(inspectionDetailProvider(inspection.localId).notifier).updateStatus(status);
-                  }
-                } : null,
+                onSelected: allowed
+                    ? (v) async {
+                        if (v) {
+                          await ref
+                              .read(
+                                inspectionDetailProvider(inspection.localId)
+                                    .notifier,
+                              )
+                              .updateStatus(status);
+                        }
+                      }
+                    : null,
               );
             }).toList(),
           ),
@@ -358,4 +385,3 @@ class _WorkflowActionButtons extends ConsumerWidget {
     );
   }
 }
-

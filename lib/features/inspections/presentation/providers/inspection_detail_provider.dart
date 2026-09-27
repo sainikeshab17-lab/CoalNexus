@@ -29,9 +29,12 @@ class InspectionDetailState {
   }
 }
 
-final inspectionDetailProvider = NotifierProvider.family<InspectionDetailNotifier, InspectionDetailState, String>(
-  (id) => InspectionDetailNotifier(id),
-);
+final inspectionDetailProvider =
+    NotifierProvider.family<
+      InspectionDetailNotifier,
+      InspectionDetailState,
+      String
+    >((id) => InspectionDetailNotifier(id));
 
 class InspectionDetailNotifier extends Notifier<InspectionDetailState> {
   final String arg;
@@ -97,16 +100,18 @@ class InspectionDetailNotifier extends Notifier<InspectionDetailState> {
 
     try {
       await ref.read(inspectionRepositoryProvider).updateInspection(updated);
-      
+
       // Log audit
-      await ref.read(auditRepositoryProvider).logAction(
-        entityType: 'Inspection',
-        entityId: inspection.localId,
-        action: 'STATUS_CHANGE',
-        previousState: oldStatus.name,
-        newState: newStatus.name,
-        comment: 'Status updated via app workflow',
-      );
+      await ref
+          .read(auditRepositoryProvider)
+          .logAction(
+            entityType: 'Inspection',
+            entityId: inspection.localId,
+            action: 'STATUS_CHANGE',
+            previousState: oldStatus.name,
+            newState: newStatus.name,
+            comment: 'Status updated via app workflow',
+          );
 
       await refresh();
     } catch (e) {
@@ -116,9 +121,7 @@ class InspectionDetailNotifier extends Notifier<InspectionDetailState> {
 
   void addLocalFinding(InspectionFinding finding) {
     state.findings.whenData((list) {
-      state = state.copyWith(
-        findings: AsyncValue.data([...list, finding]),
-      );
+      state = state.copyWith(findings: AsyncValue.data([...list, finding]));
     });
   }
 }

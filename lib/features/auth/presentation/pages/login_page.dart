@@ -28,10 +28,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   void _submit() {
     if (_formKey.currentState?.validate() ?? false) {
-      ref.read(authNotifierProvider.notifier).login(
-            _usernameController.text,
-            _passwordController.text,
-          );
+      ref
+          .read(authNotifierProvider.notifier)
+          .login(_usernameController.text, _passwordController.text);
     }
   }
 
@@ -61,9 +60,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     'COALNEXUS',
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 2.0,
-                        ),
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 2.0,
+                    ),
                   ),
                   Text(
                     'Smart Governance & Compliance Monitoring',
@@ -98,7 +97,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     onFieldSubmitted: (_) => _submit(),
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                        _obscurePassword
+                            ? Icons.visibility_off
+                            : Icons.visibility,
                       ),
                       onPressed: () {
                         setState(() {
@@ -116,7 +117,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   const SizedBox(height: AppSpacing.lg),
 
                   // Error Display
-                  if (authState.status == AuthStatus.failure && authState.errorMessage != null) ...[
+                  if (authState.status == AuthStatus.failure &&
+                      authState.errorMessage != null) ...[
                     Container(
                       padding: const EdgeInsets.all(AppSpacing.sm),
                       decoration: BoxDecoration(
@@ -147,9 +149,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     'Authorized Personnel Only. All activities are securely monitored and logged under audit constraints.',
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          fontSize: 11,
-                          color: Theme.of(context).disabledColor,
-                        ),
+                      fontSize: 11,
+                      color: Theme.of(context).disabledColor,
+                    ),
                   ),
                 ],
               ),

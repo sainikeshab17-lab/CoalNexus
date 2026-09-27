@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+
 import 'package:coalnexus/core/network/connectivity_service.dart';
 import 'package:coalnexus/core/sync/sync_models.dart';
 import 'package:coalnexus/core/sync/sync_repository.dart';
@@ -15,7 +16,11 @@ class SyncProcessorImpl implements SyncProcessor {
   final ApiClient _apiClient;
   final int maxRetries = 5;
 
-  SyncProcessorImpl(this._syncRepository, this._connectivityService, this._apiClient);
+  SyncProcessorImpl(
+    this._syncRepository,
+    this._connectivityService,
+    this._apiClient,
+  );
 
   @override
   Future<void> processQueue() async {
@@ -23,7 +28,7 @@ class SyncProcessorImpl implements SyncProcessor {
     if (!isConnected) return;
 
     final pendingItems = await _syncRepository.getPendingOperations();
-    
+
     for (final item in pendingItems) {
       if (item.retryCount >= maxRetries) {
         continue;
@@ -45,15 +50,26 @@ class SyncProcessorImpl implements SyncProcessor {
 
       // Dynamic Foreign Key Resolution
       if (payload.containsKey('mine_id') && payload['mine_id'] != null) {
-        final mid = await _syncRepository.getServerId('mines', payload['mine_id'] as String);
+        final mid = await _syncRepository.getServerId(
+          'mines',
+          payload['mine_id'] as String,
+        );
         if (mid != null) payload['mine_id'] = mid;
       }
-      if (payload.containsKey('inspection_id') && payload['inspection_id'] != null) {
-        final iid = await _syncRepository.getServerId('inspections', payload['inspection_id'] as String);
+      if (payload.containsKey('inspection_id') &&
+          payload['inspection_id'] != null) {
+        final iid = await _syncRepository.getServerId(
+          'inspections',
+          payload['inspection_id'] as String,
+        );
         if (iid != null) payload['inspection_id'] = iid;
       }
-      if (payload.containsKey('violation_id') && payload['violation_id'] != null) {
-        final vid = await _syncRepository.getServerId('violations', payload['violation_id'] as String);
+      if (payload.containsKey('violation_id') &&
+          payload['violation_id'] != null) {
+        final vid = await _syncRepository.getServerId(
+          'violations',
+          payload['violation_id'] as String,
+        );
         if (vid != null) payload['violation_id'] = vid;
       }
 
@@ -69,9 +85,12 @@ class SyncProcessorImpl implements SyncProcessor {
         path = '/violations';
       } else if (feat == 'alerts' || feat == 'alert') {
         path = '/alerts';
-      } else if (feat.toLowerCase() == 'audittrail' || feat.contains('audit') || feat.contains('trail')) {
+      } else if (feat.toLowerCase() == 'audittrail' ||
+          feat.contains('audit') ||
+          feat.contains('trail')) {
         path = '/audit-trail';
-      } else if (feat.toLowerCase() == 'correctiveaction' || feat.contains('corrective')) {
+      } else if (feat.toLowerCase() == 'correctiveaction' ||
+          feat.contains('corrective')) {
         path = '/corrective-actions';
       } else {
         throw Exception('Unknown feature: ${item.featureName}');
@@ -79,26 +98,29 @@ class SyncProcessorImpl implements SyncProcessor {
 
       ApiResponse response;
       final action = item.actionType.toUpperCase();
-      
+
       if (action.contains('CREATE')) {
         response = await _apiClient.post(path, payload);
       } else if (action.contains('UPDATE')) {
         final id = item.serverId ?? item.localId;
         response = await _apiClient.put('$path/$id', payload);
-        
+
         // Handle case where seeded/local record doesn't exist on server yet
         if (response.statusCode == 404 && item.serverId == null) {
           response = await _apiClient.post(path, payload);
         }
       } else {
         // Fallback or not supported action type
-        response = ApiResponse(statusCode: 200, data: {'id': item.serverId ?? 'srv_${item.localId}'});
+        response = ApiResponse(
+          statusCode: 200,
+          data: {'id': item.serverId ?? 'srv_${item.localId}'},
+        );
       }
 
       if (response.isSuccess) {
         final serverId = response.data['id'] as String;
         await _syncRepository.markSynced(item.localId, serverId);
-        
+
         // SERVER ID RECONCILIATION: Update the actual entity table
         await _reconcileServerId(item.featureName, item.localId, serverId);
       } else if (response.statusCode == 409) {
@@ -108,25 +130,29 @@ class SyncProcessorImpl implements SyncProcessor {
         String? conflictMessage;
         if (detail is Map) {
           conflictMessage = detail['message'];
-          // We could potentially trigger an immediate merge here, 
-          // but for now we mark it as conflict for the UI to handle or 
+          // We could potentially trigger an immediate merge here,
+          // but for now we mark it as conflict for the UI to handle or
           // to be resolved in the next refresh cycle.
         }
 
         await _syncRepository.updateStatus(
-          item.localId, 
-          SyncStatus.conflict, 
+          item.localId,
+          SyncStatus.conflict,
           lastError: conflictMessage ?? response.error ?? 'Conflict detected',
         );
       } else {
         // Differentiate retryable vs permanent errors
-        final isValidationError = response.statusCode == 422 || response.statusCode == 400;
-        final isAuthError = response.statusCode == 401 || response.statusCode == 403;
-        final newRetryCount = (isValidationError || isAuthError) ? maxRetries : item.retryCount + 1;
-        
+        final isValidationError =
+            response.statusCode == 422 || response.statusCode == 400;
+        final isAuthError =
+            response.statusCode == 401 || response.statusCode == 403;
+        final newRetryCount = (isValidationError || isAuthError)
+            ? maxRetries
+            : item.retryCount + 1;
+
         await _syncRepository.updateStatus(
-          item.localId, 
-          SyncStatus.failed, 
+          item.localId,
+          SyncStatus.failed,
           lastError: response.error ?? 'Status ${response.statusCode}',
           retryCount: newRetryCount,
         );
@@ -134,17 +160,21 @@ class SyncProcessorImpl implements SyncProcessor {
     } catch (e) {
       final newRetryCount = item.retryCount + 1;
       await _syncRepository.updateStatus(
-        item.localId, 
-        SyncStatus.failed, 
+        item.localId,
+        SyncStatus.failed,
         lastError: e.toString(),
         retryCount: newRetryCount,
       );
     }
   }
 
-  Future<void> _reconcileServerId(String feature, String localId, String serverId) async {
+  Future<void> _reconcileServerId(
+    String feature,
+    String localId,
+    String serverId,
+  ) async {
     // This requires access to the individual feature repositories or the database.
-    // For simplicity in this demo/milestone, we use the database directly if possible 
+    // For simplicity in this demo/milestone, we use the database directly if possible
     // or through a centralized method in SyncRepository.
     // Let's assume we add a method to SyncRepository for this.
     try {

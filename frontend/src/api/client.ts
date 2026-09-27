@@ -1,3 +1,5 @@
+import { supabase } from './supabase';
+
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
 async function handleResponse(response: Response) {
@@ -14,15 +16,22 @@ async function handleResponse(response: Response) {
   return response.json();
 }
 
+async function getAuthHeaders(options: RequestInit = {}): Promise<Record<string, string>> {
+  const headers: Record<string, string> = {
+    ...options.headers as Record<string, string>,
+  };
+
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session?.access_token) {
+    headers['Authorization'] = `Bearer ${session.access_token}`;
+  }
+
+  return headers;
+}
+
 export const client = {
   get: async (endpoint: string, options: RequestInit = {}) => {
-    const token = localStorage.getItem('coalnexus_token') || '';
-    const headers: Record<string, string> = {
-      ...options.headers as Record<string, string>,
-    };
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
+    const headers = await getAuthHeaders(options);
     const response = await fetch(`${API_URL}${endpoint}`, {
       ...options,
       method: 'GET',
@@ -31,14 +40,8 @@ export const client = {
     return handleResponse(response);
   },
   post: async (endpoint: string, data: any, options: RequestInit = {}) => {
-    const token = localStorage.getItem('coalnexus_token') || '';
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-      ...options.headers as Record<string, string>,
-    };
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
+    const headers = await getAuthHeaders(options);
+    headers['Content-Type'] = 'application/json';
     const response = await fetch(`${API_URL}${endpoint}`, {
       ...options,
       method: 'POST',
@@ -48,14 +51,8 @@ export const client = {
     return handleResponse(response);
   },
   put: async (endpoint: string, data: any, options: RequestInit = {}) => {
-    const token = localStorage.getItem('coalnexus_token') || '';
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-      ...options.headers as Record<string, string>,
-    };
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
+    const headers = await getAuthHeaders(options);
+    headers['Content-Type'] = 'application/json';
     const response = await fetch(`${API_URL}${endpoint}`, {
       ...options,
       method: 'PUT',

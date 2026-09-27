@@ -9,8 +9,8 @@ class OutboxService {
   final ApiClient apiClient;
 
   OutboxService(this._syncRepository, {Uuid? uuid, ApiClient? apiClient})
-      : _uuid = uuid ?? const Uuid(),
-        apiClient = apiClient ?? ApiClient();
+    : _uuid = uuid ?? const Uuid(),
+      apiClient = apiClient ?? ApiClient();
 
   Future<String> enqueueOperation({
     required String featureName,

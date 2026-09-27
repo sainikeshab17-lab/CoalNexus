@@ -84,7 +84,7 @@ class _EditMinePageState extends ConsumerState<EditMinePage> {
       );
 
       await ref.read(updateMineProvider)(updatedMine);
-      
+
       // Update local states for immediate UI updates
       ref.read(mineListProvider.notifier).updateLocalMine(updatedMine);
 
@@ -93,9 +93,8 @@ class _EditMinePageState extends ConsumerState<EditMinePage> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error updating mine: $e')),
-        );
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Error updating mine: $e')));
       }
     } finally {
       if (mounted) {
@@ -113,15 +112,11 @@ class _EditMinePageState extends ConsumerState<EditMinePage> {
     }
 
     if (_existingMine == null) {
-      return const Scaffold(
-        body: AppEmptyView(message: 'Mine not found.'),
-      );
+      return const Scaffold(body: AppEmptyView(message: 'Mine not found.'));
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Edit Mine'),
-      ),
+      appBar: AppBar(title: const Text('Edit Mine')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.md),
         child: Form(
@@ -137,7 +132,8 @@ class _EditMinePageState extends ConsumerState<EditMinePage> {
                       decoration: const InputDecoration(
                         labelText: 'Mine Name *',
                       ),
-                      validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
+                      validator: (v) =>
+                          (v == null || v.isEmpty) ? 'Required' : null,
                     ),
                     const SizedBox(height: AppSpacing.md),
                     TextFormField(
@@ -145,7 +141,8 @@ class _EditMinePageState extends ConsumerState<EditMinePage> {
                       decoration: const InputDecoration(
                         labelText: 'Mine Code *',
                       ),
-                      validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
+                      validator: (v) =>
+                          (v == null || v.isEmpty) ? 'Required' : null,
                     ),
                   ],
                 ),
@@ -161,11 +158,14 @@ class _EditMinePageState extends ConsumerState<EditMinePage> {
                         decoration: const InputDecoration(
                           labelText: 'Latitude *',
                         ),
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
                         validator: (v) {
                           if (v == null || v.isEmpty) return 'Required';
                           final val = double.tryParse(v);
-                          if (val == null || val < -90 || val > 90) return 'Invalid';
+                          if (val == null || val < -90 || val > 90)
+                            return 'Invalid';
                           return null;
                         },
                       ),
@@ -177,11 +177,14 @@ class _EditMinePageState extends ConsumerState<EditMinePage> {
                         decoration: const InputDecoration(
                           labelText: 'Longitude *',
                         ),
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
                         validator: (v) {
                           if (v == null || v.isEmpty) return 'Required';
                           final val = double.tryParse(v);
-                          if (val == null || val < -180 || val > 180) return 'Invalid';
+                          if (val == null || val < -180 || val > 180)
+                            return 'Invalid';
                           return null;
                         },
                       ),

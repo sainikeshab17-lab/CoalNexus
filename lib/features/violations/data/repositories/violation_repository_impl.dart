@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:coalnexus/core/sync/outbox_service.dart';
 import 'package:coalnexus/core/sync/sync_repository.dart';
 import 'package:coalnexus/core/sync/domain/repositories/audit_repository.dart';
@@ -45,8 +46,12 @@ class ViolationRepositoryImpl implements ViolationRepository {
   }
 
   @override
-  Future<List<Violation>> getViolationsForInspection(String inspectionId) async {
-    final models = await _localDataSource.getViolationsForInspection(inspectionId);
+  Future<List<Violation>> getViolationsForInspection(
+    String inspectionId,
+  ) async {
+    final models = await _localDataSource.getViolationsForInspection(
+      inspectionId,
+    );
     return models.map((model) => model.toDomain()).toList();
   }
 
@@ -56,18 +61,27 @@ class ViolationRepositoryImpl implements ViolationRepository {
       final response = await _outboxService.apiClient.get('/violations');
       if (response.isSuccess) {
         final List<dynamic> data = response.data;
-        final models = data.map((json) => ViolationModel.fromJson(json)).toList();
-        
+        final models = data
+            .map((json) => ViolationModel.fromJson(json))
+            .toList();
+
         await _localDataSource.transaction(() async {
           for (final model in models) {
-            final hasPending = await _syncRepository.hasPendingMutations(model.localId);
+            final hasPending = await _syncRepository.hasPendingMutations(
+              model.localId,
+            );
             if (hasPending) continue;
 
-            final existing = await _localDataSource.getViolationById(model.localId);
+            final existing = await _localDataSource.getViolationById(
+              model.localId,
+            );
             if (existing == null) {
               await _localDataSource.saveViolation(model.toDomain());
             } else if (model.localVersion >= existing.localVersion) {
-              await _localDataSource.updateViolation(model.toDomain(), expectedVersion: null);
+              await _localDataSource.updateViolation(
+                model.toDomain(),
+                expectedVersion: null,
+              );
             }
           }
         });
@@ -103,21 +117,26 @@ class ViolationRepositoryImpl implements ViolationRepository {
   @override
   Future<void> updateViolation(Violation violation) async {
     await _localDataSource.transaction(() async {
-      final existing = await _localDataSource.getViolationById(violation.localId);
+      final existing = await _localDataSource.getViolationById(
+        violation.localId,
+      );
       if (existing == null) {
         throw Exception('Violation not found');
       }
-      
+
       final currentVersion = existing.localVersion;
       final previousStatus = existing.status.name;
       final nextVersion = currentVersion + 1;
-      
+
       final updatedViolation = violation.copyWith(
         localVersion: nextVersion,
         updatedAt: DateTime.now(),
       );
 
-      await _localDataSource.updateViolation(updatedViolation, expectedVersion: currentVersion);
+      await _localDataSource.updateViolation(
+        updatedViolation,
+        expectedVersion: currentVersion,
+      );
 
       final model = ViolationModel.fromDomain(updatedViolation);
       await _outboxService.enqueueOperation(

@@ -47,7 +47,9 @@ class InspectionMapper {
     );
   }
 
-  static InspectionFindingsCompanion findingToCompanion(InspectionFinding finding) {
+  static InspectionFindingsCompanion findingToCompanion(
+    InspectionFinding finding,
+  ) {
     return InspectionFindingsCompanion.insert(
       localId: finding.localId,
       serverId: Value(finding.serverId),

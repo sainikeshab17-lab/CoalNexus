@@ -19,10 +19,12 @@ class CorrectiveActionFormPage extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<CorrectiveActionFormPage> createState() => _CorrectiveActionFormPageState();
+  ConsumerState<CorrectiveActionFormPage> createState() =>
+      _CorrectiveActionFormPageState();
 }
 
-class _CorrectiveActionFormPageState extends ConsumerState<CorrectiveActionFormPage> {
+class _CorrectiveActionFormPageState
+    extends ConsumerState<CorrectiveActionFormPage> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _titleController;
   late TextEditingController _descriptionController;
@@ -48,7 +50,9 @@ class _CorrectiveActionFormPageState extends ConsumerState<CorrectiveActionFormP
 
   Future<void> _loadAction() async {
     setState(() => _isLoading = true);
-    final action = await ref.read(getCorrectiveActionByIdProvider).call(widget.actionId!);
+    final action = await ref
+        .read(getCorrectiveActionByIdProvider)
+        .call(widget.actionId!);
     if (action != null) {
       _titleController.text = action.title;
       _descriptionController.text = action.description;
@@ -92,7 +96,7 @@ class _CorrectiveActionFormPageState extends ConsumerState<CorrectiveActionFormP
       } else {
         await ref.read(createCorrectiveActionProvider).call(action);
       }
-      
+
       if (mounted) context.pop();
     } catch (e) {
       if (mounted) {
@@ -109,9 +113,11 @@ class _CorrectiveActionFormPageState extends ConsumerState<CorrectiveActionFormP
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEditing ? 'Edit Corrective Action' : 'New Corrective Action'),
+        title: Text(
+          _isEditing ? 'Edit Corrective Action' : 'New Corrective Action',
+        ),
       ),
-      body: _isLoading 
+      body: _isLoading
           ? const AppLoadingIndicator()
           : SingleChildScrollView(
               padding: const EdgeInsets.all(AppSpacing.md),
@@ -128,14 +134,18 @@ class _CorrectiveActionFormPageState extends ConsumerState<CorrectiveActionFormP
                     const SizedBox(height: AppSpacing.md),
                     TextFormField(
                       controller: _descriptionController,
-                      decoration: const InputDecoration(labelText: 'Description'),
+                      decoration: const InputDecoration(
+                        labelText: 'Description',
+                      ),
                       maxLines: 3,
                       validator: (v) => v?.isEmpty ?? true ? 'Required' : null,
                     ),
                     const SizedBox(height: AppSpacing.md),
                     TextFormField(
                       controller: _assignedToController,
-                      decoration: const InputDecoration(labelText: 'Assigned To (User ID)'),
+                      decoration: const InputDecoration(
+                        labelText: 'Assigned To (User ID)',
+                      ),
                       validator: (v) => v?.isEmpty ?? true ? 'Required' : null,
                     ),
                     const SizedBox(height: AppSpacing.md),
@@ -143,7 +153,12 @@ class _CorrectiveActionFormPageState extends ConsumerState<CorrectiveActionFormP
                       value: _priority,
                       decoration: const InputDecoration(labelText: 'Priority'),
                       items: ['low', 'medium', 'high', 'critical']
-                          .map((p) => DropdownMenuItem(value: p, child: Text(p.toUpperCase())))
+                          .map(
+                            (p) => DropdownMenuItem(
+                              value: p,
+                              child: Text(p.toUpperCase()),
+                            ),
+                          )
                           .toList(),
                       onChanged: (v) => setState(() => _priority = v!),
                     ),
@@ -157,7 +172,9 @@ class _CorrectiveActionFormPageState extends ConsumerState<CorrectiveActionFormP
                           context: context,
                           initialDate: _dueDate,
                           firstDate: DateTime.now(),
-                          lastDate: DateTime.now().add(const Duration(days: 365)),
+                          lastDate: DateTime.now().add(
+                            const Duration(days: 365),
+                          ),
                         );
                         if (picked != null) setState(() => _dueDate = picked);
                       },
@@ -165,7 +182,9 @@ class _CorrectiveActionFormPageState extends ConsumerState<CorrectiveActionFormP
                     const SizedBox(height: AppSpacing.lg),
                     ElevatedButton(
                       onPressed: _isLoading ? null : _save,
-                      child: Text(_isEditing ? 'UPDATE ACTION' : 'CREATE ACTION'),
+                      child: Text(
+                        _isEditing ? 'UPDATE ACTION' : 'CREATE ACTION',
+                      ),
                     ),
                   ],
                 ),

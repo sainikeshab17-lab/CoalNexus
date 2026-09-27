@@ -68,8 +68,12 @@ class MineModel extends Mine {
       latitude: (json['latitude'] as num).toDouble(),
       longitude: (json['longitude'] as num).toDouble(),
       status: MineStatus.values.firstWhere((e) => e.name == json['status']),
-      createdAt: DateTime.parse((json['created_at'] ?? json['createdAt']) as String),
-      updatedAt: DateTime.parse((json['updated_at'] ?? json['updatedAt']) as String),
+      createdAt: DateTime.parse(
+        (json['created_at'] ?? json['createdAt']) as String,
+      ),
+      updatedAt: DateTime.parse(
+        (json['updated_at'] ?? json['updatedAt']) as String,
+      ),
       localVersion: (json['local_version'] ?? json['localVersion']) as int,
     );
   }

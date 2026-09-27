@@ -30,7 +30,8 @@ class ViolationLocalDataSourceImpl implements ViolationLocalDataSource {
 
   @override
   Future<ViolationModel?> getViolationById(String id) async {
-    final query = _database.select(_database.violations)..where((t) => t.localId.equals(id));
+    final query = _database.select(_database.violations)
+      ..where((t) => t.localId.equals(id));
     final row = await query.getSingleOrNull();
     if (row == null) return null;
     return ViolationMapper.fromEntity(row);
@@ -40,33 +41,48 @@ class ViolationLocalDataSourceImpl implements ViolationLocalDataSource {
   Future<List<ViolationModel>> searchViolations(String query) async {
     final searchPattern = '%$query%';
     final dbQuery = _database.select(_database.violations)
-      ..where((t) => t.title.like(searchPattern) | t.description.like(searchPattern));
+      ..where(
+        (t) => t.title.like(searchPattern) | t.description.like(searchPattern),
+      );
     final rows = await dbQuery.get();
     return rows.map((row) => ViolationMapper.fromEntity(row)).toList();
   }
 
   @override
   Future<List<ViolationModel>> getViolationsForMine(String mineId) async {
-    final query = _database.select(_database.violations)..where((t) => t.mineId.equals(mineId));
+    final query = _database.select(_database.violations)
+      ..where((t) => t.mineId.equals(mineId));
     final rows = await query.get();
     return rows.map((row) => ViolationMapper.fromEntity(row)).toList();
   }
 
   @override
-  Future<List<ViolationModel>> getViolationsForInspection(String inspectionId) async {
-    final query = _database.select(_database.violations)..where((t) => t.inspectionId.equals(inspectionId));
+  Future<List<ViolationModel>> getViolationsForInspection(
+    String inspectionId,
+  ) async {
+    final query = _database.select(_database.violations)
+      ..where((t) => t.inspectionId.equals(inspectionId));
     final rows = await query.get();
     return rows.map((row) => ViolationMapper.fromEntity(row)).toList();
   }
 
   @override
-  Future<void> saveViolation(Violation violation, {int localVersion = 1}) async {
-    final entity = ViolationMapper.toEntity(violation, localVersion: localVersion);
+  Future<void> saveViolation(
+    Violation violation, {
+    int localVersion = 1,
+  }) async {
+    final entity = ViolationMapper.toEntity(
+      violation,
+      localVersion: localVersion,
+    );
     await _database.into(_database.violations).insert(entity);
   }
 
   @override
-  Future<void> updateViolation(Violation violation, {int? expectedVersion}) async {
+  Future<void> updateViolation(
+    Violation violation, {
+    int? expectedVersion,
+  }) async {
     final query = _database.update(_database.violations)
       ..where((t) => t.localId.equals(violation.localId));
 
@@ -96,7 +112,9 @@ class ViolationLocalDataSourceImpl implements ViolationLocalDataSource {
 
   @override
   Future<void> deleteViolation(String id) async {
-    await (_database.delete(_database.violations)..where((t) => t.localId.equals(id))).go();
+    await (_database.delete(
+      _database.violations,
+    )..where((t) => t.localId.equals(id))).go();
   }
 
   @override

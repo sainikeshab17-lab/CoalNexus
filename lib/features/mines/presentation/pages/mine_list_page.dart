@@ -48,7 +48,9 @@ class _MineListPageState extends ConsumerState<MineListPage> {
                         icon: const Icon(Icons.clear),
                         onPressed: () {
                           _searchController.clear();
-                          ref.read(mineListProvider.notifier).setSearchQuery('');
+                          ref
+                              .read(mineListProvider.notifier)
+                              .setSearchQuery('');
                         },
                       )
                     : null,
@@ -85,11 +87,13 @@ class _MineListPageState extends ConsumerState<MineListPage> {
           }
 
           return RefreshIndicator(
-            onRefresh: () async => ref.read(mineListProvider.notifier).loadMines(),
+            onRefresh: () async =>
+                ref.read(mineListProvider.notifier).loadMines(),
             child: ListView.separated(
               padding: const EdgeInsets.all(AppSpacing.md),
               itemCount: mines.length,
-              separatorBuilder: (context, index) => const SizedBox(height: AppSpacing.sm),
+              separatorBuilder: (context, index) =>
+                  const SizedBox(height: AppSpacing.sm),
               itemBuilder: (context, index) {
                 final mine = mines[index];
                 return MineCard(mine: mine);
@@ -130,9 +134,8 @@ class MineCard extends ConsumerWidget {
                   Expanded(
                     child: Text(
                       mine.name,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                      style: Theme.of(context).textTheme.titleMedium
+                          ?.copyWith(fontWeight: FontWeight.bold),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -172,7 +175,8 @@ class _SyncStatusIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (status == null || status == SyncStatus.synced) return const SizedBox.shrink();
+    if (status == null || status == SyncStatus.synced)
+      return const SizedBox.shrink();
 
     IconData icon;
     Color color;

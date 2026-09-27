@@ -54,11 +54,7 @@ class AppErrorView extends StatelessWidget {
   final String message;
   final VoidCallback? onRetry;
 
-  const AppErrorView({
-    super.key,
-    required this.message,
-    this.onRetry,
-  });
+  const AppErrorView({super.key, required this.message, this.onRetry});
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +64,11 @@ class AppErrorView extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 48, color: Theme.of(context).colorScheme.error),
+            Icon(
+              Icons.error_outline,
+              size: 48,
+              color: Theme.of(context).colorScheme.error,
+            ),
             const SizedBox(height: AppSpacing.md),
             Text(
               message,
@@ -77,10 +77,7 @@ class AppErrorView extends StatelessWidget {
             ),
             if (onRetry != null) ...[
               const SizedBox(height: AppSpacing.md),
-              ElevatedButton(
-                onPressed: onRetry,
-                child: const Text('Retry'),
-              ),
+              ElevatedButton(onPressed: onRetry, child: const Text('Retry')),
             ],
           ],
         ),
@@ -112,9 +109,8 @@ class AppEmptyView extends StatelessWidget {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: Theme.of(context).disabledColor,
-                  ),
+              style: Theme.of(context).textTheme.bodyLarge
+                  ?.copyWith(color: Theme.of(context).disabledColor),
             ),
           ],
         ),
@@ -127,16 +123,15 @@ class AppStatusChip extends StatelessWidget {
   final String label;
   final Color color;
 
-  const AppStatusChip({
-    super.key,
-    required this.label,
-    required this.color,
-  });
+  const AppStatusChip({super.key, required this.label, required this.color});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: AppSpacing.xs,
+      ),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(AppRadius.circular),
@@ -144,10 +139,8 @@ class AppStatusChip extends StatelessWidget {
       ),
       child: Text(
         label.toUpperCase(),
-        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: color,
-              fontWeight: FontWeight.bold,
-            ),
+        style: Theme.of(context).textTheme.bodySmall
+            ?.copyWith(color: color, fontWeight: FontWeight.bold),
       ),
     );
   }
@@ -157,11 +150,7 @@ class AppSectionHeader extends StatelessWidget {
   final String title;
   final Widget? trailing;
 
-  const AppSectionHeader({
-    super.key,
-    required this.title,
-    this.trailing,
-  });
+  const AppSectionHeader({super.key, required this.title, this.trailing});
 
   @override
   Widget build(BuildContext context) {
@@ -173,9 +162,8 @@ class AppSectionHeader extends StatelessWidget {
           Expanded(
             child: Text(
               title,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              style: Theme.of(context).textTheme.titleLarge
+                  ?.copyWith(fontWeight: FontWeight.bold),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),

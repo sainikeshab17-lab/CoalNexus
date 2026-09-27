@@ -1,11 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-enum MineStatus {
-  active,
-  inactive,
-  suspended,
-  underMaintenance,
-}
+enum MineStatus { active, inactive, suspended, underMaintenance }
 
 @immutable
 class Mine {

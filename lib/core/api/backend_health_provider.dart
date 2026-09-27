@@ -1,12 +1,9 @@
 import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:coalnexus/core/api/api_providers.dart';
 
-enum BackendHealthStatus {
-  online,
-  backendUnavailable,
-  offline
-}
+enum BackendHealthStatus { online, backendUnavailable, offline }
 
 final backendHealthProvider = StreamProvider<BackendHealthStatus>((ref) {
   final apiClient = ref.watch(apiClientProvider);
@@ -26,15 +23,18 @@ final backendHealthProvider = StreamProvider<BackendHealthStatus>((ref) {
   });
 
   // Initial check
-  apiClient.get('/health').then((response) {
-    if (response.isSuccess && response.data?['status'] == 'ok') {
-      controller.add(BackendHealthStatus.online);
-    } else {
-      controller.add(BackendHealthStatus.backendUnavailable);
-    }
-  }).catchError((_) {
-    controller.add(BackendHealthStatus.backendUnavailable);
-  });
+  apiClient
+      .get('/health')
+      .then((response) {
+        if (response.isSuccess && response.data?['status'] == 'ok') {
+          controller.add(BackendHealthStatus.online);
+        } else {
+          controller.add(BackendHealthStatus.backendUnavailable);
+        }
+      })
+      .catchError((_) {
+        controller.add(BackendHealthStatus.backendUnavailable);
+      });
 
   ref.onDispose(() {
     timer.cancel();

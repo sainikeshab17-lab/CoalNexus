@@ -48,7 +48,9 @@ class _ViolationListPageState extends ConsumerState<ViolationListPage> {
                         icon: const Icon(Icons.clear),
                         onPressed: () {
                           _searchController.clear();
-                          ref.read(violationListProvider.notifier).setSearchQuery('');
+                          ref
+                              .read(violationListProvider.notifier)
+                              .setSearchQuery('');
                         },
                       )
                     : null,
@@ -65,10 +67,12 @@ class _ViolationListPageState extends ConsumerState<ViolationListPage> {
         ),
       ),
       body: state.when(
-        loading: () => const AppLoadingIndicator(message: 'Loading violations...'),
+        loading: () =>
+            const AppLoadingIndicator(message: 'Loading violations...'),
         error: (err, stack) => AppErrorView(
           message: err.toString(),
-          onRetry: () => ref.read(violationListProvider.notifier).loadViolations(),
+          onRetry: () =>
+              ref.read(violationListProvider.notifier).loadViolations(),
         ),
         data: (violations) {
           if (violations.isEmpty) {
@@ -85,11 +89,13 @@ class _ViolationListPageState extends ConsumerState<ViolationListPage> {
           }
 
           return RefreshIndicator(
-            onRefresh: () async => ref.read(violationListProvider.notifier).loadViolations(),
+            onRefresh: () async =>
+                ref.read(violationListProvider.notifier).loadViolations(),
             child: ListView.separated(
               padding: const EdgeInsets.all(AppSpacing.md),
               itemCount: violations.length,
-              separatorBuilder: (context, index) => const SizedBox(height: AppSpacing.sm),
+              separatorBuilder: (context, index) =>
+                  const SizedBox(height: AppSpacing.sm),
               itemBuilder: (context, index) {
                 final violation = violations[index];
                 return ViolationCard(violation: violation);
@@ -114,7 +120,9 @@ class ViolationCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final syncStatusAsync = ref.watch(violationSyncStatusProvider(violation.localId));
+    final syncStatusAsync = ref.watch(
+      violationSyncStatusProvider(violation.localId),
+    );
     final theme = Theme.of(context);
 
     return AppCard(
@@ -140,11 +148,19 @@ class ViolationCard extends ConsumerWidget {
                   ),
                   const SizedBox(width: AppSpacing.sm),
                   syncStatusAsync.when(
-                    data: (status) => status != null 
+                    data: (status) => status != null
                         ? AppSyncStatusIndicator(status: status)
                         : const SizedBox.shrink(),
-                    loading: () => const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)),
-                    error: (error, stackTrace) => const Icon(Icons.sync_problem, size: 16, color: Colors.red),
+                    loading: () => const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                    error: (error, stackTrace) => const Icon(
+                      Icons.sync_problem,
+                      size: 16,
+                      color: Colors.red,
+                    ),
                   ),
                 ],
               ),
@@ -170,8 +186,9 @@ class ViolationCard extends ConsumerWidget {
                     Text(
                       'Due: ${DateFormat.yMMMd().format(violation.dueDate!)}',
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: violation.dueDate!.isBefore(DateTime.now()) && 
-                               violation.status != ViolationStatus.closed
+                        color:
+                            violation.dueDate!.isBefore(DateTime.now()) &&
+                                violation.status != ViolationStatus.closed
                             ? theme.colorScheme.error
                             : null,
                       ),
@@ -210,10 +227,7 @@ class _SeverityChip extends StatelessWidget {
         break;
     }
 
-    return AppStatusChip(
-      label: severity.name.toUpperCase(),
-      color: color,
-    );
+    return AppStatusChip(label: severity.name.toUpperCase(), color: color);
   }
 }
 

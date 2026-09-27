@@ -11,10 +11,7 @@ import 'package:coalnexus/features/violations/presentation/providers/violation_l
 class EditViolationPage extends ConsumerStatefulWidget {
   final String violationId;
 
-  const EditViolationPage({
-    super.key,
-    required this.violationId,
-  });
+  const EditViolationPage({super.key, required this.violationId});
 
   @override
   ConsumerState<EditViolationPage> createState() => _EditViolationPageState();
@@ -25,7 +22,7 @@ class _EditViolationPageState extends ConsumerState<EditViolationPage> {
   late TextEditingController _titleController;
   late TextEditingController _descriptionController;
   late TextEditingController _assignedToController;
-  
+
   ViolationSeverity _severity = ViolationSeverity.medium;
   ViolationStatus _status = ViolationStatus.recorded;
   DateTime? _dueDate;
@@ -43,7 +40,9 @@ class _EditViolationPageState extends ConsumerState<EditViolationPage> {
   }
 
   Future<void> _loadViolation() async {
-    final violation = await ref.read(getViolationByIdProvider).call(widget.violationId);
+    final violation = await ref
+        .read(getViolationByIdProvider)
+        .call(widget.violationId);
     if (violation != null && mounted) {
       setState(() {
         _violation = violation;
@@ -89,14 +88,18 @@ class _EditViolationPageState extends ConsumerState<EditViolationPage> {
         description: _descriptionController.text.trim(),
         severity: _severity,
         status: _status,
-        assignedTo: _assignedToController.text.isEmpty ? null : _assignedToController.text.trim(),
+        assignedTo: _assignedToController.text.isEmpty
+            ? null
+            : _assignedToController.text.trim(),
         dueDate: _dueDate,
       );
 
       await ref.read(updateViolationProvider)(updatedViolation);
-      
+
       // Update local list state
-      ref.read(violationListProvider.notifier).updateLocalViolation(updatedViolation);
+      ref
+          .read(violationListProvider.notifier)
+          .updateLocalViolation(updatedViolation);
 
       if (mounted) {
         context.pop();
@@ -106,9 +109,9 @@ class _EditViolationPageState extends ConsumerState<EditViolationPage> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error updating violation: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error updating violation: $e')));
       }
     } finally {
       if (mounted) {
@@ -124,9 +127,7 @@ class _EditViolationPageState extends ConsumerState<EditViolationPage> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Edit Violation'),
-      ),
+      appBar: AppBar(title: const Text('Edit Violation')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.md),
         child: Form(
@@ -142,7 +143,8 @@ class _EditViolationPageState extends ConsumerState<EditViolationPage> {
                       decoration: const InputDecoration(
                         labelText: 'Violation Title *',
                       ),
-                      validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
+                      validator: (v) =>
+                          (v == null || v.isEmpty) ? 'Required' : null,
                     ),
                     const SizedBox(height: AppSpacing.md),
                     TextFormField(
@@ -151,7 +153,8 @@ class _EditViolationPageState extends ConsumerState<EditViolationPage> {
                         labelText: 'Description *',
                       ),
                       maxLines: 3,
-                      validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
+                      validator: (v) =>
+                          (v == null || v.isEmpty) ? 'Required' : null,
                     ),
                   ],
                 ),
@@ -163,9 +166,14 @@ class _EditViolationPageState extends ConsumerState<EditViolationPage> {
                   children: [
                     DropdownButtonFormField<ViolationSeverity>(
                       initialValue: _severity,
-                      decoration: const InputDecoration(labelText: 'Severity *'),
+                      decoration: const InputDecoration(
+                        labelText: 'Severity *',
+                      ),
                       items: ViolationSeverity.values.map((s) {
-                        return DropdownMenuItem(value: s, child: Text(s.name.toUpperCase()));
+                        return DropdownMenuItem(
+                          value: s,
+                          child: Text(s.name.toUpperCase()),
+                        );
                       }).toList(),
                       onChanged: (v) => setState(() => _severity = v!),
                     ),
@@ -174,7 +182,10 @@ class _EditViolationPageState extends ConsumerState<EditViolationPage> {
                       initialValue: _status,
                       decoration: const InputDecoration(labelText: 'Status *'),
                       items: ViolationStatus.values.map((s) {
-                        return DropdownMenuItem(value: s, child: Text(s.name.toUpperCase()));
+                        return DropdownMenuItem(
+                          value: s,
+                          child: Text(s.name.toUpperCase()),
+                        );
                       }).toList(),
                       onChanged: (v) => setState(() => _status = v!),
                     ),
@@ -188,14 +199,16 @@ class _EditViolationPageState extends ConsumerState<EditViolationPage> {
                   children: [
                     TextFormField(
                       controller: _assignedToController,
-                      decoration: const InputDecoration(
-                        labelText: 'Assign To',
-                      ),
+                      decoration: const InputDecoration(labelText: 'Assign To'),
                     ),
                     const SizedBox(height: AppSpacing.md),
                     ListTile(
                       title: const Text('Due Date'),
-                      subtitle: Text(_dueDate == null ? 'Not set' : DateFormat.yMMMd().format(_dueDate!)),
+                      subtitle: Text(
+                        _dueDate == null
+                            ? 'Not set'
+                            : DateFormat.yMMMd().format(_dueDate!),
+                      ),
                       trailing: const Icon(Icons.calendar_today),
                       onTap: _selectDueDate,
                       contentPadding: EdgeInsets.zero,

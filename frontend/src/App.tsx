@@ -30,17 +30,30 @@ import { useCorrectiveActions } from './hooks/useCorrectiveActions';
 import { useAlerts } from './hooks/useAlerts';
 import { useAuditTrail } from './hooks/useAuditTrail';
 import { useTelemetry } from './hooks/useTelemetry';
+import { useSync } from './hooks/useSync';
 
 import { LoadingState, ErrorState, EmptyState, StatusBadge, SeverityBadge } from './components/common';
 import { MineRiskMap } from './components/map/MineRiskMap';
 import { CreateInspectionModal } from './components/modals/CreateInspectionModal';
 import { EditCorrectiveActionModal } from './components/modals/EditCorrectiveActionModal';
+import { ProtectedRoute } from './components/auth/ProtectedRoute';
+import { useAuth } from './hooks/useAuth';
+import { LogOut } from 'lucide-react';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'https://coalnexus-api.onrender.com/api';
 
 type ViewMode = 'Overview' | 'Mine Risk Map' | 'Inspections' | 'Violations' | 'Findings' | 'Corrective Actions' | 'Alerts' | 'Audit Trail' | 'Settings';
 
 function App() {
+  return (
+    <ProtectedRoute>
+      <DashboardContent />
+    </ProtectedRoute>
+  );
+}
+
+function DashboardContent() {
+  const { signOut } = useAuth();
   const [health, setHealth] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<ViewMode>('Overview');
   const [searchTerm, setSearchTerm] = useState('');
@@ -59,6 +72,9 @@ function App() {
   const { alerts, loading: alertsLoading, error: alertsError, refresh: refreshAlerts } = useAlerts();
   const { auditTrail, loading: auditLoading, error: auditError, refresh: refreshAudit } = useAuditTrail();
   const { telemetry } = useTelemetry();
+
+  // Initialize unified real-time sync WebSocket listener
+  useSync();
 
   useEffect(() => {
     fetch(`${API_URL}/health`)
@@ -115,6 +131,14 @@ function App() {
               {health?.status ? health.status.toUpperCase() : 'OFFLINE'}
             </span>
           </div>
+          <button
+            onClick={() => signOut()}
+            className="p-2 bg-coal-800 hover:bg-rose-600 hover:text-white text-slate-300 border border-coal-700 rounded-lg text-xs font-medium flex items-center gap-2 transition-colors cursor-pointer"
+            title="Terminate Secure Session"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Logout</span>
+          </button>
         </div>
       </header>
 

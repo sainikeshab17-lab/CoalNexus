@@ -23,7 +23,9 @@ class InspectionLocalDataSourceImpl implements InspectionLocalDataSource {
 
   @override
   Future<void> saveInspection(Inspection inspection) async {
-    await _db.into(_db.inspections).insert(InspectionMapper.toCompanion(inspection));
+    await _db
+        .into(_db.inspections)
+        .insert(InspectionMapper.toCompanion(inspection));
   }
 
   @override
@@ -31,7 +33,7 @@ class InspectionLocalDataSourceImpl implements InspectionLocalDataSource {
     final query = _db.update(_db.inspections)
       ..where((t) => t.localId.equals(inspection.localId))
       ..where((t) => t.localVersion.equals(inspection.localVersion - 1));
-    
+
     final updatedRows = await query.write(
       InspectionsCompanion(
         serverId: Value(inspection.serverId),
@@ -43,7 +45,9 @@ class InspectionLocalDataSourceImpl implements InspectionLocalDataSource {
     );
 
     if (updatedRows == 0) {
-      throw Exception('Update failed: Inspection not found or version mismatch');
+      throw Exception(
+        'Update failed: Inspection not found or version mismatch',
+      );
     }
   }
 
@@ -55,18 +59,23 @@ class InspectionLocalDataSourceImpl implements InspectionLocalDataSource {
 
   @override
   Future<Inspection?> getInspectionById(String id) async {
-    final query = _db.select(_db.inspections)..where((t) => t.localId.equals(id));
+    final query = _db.select(_db.inspections)
+      ..where((t) => t.localId.equals(id));
     final result = await query.getSingleOrNull();
     return result != null ? InspectionMapper.toDomain(result) : null;
   }
 
   @override
   Future<void> saveFinding(InspectionFinding finding) async {
-    await _db.into(_db.inspectionFindings).insert(InspectionMapper.findingToCompanion(finding));
+    await _db
+        .into(_db.inspectionFindings)
+        .insert(InspectionMapper.findingToCompanion(finding));
   }
 
   @override
-  Future<List<InspectionFinding>> getFindingsForInspection(String inspectionId) async {
+  Future<List<InspectionFinding>> getFindingsForInspection(
+    String inspectionId,
+  ) async {
     final query = _db.select(_db.inspectionFindings)
       ..where((t) => t.inspectionId.equals(inspectionId));
     final results = await query.get();
@@ -75,7 +84,8 @@ class InspectionLocalDataSourceImpl implements InspectionLocalDataSource {
 
   @override
   Future<InspectionFinding?> getFindingById(String id) async {
-    final query = _db.select(_db.inspectionFindings)..where((t) => t.localId.equals(id));
+    final query = _db.select(_db.inspectionFindings)
+      ..where((t) => t.localId.equals(id));
     final result = await query.getSingleOrNull();
     return result != null ? InspectionMapper.findingToDomain(result) : null;
   }
@@ -84,7 +94,7 @@ class InspectionLocalDataSourceImpl implements InspectionLocalDataSource {
   Future<void> updateFinding(InspectionFinding finding) async {
     final query = _db.update(_db.inspectionFindings)
       ..where((t) => t.localId.equals(finding.localId));
-    
+
     await query.write(
       InspectionFindingsCompanion(
         serverId: Value(finding.serverId),

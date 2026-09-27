@@ -71,7 +71,8 @@ class InspectionModel {
   factory InspectionModel.fromJson(Map<String, dynamic> json) {
     return InspectionModel(
       localId: (json['local_id'] ?? json['localId']) as String,
-      serverId: (json['server_id'] ?? json['id'] ?? json['serverId']) as String?,
+      serverId:
+          (json['server_id'] ?? json['id'] ?? json['serverId']) as String?,
       mineId: (json['mine_id'] ?? json['mineId']) as String,
       inspectorId: (json['inspector_id'] ?? json['inspectorId']) as String,
       status: json['status'] as String,

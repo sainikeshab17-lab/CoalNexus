@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:path_provider/path_provider.dart';
@@ -23,8 +24,10 @@ class Violations extends Table {
   TextColumn get mineId => text()();
   TextColumn get title => text()();
   TextColumn get description => text()();
-  TextColumn get severity => text().map(const EnumNameConverter(ViolationSeverity.values))();
-  TextColumn get status => text().map(const EnumNameConverter(ViolationStatus.values))();
+  TextColumn get severity =>
+      text().map(const EnumNameConverter(ViolationSeverity.values))();
+  TextColumn get status =>
+      text().map(const EnumNameConverter(ViolationStatus.values))();
   TextColumn get assignedTo => text().nullable()();
   DateTimeColumn get dueDate => dateTime().nullable()();
   DateTimeColumn get detectedAt => dateTime()();
@@ -46,7 +49,8 @@ class CorrectiveActions extends Table {
   TextColumn get assignedTo => text()();
   TextColumn get priority => text()();
   DateTimeColumn get dueDate => dateTime()();
-  TextColumn get status => text().map(const EnumNameConverter(CorrectiveActionStatus.values))();
+  TextColumn get status =>
+      text().map(const EnumNameConverter(CorrectiveActionStatus.values))();
   DateTimeColumn get submittedAt => dateTime().nullable()();
   DateTimeColumn get verifiedAt => dateTime().nullable()();
   TextColumn get evidence => text().nullable()();
@@ -98,7 +102,8 @@ class Mines extends Table {
   TextColumn get mineCode => text()();
   RealColumn get latitude => real()();
   RealColumn get longitude => real()();
-  TextColumn get status => text().map(const EnumNameConverter(MineStatus.values))();
+  TextColumn get status =>
+      text().map(const EnumNameConverter(MineStatus.values))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
   IntColumn get localVersion => integer().withDefault(const Constant(1))();
@@ -114,7 +119,8 @@ class SyncQueue extends Table {
   TextColumn get featureName => text()();
   TextColumn get actionType => text()();
   TextColumn get payloadJson => text()();
-  TextColumn get syncStatus => text().map(const EnumNameConverter(SyncStatus.values))();
+  TextColumn get syncStatus =>
+      text().map(const EnumNameConverter(SyncStatus.values))();
   IntColumn get retryCount => integer().withDefault(const Constant(0))();
   TextColumn get lastError => text().nullable()();
   IntColumn get localVersion => integer().withDefault(const Constant(1))();
@@ -131,8 +137,11 @@ class Inspections extends Table {
   TextColumn get serverId => text().nullable()();
   TextColumn get mineId => text()();
   TextColumn get inspectorId => text()();
-  TextColumn get status => text().map(const EnumNameConverter(InspectionStatus.values))();
-  TextColumn get category => text().map(const EnumNameConverter(InspectionCategory.values)).withDefault(const Constant('other'))();
+  TextColumn get status =>
+      text().map(const EnumNameConverter(InspectionStatus.values))();
+  TextColumn get category => text()
+      .map(const EnumNameConverter(InspectionCategory.values))
+      .withDefault(const Constant('other'))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
   IntColumn get localVersion => integer().withDefault(const Constant(1))();
@@ -148,8 +157,11 @@ class InspectionFindings extends Table {
   TextColumn get inspectionId => text()();
   TextColumn get requirementId => text()();
   TextColumn get description => text()();
-  TextColumn get status => text().map(const EnumNameConverter(FindingStatus.values))();
-  TextColumn get severity => text().map(const EnumNameConverter(FindingSeverity.values)).withDefault(const Constant('medium'))();
+  TextColumn get status =>
+      text().map(const EnumNameConverter(FindingStatus.values))();
+  TextColumn get severity => text()
+      .map(const EnumNameConverter(FindingSeverity.values))
+      .withDefault(const Constant('medium'))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
   IntColumn get localVersion => integer().withDefault(const Constant(1))();
@@ -173,11 +185,23 @@ class Alerts extends Table {
   Set<Column> get primaryKey => {localId};
 }
 
-@DriftDatabase(tables: [Users, Mines, SyncQueue, Inspections, InspectionFindings, Violations, Alerts, CorrectiveActions, AuditTrails])
+@DriftDatabase(
+  tables: [
+    Users,
+    Mines,
+    SyncQueue,
+    Inspections,
+    InspectionFindings,
+    Violations,
+    Alerts,
+    CorrectiveActions,
+    AuditTrails,
+  ],
+)
 class AppDatabase extends _$AppDatabase {
   final bool _shouldSeed;
 
-  AppDatabase() : _shouldSeed = true, super(_openConnection());
+  AppDatabase() : _shouldSeed = false, super(_openConnection());
 
   // Visible for testing
   AppDatabase.forTesting(super.e, {bool seed = false}) : _shouldSeed = seed;
@@ -223,8 +247,9 @@ class AppDatabase extends _$AppDatabase {
   }
 
   Future<void> markAlertAsRead(String localId) {
-    return (update(alerts)..where((t) => t.localId.equals(localId)))
-        .write(const AlertsCompanion(isRead: Value(true)));
+    return (update(alerts)..where((t) => t.localId.equals(localId))).write(
+      const AlertsCompanion(isRead: Value(true)),
+    );
   }
 
   Future<void> _seedDemoData() async {
@@ -238,51 +263,68 @@ class AppDatabase extends _$AppDatabase {
       'Raniganj Mine',
       'Korba East Block',
       'Singrauli Main',
-      'Talcher Open Cast'
+      'Talcher Open Cast',
     ];
-    
+
     for (int i = 0; i < mineIds.length; i++) {
-      await into(mines).insert(MinesCompanion.insert(
-        localId: mineIds[i],
-        name: mineNames[i],
-        mineCode: 'MN-00${i + 1}',
-        latitude: 23.79 + (i * 0.1),
-        longitude: 86.41 + (i * 0.1),
-        status: MineStatus.active,
-        createdAt: Value(now),
-        updatedAt: Value(now),
-      ));
+      await into(mines).insert(
+        MinesCompanion.insert(
+          localId: mineIds[i],
+          name: mineNames[i],
+          mineCode: 'MN-00${i + 1}',
+          latitude: 23.79 + (i * 0.1),
+          longitude: 86.41 + (i * 0.1),
+          status: MineStatus.active,
+          createdAt: Value(now),
+          updatedAt: Value(now),
+        ),
+      );
     }
 
     // 2. Seed Inspections
-    final inspectionIds = ['seed_i1', 'seed_i2', 'seed_i3', 'seed_i4', 'seed_i5', 'seed_i6'];
+    final inspectionIds = [
+      'seed_i1',
+      'seed_i2',
+      'seed_i3',
+      'seed_i4',
+      'seed_i5',
+      'seed_i6',
+    ];
     for (int i = 0; i < inspectionIds.length; i++) {
-      await into(inspections).insert(InspectionsCompanion.insert(
-        localId: inspectionIds[i],
-        mineId: mineIds[i % mineIds.length],
-        inspectorId: 'u1',
-        status: i % 2 == 0 ? InspectionStatus.submitted : InspectionStatus.completed,
-        createdAt: Value(now.subtract(Duration(days: i))),
-        updatedAt: Value(now.subtract(Duration(days: i))),
-      ));
-      
+      await into(inspections).insert(
+        InspectionsCompanion.insert(
+          localId: inspectionIds[i],
+          mineId: mineIds[i % mineIds.length],
+          inspectorId: 'u1',
+          status: i % 2 == 0
+              ? InspectionStatus.submitted
+              : InspectionStatus.completed,
+          createdAt: Value(now.subtract(Duration(days: i))),
+          updatedAt: Value(now.subtract(Duration(days: i))),
+        ),
+      );
+
       // Seed some findings for each inspection
-      await into(inspectionFindings).insert(InspectionFindingsCompanion.insert(
-        localId: 'seed_f${i}_1',
-        inspectionId: inspectionIds[i],
-        requirementId: 'SEC-001',
-        description: 'Ventilation systems check',
-        status: FindingStatus.compliant,
-      ));
-      
-      if (i % 2 != 0) {
-        await into(inspectionFindings).insert(InspectionFindingsCompanion.insert(
-          localId: 'seed_f${i}_2',
+      await into(inspectionFindings).insert(
+        InspectionFindingsCompanion.insert(
+          localId: 'seed_f${i}_1',
           inspectionId: inspectionIds[i],
-          requirementId: 'SAF-002',
-          description: 'Roof support stability',
-          status: FindingStatus.nonCompliant,
-        ));
+          requirementId: 'SEC-001',
+          description: 'Ventilation systems check',
+          status: FindingStatus.compliant,
+        ),
+      );
+
+      if (i % 2 != 0) {
+        await into(inspectionFindings).insert(
+          InspectionFindingsCompanion.insert(
+            localId: 'seed_f${i}_2',
+            inspectionId: inspectionIds[i],
+            requirementId: 'SAF-002',
+            description: 'Roof support stability',
+            status: FindingStatus.nonCompliant,
+          ),
+        );
       }
     }
 
@@ -297,44 +339,69 @@ class AppDatabase extends _$AppDatabase {
       'Poor Illumination',
       'Overloading of Haul Trucks',
       'Ventilation Fan Vibration',
-      'Unauthorized Personnel in Zone B'
+      'Unauthorized Personnel in Zone B',
     ];
 
     for (int i = 0; i < violationTitles.length; i++) {
-      final severity = ViolationSeverity.values[i % ViolationSeverity.values.length];
-      await into(violations).insert(ViolationsCompanion.insert(
-        localId: 'seed_v$i',
-        mineId: mineIds[i % mineIds.length],
-        inspectionId: inspectionIds[i % inspectionIds.length],
-        findingId: 'seed_f${i % inspectionIds.length}_2',
-        title: violationTitles[i],
-        description: 'Detailed report for ${violationTitles[i]} at site.',
-        severity: severity,
-        status: ViolationStatus.values[i % ViolationStatus.values.length],
-        detectedAt: now.subtract(Duration(days: i)),
-        createdAt: Value(now.subtract(Duration(days: i))),
-        updatedAt: Value(now.subtract(Duration(days: i))),
-      ));
+      final severity =
+          ViolationSeverity.values[i % ViolationSeverity.values.length];
+      await into(violations).insert(
+        ViolationsCompanion.insert(
+          localId: 'seed_v$i',
+          mineId: mineIds[i % mineIds.length],
+          inspectionId: inspectionIds[i % inspectionIds.length],
+          findingId: 'seed_f${i % inspectionIds.length}_2',
+          title: violationTitles[i],
+          description: 'Detailed report for ${violationTitles[i]} at site.',
+          severity: severity,
+          status: ViolationStatus.values[i % ViolationStatus.values.length],
+          detectedAt: now.subtract(Duration(days: i)),
+          createdAt: Value(now.subtract(Duration(days: i))),
+          updatedAt: Value(now.subtract(Duration(days: i))),
+        ),
+      );
     }
 
     // 4. Seed Alerts
     final alertsData = [
-      {'title': 'High Methane Level', 'msg': 'Methane levels exceeding 1.2% in Shaft 3', 'sev': 'CRITICAL'},
-      {'title': 'Roof Instability', 'msg': 'Micro-seismic activity detected in Block C', 'sev': 'HIGH'},
-      {'title': 'Equipment Overheat', 'msg': 'Conveyor belt motor 4 reaching critical temp', 'sev': 'MEDIUM'},
-      {'title': 'Personnel Alert', 'msg': 'Worker entered restricted zone D without permit', 'sev': 'HIGH'},
-      {'title': 'Weekly Report', 'msg': 'System summary for week 34 available', 'sev': 'LOW'},
+      {
+        'title': 'High Methane Level',
+        'msg': 'Methane levels exceeding 1.2% in Shaft 3',
+        'sev': 'CRITICAL',
+      },
+      {
+        'title': 'Roof Instability',
+        'msg': 'Micro-seismic activity detected in Block C',
+        'sev': 'HIGH',
+      },
+      {
+        'title': 'Equipment Overheat',
+        'msg': 'Conveyor belt motor 4 reaching critical temp',
+        'sev': 'MEDIUM',
+      },
+      {
+        'title': 'Personnel Alert',
+        'msg': 'Worker entered restricted zone D without permit',
+        'sev': 'HIGH',
+      },
+      {
+        'title': 'Weekly Report',
+        'msg': 'System summary for week 34 available',
+        'sev': 'LOW',
+      },
     ];
 
     for (int i = 0; i < alertsData.length; i++) {
-      await into(alerts).insert(AlertsCompanion.insert(
-        localId: 'seed_a$i',
-        mineId: mineIds[i % mineIds.length],
-        title: alertsData[i]['title']!,
-        message: alertsData[i]['msg']!,
-        severity: alertsData[i]['sev']!,
-        createdAt: Value(now.subtract(Duration(hours: i * 2))),
-      ));
+      await into(alerts).insert(
+        AlertsCompanion.insert(
+          localId: 'seed_a$i',
+          mineId: mineIds[i % mineIds.length],
+          title: alertsData[i]['title']!,
+          message: alertsData[i]['msg']!,
+          severity: alertsData[i]['sev']!,
+          createdAt: Value(now.subtract(Duration(hours: i * 2))),
+        ),
+      );
     }
   }
 }

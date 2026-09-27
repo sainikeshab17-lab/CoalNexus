@@ -50,8 +50,10 @@ export function useTelemetry(mineId?: string) {
 
       ws.onmessage = (event) => {
         try {
-          const newTelemetry = JSON.parse(event.data);
-          if (!mineId || newTelemetry.mine_id === mineId) {
+          const payload = JSON.parse(event.data);
+          const newTelemetry = payload.event === 'telemetry.updated' ? payload.data : payload;
+
+          if (newTelemetry && (!mineId || newTelemetry.mine_id === mineId)) {
             setTelemetry(prev => [newTelemetry, ...prev].slice(0, 100));
           }
         } catch (e) {

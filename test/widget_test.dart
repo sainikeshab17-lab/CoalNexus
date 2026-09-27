@@ -4,6 +4,7 @@ import 'package:coalnexus/app.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:coalnexus/features/mines/presentation/providers/mine_providers.dart';
 import 'package:coalnexus/core/storage/local_database.dart';
+import 'package:coalnexus/core/sync/sync_websocket_client.dart';
 import 'package:drift/native.dart';
 
 void main() {
@@ -17,6 +18,7 @@ void main() {
             ref.onDispose(() => db.close());
             return db;
           }),
+          syncWebSocketClientProvider.overrideWith((ref) => FakeSyncWebSocketClient()),
         ],
         child: const CoalNexusApp(),
       ),
@@ -29,4 +31,11 @@ void main() {
     await tester.pumpWidget(const SizedBox());
     await tester.pump(const Duration(milliseconds: 100));
   });
+}
+
+class FakeSyncWebSocketClient implements SyncWebSocketClient {
+  @override
+  void connect() {}
+  @override
+  void dispose() {}
 }

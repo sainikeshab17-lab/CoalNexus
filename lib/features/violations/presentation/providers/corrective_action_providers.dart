@@ -7,23 +7,26 @@ import 'package:coalnexus/features/violations/domain/repositories/corrective_act
 import 'package:coalnexus/features/violations/domain/entities/corrective_action.dart';
 import 'package:coalnexus/features/mines/presentation/providers/mine_providers.dart';
 
-final correctiveActionLocalDataSourceProvider = Provider<CorrectiveActionLocalDataSource>((ref) {
-  final db = ref.watch(appDatabaseProvider);
-  return CorrectiveActionLocalDataSourceImpl(db);
-});
+final correctiveActionLocalDataSourceProvider =
+    Provider<CorrectiveActionLocalDataSource>((ref) {
+      final db = ref.watch(appDatabaseProvider);
+      return CorrectiveActionLocalDataSourceImpl(db);
+    });
 
-final correctiveActionRepositoryProvider = Provider<CorrectiveActionRepository>((ref) {
-  final localDataSource = ref.watch(correctiveActionLocalDataSourceProvider);
-  final outboxService = ref.watch(outboxServiceProvider);
-  final syncRepository = ref.watch(syncRepositoryProvider);
-  final auditRepository = ref.watch(auditRepositoryProvider);
-  return CorrectiveActionRepositoryImpl(
-    localDataSource,
-    outboxService,
-    syncRepository,
-    auditRepository,
-  );
-});
+final correctiveActionRepositoryProvider = Provider<CorrectiveActionRepository>(
+  (ref) {
+    final localDataSource = ref.watch(correctiveActionLocalDataSourceProvider);
+    final outboxService = ref.watch(outboxServiceProvider);
+    final syncRepository = ref.watch(syncRepositoryProvider);
+    final auditRepository = ref.watch(auditRepositoryProvider);
+    return CorrectiveActionRepositoryImpl(
+      localDataSource,
+      outboxService,
+      syncRepository,
+      auditRepository,
+    );
+  },
+);
 
 final createCorrectiveActionProvider = Provider<CreateCorrectiveAction>((ref) {
   final repository = ref.watch(correctiveActionRepositoryProvider);
@@ -40,17 +43,24 @@ final getActionsForViolationProvider = Provider<GetActionsForViolation>((ref) {
   return GetActionsForViolation(repository);
 });
 
-final getCorrectiveActionByIdProvider = Provider<GetCorrectiveActionById>((ref) {
+final getCorrectiveActionByIdProvider = Provider<GetCorrectiveActionById>((
+  ref,
+) {
   final repository = ref.watch(correctiveActionRepositoryProvider);
   return GetCorrectiveActionById(repository);
 });
 
-final correctiveActionsForViolationProvider = FutureProvider.family<List<CorrectiveAction>, String>((ref, violationId) async {
-  final useCase = ref.watch(getActionsForViolationProvider);
-  return useCase.call(violationId);
-});
+final correctiveActionsForViolationProvider =
+    FutureProvider.family<List<CorrectiveAction>, String>((
+      ref,
+      violationId,
+    ) async {
+      final useCase = ref.watch(getActionsForViolationProvider);
+      return useCase.call(violationId);
+    });
 
-final correctiveActionByIdProvider = FutureProvider.family<CorrectiveAction?, String>((ref, localId) async {
-  final useCase = ref.watch(getCorrectiveActionByIdProvider);
-  return useCase.call(localId);
-});
+final correctiveActionByIdProvider =
+    FutureProvider.family<CorrectiveAction?, String>((ref, localId) async {
+      final useCase = ref.watch(getCorrectiveActionByIdProvider);
+      return useCase.call(localId);
+    });

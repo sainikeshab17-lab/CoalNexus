@@ -18,16 +18,21 @@ class MineRiskMap extends ConsumerWidget {
     return Container(
       height: height,
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+        color: Theme.of(context).colorScheme.surfaceContainerHighest
+            .withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Theme.of(context).dividerColor.withValues(alpha: 0.1)),
+        border: Border.all(
+          color: Theme.of(context).dividerColor.withValues(alpha: 0.1),
+        ),
       ),
       clipBehavior: Clip.antiAlias,
       child: risksAsync.when(
         data: (risks) => minesAsync.when(
           data: (mines) {
             if (mines.isEmpty) {
-              return const Center(child: Text('No mines available for mapping.'));
+              return const Center(
+                child: Text('No mines available for mapping.'),
+              );
             }
 
             return Stack(
@@ -36,21 +41,21 @@ class MineRiskMap extends ConsumerWidget {
                 Positioned.fill(
                   child: Opacity(
                     opacity: 0.1,
-                    child: CustomPaint(
-                      painter: _MapBackgroundPainter(),
-                    ),
+                    child: CustomPaint(painter: _MapBackgroundPainter()),
                   ),
                 ),
                 // Interactive Markers
                 ...mines.map((mine) {
-                  final risk = risks.firstWhere((r) => r.mineId == mine.localId,
-                      orElse: () => MineRisk(
-                            mineId: mine.localId,
-                            score: 0,
-                            level: RiskLevel.low,
-                            factors: [],
-                            updatedAt: DateTime.now(),
-                          ));
+                  final risk = risks.firstWhere(
+                    (r) => r.mineId == mine.localId,
+                    orElse: () => MineRisk(
+                      mineId: mine.localId,
+                      score: 0,
+                      level: RiskLevel.low,
+                      factors: [],
+                      updatedAt: DateTime.now(),
+                    ),
+                  );
 
                   return _MineMapMarker(
                     mineName: mine.name,
@@ -130,14 +135,18 @@ class _MineMapMarker extends StatelessWidget {
                 color: color.withValues(alpha: 0.9),
                 borderRadius: BorderRadius.circular(4),
                 boxShadow: [
-                  BoxShadow(color: Colors.black26, blurRadius: 4, offset: const Offset(0, 2)),
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
                 ],
               ),
               child: Text(
                 mineName,
                 style: const TextStyle(
-                  color: Colors.white, 
-                  fontSize: 9, 
+                  color: Colors.white,
+                  fontSize: 9,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 0.5,
                 ),
@@ -146,10 +155,15 @@ class _MineMapMarker extends StatelessWidget {
             Stack(
               alignment: Alignment.center,
               children: [
-                if (riskLevel == RiskLevel.critical || riskLevel == RiskLevel.high)
+                if (riskLevel == RiskLevel.critical ||
+                    riskLevel == RiskLevel.high)
                   _BlinkingAura(color: color),
                 Icon(Icons.location_on, color: color, size: 28),
-                const Icon(Icons.location_on_outlined, color: Colors.white54, size: 28),
+                const Icon(
+                  Icons.location_on_outlined,
+                  color: Colors.white54,
+                  size: 28,
+                ),
               ],
             ),
           ],
@@ -167,7 +181,8 @@ class _BlinkingAura extends StatefulWidget {
   State<_BlinkingAura> createState() => _BlinkingAuraState();
 }
 
-class _BlinkingAuraState extends State<_BlinkingAura> with SingleTickerProviderStateMixin {
+class _BlinkingAuraState extends State<_BlinkingAura>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
   @override
@@ -177,10 +192,12 @@ class _BlinkingAuraState extends State<_BlinkingAura> with SingleTickerProviderS
       vsync: this,
       duration: const Duration(milliseconds: 700),
     );
-    
+
     // Safety check for tests
     if (!const bool.fromEnvironment('dart.vm.product') &&
-        WidgetsBinding.instance.toString().contains('TestWidgetsFlutterBinding')) {
+        WidgetsBinding.instance.toString().contains(
+          'TestWidgetsFlutterBinding',
+        )) {
       _controller.value = 1.0;
     } else {
       _controller.repeat(reverse: true);
@@ -216,14 +233,17 @@ class _MapLegend extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: AppSpacing.xs,
+      ),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.9),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Theme.of(context).dividerColor.withValues(alpha: 0.1)),
-        boxShadow: [
-          BoxShadow(color: Colors.black12, blurRadius: 4),
-        ],
+        border: Border.all(
+          color: Theme.of(context).dividerColor.withValues(alpha: 0.1),
+        ),
+        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
       ),
       child: Row(
         children: [
@@ -249,11 +269,19 @@ class _LegendItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Container(width: 6, height: 6, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+        Container(
+          width: 6,
+          height: 6,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
         const SizedBox(width: 4),
         Text(
-          label, 
-          style: const TextStyle(fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 0.3),
+          label,
+          style: const TextStyle(
+            fontSize: 8,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 0.3,
+          ),
         ),
       ],
     );
@@ -270,8 +298,16 @@ class _MapBackgroundPainter extends CustomPainter {
 
     // Draw some random grid lines and "topographic" curves
     for (int i = 0; i < 10; i++) {
-      canvas.drawLine(Offset(0, i * size.height / 10), Offset(size.width, i * size.height / 10), paint);
-      canvas.drawLine(Offset(i * size.width / 10, 0), Offset(i * size.width / 10, size.height), paint);
+      canvas.drawLine(
+        Offset(0, i * size.height / 10),
+        Offset(size.width, i * size.height / 10),
+        paint,
+      );
+      canvas.drawLine(
+        Offset(i * size.width / 10, 0),
+        Offset(i * size.width / 10, size.height),
+        paint,
+      );
     }
   }
 

@@ -1,11 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-enum ViolationSeverity {
-  low,
-  medium,
-  high,
-  critical,
-}
+enum ViolationSeverity { low, medium, high, critical }
 
 enum ViolationStatus {
   detected,

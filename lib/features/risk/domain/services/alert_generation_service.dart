@@ -17,24 +17,30 @@ class AlertGenerationService {
   }) async {
     // Check if a similar unread critical alert already exists for this mine to avoid spam
     if (level == RiskLevel.critical) {
-      final existingAlerts = await (db.select(db.alerts)
-            ..where((t) => t.mineId.equals(mineId))
-            ..where((t) => t.isRead.equals(false))
-            ..where((t) => t.severity.equals('CRITICAL')))
-          .get();
+      final existingAlerts =
+          await (db.select(db.alerts)
+                ..where((t) => t.mineId.equals(mineId))
+                ..where((t) => t.isRead.equals(false))
+                ..where((t) => t.severity.equals('CRITICAL')))
+              .get();
 
       if (existingAlerts.isNotEmpty) return;
     }
 
     final factorSummary = factors.take(2).map((f) => f.title).join(' + ');
-    
-    await db.into(db.alerts).insert(AlertsCompanion.insert(
-      localId: _uuid.v4(),
-      mineId: mineId,
-      title: '${level.label} RISK DETECTED',
-      message: 'Risk score reached ${score.toInt()}. Contributing factors: $factorSummary.',
-      severity: level.label,
-      createdAt: Value(DateTime.now()),
-    ));
+
+    await db
+        .into(db.alerts)
+        .insert(
+          AlertsCompanion.insert(
+            localId: _uuid.v4(),
+            mineId: mineId,
+            title: '${level.label} RISK DETECTED',
+            message:
+                'Risk score reached ${score.toInt()}. Contributing factors: $factorSummary.',
+            severity: level.label,
+            createdAt: Value(DateTime.now()),
+          ),
+        );
   }
 }

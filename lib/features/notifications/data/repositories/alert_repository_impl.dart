@@ -22,29 +22,39 @@ class AlertRepositoryImpl implements AlertRepository {
 
         await _db.transaction(() async {
           for (final model in models) {
-            final hasPending = await _syncRepository.hasPendingMutations(model.localId);
+            final hasPending = await _syncRepository.hasPendingMutations(
+              model.localId,
+            );
             if (hasPending) continue;
 
-            final query = _db.select(_db.alerts)..where((t) => t.localId.equals(model.localId));
+            final query = _db.select(_db.alerts)
+              ..where((t) => t.localId.equals(model.localId));
             final existing = await query.getSingleOrNull();
 
             if (existing == null) {
-              await _db.into(_db.alerts).insert(AlertsCompanion.insert(
-                localId: model.localId,
-                serverId: Value(model.serverId),
-                mineId: model.mineId,
-                title: model.title,
-                message: model.message,
-                severity: model.severity,
-                createdAt: Value(DateTime.parse(model.createdAt)),
-                isRead: Value(model.isRead),
-              ));
+              await _db
+                  .into(_db.alerts)
+                  .insert(
+                    AlertsCompanion.insert(
+                      localId: model.localId,
+                      serverId: Value(model.serverId),
+                      mineId: model.mineId,
+                      title: model.title,
+                      message: model.message,
+                      severity: model.severity,
+                      createdAt: Value(DateTime.parse(model.createdAt)),
+                      isRead: Value(model.isRead),
+                    ),
+                  );
             } else {
-              await (_db.update(_db.alerts)..where((t) => t.localId.equals(model.localId)))
-                  .write(AlertsCompanion(
-                serverId: Value(model.serverId),
-                isRead: Value(model.isRead),
-              ));
+              await (_db.update(
+                _db.alerts,
+              )..where((t) => t.localId.equals(model.localId))).write(
+                AlertsCompanion(
+                  serverId: Value(model.serverId),
+                  isRead: Value(model.isRead),
+                ),
+              );
             }
           }
         });

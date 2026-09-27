@@ -52,7 +52,7 @@ class _CreateMinePageState extends ConsumerState<CreateMinePage> {
       );
 
       await ref.read(createMineProvider)(mine);
-      
+
       // Update local list state for immediate UI feedback
       ref.read(mineListProvider.notifier).addLocalMine(mine);
 
@@ -61,9 +61,8 @@ class _CreateMinePageState extends ConsumerState<CreateMinePage> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error saving mine: $e')),
-        );
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Error saving mine: $e')));
       }
     } finally {
       if (mounted) {
@@ -75,9 +74,7 @@ class _CreateMinePageState extends ConsumerState<CreateMinePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Create Mine'),
-      ),
+      appBar: AppBar(title: const Text('Create Mine')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.md),
         child: Form(
@@ -94,7 +91,8 @@ class _CreateMinePageState extends ConsumerState<CreateMinePage> {
                         labelText: 'Mine Name *',
                         hintText: 'e.g. Blackwood Creek Mine',
                       ),
-                      validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
+                      validator: (v) =>
+                          (v == null || v.isEmpty) ? 'Required' : null,
                     ),
                     const SizedBox(height: AppSpacing.md),
                     TextFormField(
@@ -103,7 +101,8 @@ class _CreateMinePageState extends ConsumerState<CreateMinePage> {
                         labelText: 'Mine Code *',
                         hintText: 'e.g. BCM-001',
                       ),
-                      validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
+                      validator: (v) =>
+                          (v == null || v.isEmpty) ? 'Required' : null,
                     ),
                   ],
                 ),
@@ -120,11 +119,14 @@ class _CreateMinePageState extends ConsumerState<CreateMinePage> {
                           labelText: 'Latitude *',
                           hintText: '(-90 to 90)',
                         ),
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
                         validator: (v) {
                           if (v == null || v.isEmpty) return 'Required';
                           final val = double.tryParse(v);
-                          if (val == null || val < -90 || val > 90) return 'Invalid';
+                          if (val == null || val < -90 || val > 90)
+                            return 'Invalid';
                           return null;
                         },
                       ),
@@ -137,11 +139,14 @@ class _CreateMinePageState extends ConsumerState<CreateMinePage> {
                           labelText: 'Longitude *',
                           hintText: '(-180 to 180)',
                         ),
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
                         validator: (v) {
                           if (v == null || v.isEmpty) return 'Required';
                           final val = double.tryParse(v);
-                          if (val == null || val < -180 || val > 180) return 'Invalid';
+                          if (val == null || val < -180 || val > 180)
+                            return 'Invalid';
                           return null;
                         },
                       ),

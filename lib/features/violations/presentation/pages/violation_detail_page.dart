@@ -18,16 +18,17 @@ import 'package:coalnexus/features/violations/presentation/providers/violation_s
 class ViolationDetailPage extends ConsumerWidget {
   final String violationId;
 
-  const ViolationDetailPage({
-    super.key,
-    required this.violationId,
-  });
+  const ViolationDetailPage({super.key, required this.violationId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final violationAsync = ref.watch(getViolationByIdProvider).call(violationId);
+    final violationAsync = ref
+        .watch(getViolationByIdProvider)
+        .call(violationId);
     final syncStatusAsync = ref.watch(violationSyncStatusProvider(violationId));
-    final actionsAsync = ref.watch(correctiveActionsForViolationProvider(violationId));
+    final actionsAsync = ref.watch(
+      correctiveActionsForViolationProvider(violationId),
+    );
     final auditAsync = ref.watch(auditTrailProvider(violationId));
 
     return Scaffold(
@@ -35,7 +36,7 @@ class ViolationDetailPage extends ConsumerWidget {
         title: const Text('Violation Details'),
         actions: [
           syncStatusAsync.when(
-            data: (status) => status != null 
+            data: (status) => status != null
                 ? Padding(
                     padding: const EdgeInsets.only(right: AppSpacing.md),
                     child: AppSyncStatusIndicator(status: status),
@@ -43,7 +44,11 @@ class ViolationDetailPage extends ConsumerWidget {
                 : const SizedBox.shrink(),
             loading: () => const Padding(
               padding: EdgeInsets.only(right: AppSpacing.md),
-              child: SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)),
+              child: SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
             ),
             error: (_, _) => const Padding(
               padding: EdgeInsets.only(right: AppSpacing.md),
@@ -90,10 +95,13 @@ class ViolationDetailPage extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const AppSectionHeader(title: 'Audit Trail & Workflow History'),
+                      const AppSectionHeader(
+                        title: 'Audit Trail & Workflow History',
+                      ),
                       const SizedBox(height: AppSpacing.md),
                       auditAsync.when(
-                        data: (events) => AuditTimeline(events: events, shrinkWrap: true),
+                        data: (events) =>
+                            AuditTimeline(events: events, shrinkWrap: true),
                         loading: () => const AppLoadingIndicator(),
                         error: (e, _) => Text('Error loading audit trail: $e'),
                       ),
@@ -129,7 +137,9 @@ class _CorrectiveActionsSection extends ConsumerWidget {
           AppSectionHeader(
             title: 'Corrective Actions',
             trailing: TextButton.icon(
-              onPressed: () => context.push('/violations/$violationId/corrective_action/new'),
+              onPressed: () => context.push(
+                '/violations/$violationId/corrective_action/new',
+              ),
               icon: const Icon(Icons.add),
               label: const Text('ADD'),
             ),
@@ -151,7 +161,10 @@ class _CorrectiveActionsSection extends ConsumerWidget {
                   final action = actions[index];
                   return ListTile(
                     contentPadding: EdgeInsets.zero,
-                    title: Text(action.title, style: const TextStyle(fontWeight: FontWeight.bold)),
+                    title: Text(
+                      action.title,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -161,16 +174,22 @@ class _CorrectiveActionsSection extends ConsumerWidget {
                           children: [
                             AppStatusChip(
                               label: action.status.name.toUpperCase(),
-                              color: WorkflowService.getStatusColor(action.status),
+                              color: WorkflowService.getStatusColor(
+                                action.status,
+                              ),
                             ),
                             const SizedBox(width: AppSpacing.sm),
-                            Text('Priority: ${action.priority.toUpperCase()}', style: Theme.of(context).textTheme.bodySmall),
+                            Text(
+                              'Priority: ${action.priority.toUpperCase()}',
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
                           ],
                         ),
                       ],
                     ),
                     trailing: const Icon(Icons.chevron_right),
-                    onTap: () => _showStatusTransitionDialog(context, ref, action),
+                    onTap: () =>
+                        _showStatusTransitionDialog(context, ref, action),
                   );
                 },
               );
@@ -183,10 +202,14 @@ class _CorrectiveActionsSection extends ConsumerWidget {
     );
   }
 
-  void _showStatusTransitionDialog(BuildContext context, WidgetRef ref, CorrectiveAction action) {
+  void _showStatusTransitionDialog(
+    BuildContext context,
+    WidgetRef ref,
+    CorrectiveAction action,
+  ) {
     final authState = ref.read(authNotifierProvider);
     final user = authState.user;
-    
+
     showDialog(
       context: context,
       builder: (context) {
@@ -195,32 +218,52 @@ class _CorrectiveActionsSection extends ConsumerWidget {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: CorrectiveActionStatus.values.map((status) {
-              final allowedWorkflow = WorkflowService.canTransitionCorrectiveAction(action.status, status);
-              
+              final allowedWorkflow =
+                  WorkflowService.canTransitionCorrectiveAction(
+                    action.status,
+                    status,
+                  );
+
               // RBAC Check
               bool allowedRBAC = true;
               if (status == CorrectiveActionStatus.verified) {
-                allowedRBAC = user?.hasPermission(UserPermission.verifyCorrectiveAction) ?? false;
+                allowedRBAC =
+                    user?.hasPermission(
+                      UserPermission.verifyCorrectiveAction,
+                    ) ??
+                    false;
               }
-              
+
               final allowed = allowedWorkflow && allowedRBAC;
-              
+
               return ListTile(
                 title: Text(WorkflowService.getStatusLabel(status)),
                 leading: Radio<CorrectiveActionStatus>(
                   value: status,
                   groupValue: action.status,
-                  onChanged: allowed ? (v) async {
-                    Navigator.pop(context);
-                    final updated = action.copyWith(status: status, updatedAt: DateTime.now());
-                    await ref.read(updateCorrectiveActionProvider).call(updated);
-                    ref.invalidate(correctiveActionsForViolationProvider(violationId));
-                  } : null,
+                  onChanged: allowed
+                      ? (v) async {
+                          Navigator.pop(context);
+                          final updated = action.copyWith(
+                            status: status,
+                            updatedAt: DateTime.now(),
+                          );
+                          await ref
+                              .read(updateCorrectiveActionProvider)
+                              .call(updated);
+                          ref.invalidate(
+                            correctiveActionsForViolationProvider(violationId),
+                          );
+                        }
+                      : null,
                 ),
                 enabled: allowed,
-                subtitle: (allowedWorkflow && !allowedRBAC) 
-                  ? const Text('Insufficient permissions to verify', style: TextStyle(color: Colors.red, fontSize: 10))
-                  : null,
+                subtitle: (allowedWorkflow && !allowedRBAC)
+                    ? const Text(
+                        'Insufficient permissions to verify',
+                        style: TextStyle(color: Colors.red, fontSize: 10),
+                      )
+                    : null,
               );
             }).toList(),
           ),
@@ -228,7 +271,9 @@ class _CorrectiveActionsSection extends ConsumerWidget {
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
-                context.push('/violations/$violationId/corrective_action/${action.localId}/edit');
+                context.push(
+                  '/violations/$violationId/corrective_action/${action.localId}/edit',
+                );
               },
               child: const Text('EDIT DETAILS'),
             ),
@@ -262,20 +307,26 @@ class _ViolationWorkflowTransitions extends ConsumerWidget {
             children: ViolationStatus.values.map((status) {
               final isCurrent = violation.status == status;
               // Simple check for allowed state updates
-              final isAllowed = !isCurrent && (violation.status.index <= status.index);
+              final isAllowed =
+                  !isCurrent && (violation.status.index <= status.index);
 
               return ChoiceChip(
                 label: Text(status.name.toUpperCase()),
                 selected: isCurrent,
                 selectedColor: Colors.blue.withValues(alpha: 0.2),
-                onSelected: isAllowed ? (selected) async {
-                  if (selected) {
-                    final updated = violation.copyWith(status: status, updatedAt: DateTime.now());
-                    await ref.read(updateViolationProvider).call(updated);
-                    // Force refresh of future
-                    ref.invalidate(getViolationByIdProvider);
-                  }
-                } : null,
+                onSelected: isAllowed
+                    ? (selected) async {
+                        if (selected) {
+                          final updated = violation.copyWith(
+                            status: status,
+                            updatedAt: DateTime.now(),
+                          );
+                          await ref.read(updateViolationProvider).call(updated);
+                          // Force refresh of future
+                          ref.invalidate(getViolationByIdProvider);
+                        }
+                      }
+                    : null,
               );
             }).toList(),
           ),
@@ -284,7 +335,6 @@ class _ViolationWorkflowTransitions extends ConsumerWidget {
     );
   }
 }
-
 
 class _ViolationHeader extends StatelessWidget {
   final Violation violation;
@@ -300,13 +350,12 @@ class _ViolationHeader extends StatelessWidget {
         children: [
           Text(
             violation.title,
-            style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+            style: theme.textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
           ),
           const SizedBox(height: AppSpacing.sm),
-          Text(
-            violation.description,
-            style: theme.textTheme.bodyLarge,
-          ),
+          Text(violation.description, style: theme.textTheme.bodyLarge),
           const SizedBox(height: AppSpacing.md),
           Row(
             children: [
@@ -342,7 +391,9 @@ class _ViolationContext extends StatelessWidget {
             _DetailRow(
               label: 'Due Date',
               value: DateFormat.yMMMd().format(violation.dueDate!),
-              isError: violation.dueDate!.isBefore(DateTime.now()) && violation.status != ViolationStatus.closed,
+              isError:
+                  violation.dueDate!.isBefore(DateTime.now()) &&
+                  violation.status != ViolationStatus.closed,
             ),
         ],
       ),
@@ -363,10 +414,22 @@ class _ViolationLifecycle extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const AppSectionHeader(title: 'History'),
-          _DetailRow(label: 'Detected At', value: dateFormat.format(violation.detectedAt)),
-          _DetailRow(label: 'Created At', value: dateFormat.format(violation.createdAt)),
-          _DetailRow(label: 'Updated At', value: dateFormat.format(violation.updatedAt)),
-          _DetailRow(label: 'Local Version', value: violation.localVersion.toString()),
+          _DetailRow(
+            label: 'Detected At',
+            value: dateFormat.format(violation.detectedAt),
+          ),
+          _DetailRow(
+            label: 'Created At',
+            value: dateFormat.format(violation.createdAt),
+          ),
+          _DetailRow(
+            label: 'Updated At',
+            value: dateFormat.format(violation.updatedAt),
+          ),
+          _DetailRow(
+            label: 'Local Version',
+            value: violation.localVersion.toString(),
+          ),
           if (violation.serverId != null)
             _DetailRow(label: 'Server ID', value: violation.serverId!),
         ],
@@ -394,7 +457,10 @@ class _DetailRow extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: theme.textTheme.bodyMedium?.copyWith(color: theme.hintColor)),
+          Text(
+            label,
+            style: theme.textTheme.bodyMedium?.copyWith(color: theme.hintColor),
+          ),
           Text(
             value,
             style: theme.textTheme.bodyMedium?.copyWith(
@@ -417,10 +483,18 @@ class _SeverityBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     Color color;
     switch (severity) {
-      case ViolationSeverity.low: color = Colors.blue; break;
-      case ViolationSeverity.medium: color = Colors.orange; break;
-      case ViolationSeverity.high: color = Colors.deepOrange; break;
-      case ViolationSeverity.critical: color = Colors.red; break;
+      case ViolationSeverity.low:
+        color = Colors.blue;
+        break;
+      case ViolationSeverity.medium:
+        color = Colors.orange;
+        break;
+      case ViolationSeverity.high:
+        color = Colors.deepOrange;
+        break;
+      case ViolationSeverity.critical:
+        color = Colors.red;
+        break;
     }
     return AppStatusChip(label: severity.name.toUpperCase(), color: color);
   }
@@ -436,13 +510,27 @@ class _StatusBadge extends StatelessWidget {
     Color color;
     switch (status) {
       case ViolationStatus.detected:
-      case ViolationStatus.recorded: color = Colors.grey; break;
-      case ViolationStatus.assigned: color = Colors.blue; break;
-      case ViolationStatus.correctiveAction: color = Colors.amber; break;
-      case ViolationStatus.evidenceSubmitted: color = Colors.purple; break;
-      case ViolationStatus.verification: color = Colors.cyan; break;
-      case ViolationStatus.closed: color = Colors.green; break;
-      case ViolationStatus.overdue: color = Colors.red; break;
+      case ViolationStatus.recorded:
+        color = Colors.grey;
+        break;
+      case ViolationStatus.assigned:
+        color = Colors.blue;
+        break;
+      case ViolationStatus.correctiveAction:
+        color = Colors.amber;
+        break;
+      case ViolationStatus.evidenceSubmitted:
+        color = Colors.purple;
+        break;
+      case ViolationStatus.verification:
+        color = Colors.cyan;
+        break;
+      case ViolationStatus.closed:
+        color = Colors.green;
+        break;
+      case ViolationStatus.overdue:
+        color = Colors.red;
+        break;
     }
     return AppStatusChip(label: status.name.toUpperCase(), color: color);
   }

@@ -11,7 +11,9 @@ import 'package:coalnexus/features/inspections/domain/usecases/update_inspection
 import 'package:coalnexus/features/inspections/domain/usecases/add_inspection_finding.dart';
 import 'package:coalnexus/features/inspections/domain/usecases/get_inspection_findings.dart';
 
-final inspectionLocalDataSourceProvider = Provider<InspectionLocalDataSource>((ref) {
+final inspectionLocalDataSourceProvider = Provider<InspectionLocalDataSource>((
+  ref,
+) {
   final db = ref.watch(appDatabaseProvider);
   return InspectionLocalDataSourceImpl(db);
 });

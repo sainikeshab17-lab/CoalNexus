@@ -2,14 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:coalnexus/core/navigation/router.dart';
 import 'package:coalnexus/core/theme/app_theme.dart';
-
 import 'package:coalnexus/core/theme/theme_provider.dart';
+import 'package:coalnexus/core/sync/sync_providers.dart';
 
 class CoalNexusApp extends ConsumerWidget {
   const CoalNexusApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Eagerly initialize synchronization systems
+    ref.watch(syncProcessorProvider);
+
     final router = ref.watch(routerProvider);
     final themeMode = ref.watch(themeModeProvider);
 

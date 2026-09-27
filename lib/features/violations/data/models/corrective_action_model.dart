@@ -98,7 +98,8 @@ class CorrectiveActionModel {
   factory CorrectiveActionModel.fromJson(Map<String, dynamic> json) {
     return CorrectiveActionModel(
       localId: (json['local_id'] ?? json['localId']) as String,
-      serverId: (json['server_id'] ?? json['id'] ?? json['serverId']) as String?,
+      serverId:
+          (json['server_id'] ?? json['id'] ?? json['serverId']) as String?,
       violationId: (json['violation_id'] ?? json['violationId']) as String,
       title: json['title'] as String,
       description: json['description'] as String,

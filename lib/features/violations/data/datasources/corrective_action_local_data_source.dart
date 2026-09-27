@@ -10,26 +10,31 @@ abstract class CorrectiveActionLocalDataSource {
   Future<T> transaction<T>(Future<T> Function() action);
 }
 
-class CorrectiveActionLocalDataSourceImpl implements CorrectiveActionLocalDataSource {
+class CorrectiveActionLocalDataSourceImpl
+    implements CorrectiveActionLocalDataSource {
   final AppDatabase _db;
 
   CorrectiveActionLocalDataSourceImpl(this._db);
 
   @override
   Future<void> saveAction(CorrectiveAction action) async {
-    await _db.into(_db.correctiveActions).insert(CorrectiveActionMapper.toCompanion(action));
+    await _db
+        .into(_db.correctiveActions)
+        .insert(CorrectiveActionMapper.toCompanion(action));
   }
 
   @override
   Future<void> updateAction(CorrectiveAction action) async {
     final query = _db.update(_db.correctiveActions)
       ..where((t) => t.localId.equals(action.localId));
-    
+
     await query.write(CorrectiveActionMapper.toCompanion(action));
   }
 
   @override
-  Future<List<CorrectiveAction>> getActionsForViolation(String violationId) async {
+  Future<List<CorrectiveAction>> getActionsForViolation(
+    String violationId,
+  ) async {
     final query = _db.select(_db.correctiveActions)
       ..where((t) => t.violationId.equals(violationId));
     final results = await query.get();
@@ -38,7 +43,8 @@ class CorrectiveActionLocalDataSourceImpl implements CorrectiveActionLocalDataSo
 
   @override
   Future<CorrectiveAction?> getActionById(String localId) async {
-    final query = _db.select(_db.correctiveActions)..where((t) => t.localId.equals(localId));
+    final query = _db.select(_db.correctiveActions)
+      ..where((t) => t.localId.equals(localId));
     final result = await query.getSingleOrNull();
     return result != null ? CorrectiveActionMapper.toDomain(result) : null;
   }
