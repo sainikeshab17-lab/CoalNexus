@@ -157,11 +157,11 @@ def update_mine(mine_id: str, mine_in: schemas.MineUpdate, db: Session = Depends
 
 # --- INSPECTIONS ---
 @router.get("/inspections", response_model=List[schemas.Inspection])
-def get_inspections(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+def get_inspections(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: Profile = Depends(get_current_user_profile)):
     return inspection_repo.get_all(db, skip=skip, limit=limit)
 
 @router.post("/inspections", response_model=schemas.Inspection)
-def create_inspection(insp_in: schemas.InspectionCreate, db: Session = Depends(get_db)):
+def create_inspection(insp_in: schemas.InspectionCreate, db: Session = Depends(get_db), current_user: Profile = Depends(get_current_user_profile)):
     if insp_in.operation_id and check_idempotency(db, insp_in.operation_id):
         existing = inspection_repo.get_by_local_id(db, insp_in.local_id)
         if existing:
@@ -201,7 +201,7 @@ def create_inspection(insp_in: schemas.InspectionCreate, db: Session = Depends(g
     return db_obj
 
 @router.put("/inspections/{insp_id}", response_model=schemas.Inspection)
-def update_inspection(insp_id: str, insp_in: schemas.InspectionCreate, db: Session = Depends(get_db)):
+def update_inspection(insp_id: str, insp_in: schemas.InspectionCreate, db: Session = Depends(get_db), current_user: Profile = Depends(get_current_user_profile)):
     db_obj = inspection_repo.get_by_id(db, insp_id) or inspection_repo.get_by_local_id(db, insp_in.local_id)
     if not db_obj:
         raise HTTPException(status_code=404, detail="Inspection not found")
@@ -250,11 +250,11 @@ def update_inspection(insp_id: str, insp_in: schemas.InspectionCreate, db: Sessi
 
 # --- VIOLATIONS ---
 @router.get("/violations", response_model=List[schemas.Violation])
-def get_violations(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+def get_violations(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: Profile = Depends(get_current_user_profile)):
     return violation_repo.get_all(db, skip=skip, limit=limit)
 
 @router.post("/violations", response_model=schemas.Violation)
-def create_violation(viol_in: schemas.ViolationCreate, db: Session = Depends(get_db)):
+def create_violation(viol_in: schemas.ViolationCreate, db: Session = Depends(get_db), current_user: Profile = Depends(get_current_user_profile)):
     if viol_in.operation_id and check_idempotency(db, viol_in.operation_id):
         existing = violation_repo.get_by_local_id(db, viol_in.local_id)
         if existing:
@@ -302,7 +302,7 @@ def create_violation(viol_in: schemas.ViolationCreate, db: Session = Depends(get
     return db_obj
 
 @router.put("/violations/{viol_id}", response_model=schemas.Violation)
-def update_violation(viol_id: str, viol_in: schemas.ViolationCreate, db: Session = Depends(get_db)):
+def update_violation(viol_id: str, viol_in: schemas.ViolationCreate, db: Session = Depends(get_db), current_user: Profile = Depends(get_current_user_profile)):
     db_obj = violation_repo.get_by_id(db, viol_id) or violation_repo.get_by_local_id(db, viol_in.local_id)
     if not db_obj:
         raise HTTPException(status_code=404, detail="Violation not found")
@@ -360,11 +360,11 @@ def update_violation(viol_id: str, viol_in: schemas.ViolationCreate, db: Session
 
 # --- FINDINGS ---
 @router.get("/findings", response_model=List[schemas.Finding])
-def get_findings(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+def get_findings(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: Profile = Depends(get_current_user_profile)):
     return finding_repo.get_all(db, skip=skip, limit=limit)
 
 @router.post("/findings", response_model=schemas.Finding)
-def create_finding(finding_in: schemas.FindingCreate, db: Session = Depends(get_db)):
+def create_finding(finding_in: schemas.FindingCreate, db: Session = Depends(get_db), current_user: Profile = Depends(get_current_user_profile)):
     if finding_in.operation_id and check_idempotency(db, finding_in.operation_id):
         existing = finding_repo.get_by_local_id(db, finding_in.local_id)
         if existing:
@@ -404,7 +404,7 @@ def create_finding(finding_in: schemas.FindingCreate, db: Session = Depends(get_
     return db_obj
 
 @router.put("/findings/{finding_id}", response_model=schemas.Finding)
-def update_finding(finding_id: str, finding_in: schemas.FindingCreate, db: Session = Depends(get_db)):
+def update_finding(finding_id: str, finding_in: schemas.FindingCreate, db: Session = Depends(get_db), current_user: Profile = Depends(get_current_user_profile)):
     db_obj = finding_repo.get_by_id(db, finding_id) or finding_repo.get_by_local_id(db, finding_in.local_id)
     if not db_obj:
         raise HTTPException(status_code=404, detail="Finding not found")
@@ -451,11 +451,11 @@ def update_finding(finding_id: str, finding_in: schemas.FindingCreate, db: Sessi
 
 # --- ALERTS ---
 @router.get("/alerts", response_model=List[schemas.Alert])
-def get_alerts(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+def get_alerts(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: Profile = Depends(get_current_user_profile)):
     return alert_repo.get_all(db, skip=skip, limit=limit)
 
 @router.post("/alerts", response_model=schemas.Alert)
-def create_alert(alert_in: schemas.AlertCreate, db: Session = Depends(get_db)):
+def create_alert(alert_in: schemas.AlertCreate, db: Session = Depends(get_db), current_user: Profile = Depends(get_current_user_profile)):
     if alert_in.operation_id and check_idempotency(db, alert_in.operation_id):
         existing = alert_repo.get_by_local_id(db, alert_in.local_id)
         if existing:
@@ -495,11 +495,11 @@ def create_alert(alert_in: schemas.AlertCreate, db: Session = Depends(get_db)):
 
 # --- CORRECTIVE ACTIONS ---
 @router.get("/corrective-actions", response_model=List[schemas.CorrectiveAction])
-def get_corrective_actions(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+def get_corrective_actions(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: Profile = Depends(get_current_user_profile)):
     return corrective_action_repo.get_all(db, skip=skip, limit=limit)
 
 @router.post("/corrective-actions", response_model=schemas.CorrectiveAction)
-def create_corrective_action(ca_in: schemas.CorrectiveActionCreate, db: Session = Depends(get_db)):
+def create_corrective_action(ca_in: schemas.CorrectiveActionCreate, db: Session = Depends(get_db), current_user: Profile = Depends(get_current_user_profile)):
     if ca_in.operation_id and check_idempotency(db, ca_in.operation_id):
         existing = corrective_action_repo.get_by_local_id(db, ca_in.local_id)
         if existing:
@@ -544,7 +544,7 @@ def create_corrective_action(ca_in: schemas.CorrectiveActionCreate, db: Session 
     return db_obj
 
 @router.put("/corrective-actions/{ca_id}", response_model=schemas.CorrectiveAction)
-def update_corrective_action(ca_id: str, ca_in: schemas.CorrectiveActionCreate, db: Session = Depends(get_db)):
+def update_corrective_action(ca_id: str, ca_in: schemas.CorrectiveActionCreate, db: Session = Depends(get_db), current_user: Profile = Depends(get_current_user_profile)):
     db_obj = corrective_action_repo.get_by_id(db, ca_id) or corrective_action_repo.get_by_local_id(db, ca_in.local_id)
     if not db_obj:
         raise HTTPException(status_code=404, detail="Corrective action not found")
@@ -599,11 +599,11 @@ def update_corrective_action(ca_id: str, ca_in: schemas.CorrectiveActionCreate, 
 
 # --- AUDIT TRAIL ---
 @router.get("/audit-trail", response_model=List[schemas.AuditTrail])
-def get_audit_trail(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+def get_audit_trail(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: Profile = Depends(get_current_user_profile)):
     return audit_trail_repo.get_all(db, skip=skip, limit=limit)
 
 @router.post("/audit-trail", response_model=schemas.AuditTrail)
-def create_audit_trail(audit_in: schemas.AuditTrailCreate, db: Session = Depends(get_db)):
+def create_audit_trail(audit_in: schemas.AuditTrailCreate, db: Session = Depends(get_db), current_user: Profile = Depends(get_current_user_profile)):
     if audit_in.operation_id and check_idempotency(db, audit_in.operation_id):
         existing = audit_trail_repo.get_by_local_id(db, audit_in.local_id)
         if existing:
@@ -633,7 +633,7 @@ def create_audit_trail(audit_in: schemas.AuditTrailCreate, db: Session = Depends
 
 # --- TELEMETRY ---
 @router.post("/telemetry", response_model=tel_schemas.Telemetry)
-def create_telemetry(tel_in: tel_schemas.TelemetryCreate, db: Session = Depends(get_db)):
+def create_telemetry(tel_in: tel_schemas.TelemetryCreate, db: Session = Depends(get_db), current_user: Profile = Depends(get_current_user_profile)):
     mine_obj = mine_repo.get_by_id(db, tel_in.mine_id) or mine_repo.get_by_local_id(db, tel_in.mine_id)
     if not mine_obj:
         raise HTTPException(status_code=404, detail="Mine not found")
@@ -658,11 +658,11 @@ def create_telemetry(tel_in: tel_schemas.TelemetryCreate, db: Session = Depends(
     return created
 
 @router.get("/telemetry", response_model=List[tel_schemas.Telemetry])
-def get_telemetry(limit: int = 100, db: Session = Depends(get_db)):
+def get_telemetry(limit: int = 100, db: Session = Depends(get_db), current_user: Profile = Depends(get_current_user_profile)):
     return telemetry_repo.get_all(db, limit=limit)
 
 @router.get("/telemetry/{mine_id}", response_model=List[tel_schemas.Telemetry])
-def get_mine_telemetry(mine_id: str, limit: int = 100, db: Session = Depends(get_db)):
+def get_mine_telemetry(mine_id: str, limit: int = 100, db: Session = Depends(get_db), current_user: Profile = Depends(get_current_user_profile)):
     mine_obj = mine_repo.get_by_id(db, mine_id) or mine_repo.get_by_local_id(db, mine_id)
     if not mine_obj:
         raise HTTPException(status_code=404, detail="Mine not found")

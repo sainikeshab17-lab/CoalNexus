@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Mine } from '../types';
 import { minesApi } from '../api/mines';
 
-export function useMines() {
+export function useMines(manualInit = true) {
   const [mines, setMines] = useState<Mine[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -21,8 +21,10 @@ export function useMines() {
   };
 
   useEffect(() => {
-    fetchMines();
-  }, []);
+    if (manualInit) {
+      fetchMines();
+    }
+  }, [manualInit]);
 
   return { mines, loading, error, refresh: fetchMines };
 }

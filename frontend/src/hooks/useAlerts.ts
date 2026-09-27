@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Alert } from '../types';
 import { alertsApi } from '../api/alerts';
 
-export function useAlerts() {
+export function useAlerts(manualInit = true) {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -21,8 +21,10 @@ export function useAlerts() {
   };
 
   useEffect(() => {
-    fetchAlerts();
-  }, []);
+    if (manualInit) {
+      fetchAlerts();
+    }
+  }, [manualInit]);
 
   return { alerts, loading, error, refresh: fetchAlerts };
 }

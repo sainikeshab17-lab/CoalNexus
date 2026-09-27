@@ -66,23 +66,20 @@ function DashboardContent() {
   const [editingCA, setEditingCA] = useState<any>(null);
 
   // Load hooks
-  const { mines, loading: minesLoading, error: minesError, refresh: refreshMines } = useMines();
-  const { inspections, loading: inspectionsLoading, error: inspectionsError, refresh: refreshInspections } = useInspections();
-  const { findings, loading: findingsLoading, error: findingsError, refresh: refreshFindings } = useFindings();
-  const { violations, loading: violationsLoading, error: violationsError, refresh: refreshViolations } = useViolations();
-  const { correctiveActions, loading: caLoading, error: caError, refresh: refreshCAs } = useCorrectiveActions();
-  const { alerts, loading: alertsLoading, error: alertsError, refresh: refreshAlerts } = useAlerts();
-  const { auditTrail, loading: auditLoading, error: auditError, refresh: refreshAudit } = useAuditTrail();
+  const { mines, loading: minesLoading, error: minesError, refresh: refreshMines } = useMines(false);
+  const { inspections, loading: inspectionsLoading, error: inspectionsError, refresh: refreshInspections } = useInspections(false);
+  const { findings, loading: findingsLoading, error: findingsError, refresh: refreshFindings } = useFindings(false);
+  const { violations, loading: violationsLoading, error: violationsError, refresh: refreshViolations } = useViolations(false);
+  const { correctiveActions, loading: caLoading, error: caError, refresh: refreshCAs } = useCorrectiveActions(false);
+  const { alerts, loading: alertsLoading, error: alertsError, refresh: refreshAlerts } = useAlerts(false);
+  const { auditTrail, loading: auditLoading, error: auditError, refresh: refreshAudit } = useAuditTrail(false);
   const { telemetry } = useTelemetry();
 
   // Initialize unified real-time sync WebSocket listener
   useSync();
 
   useEffect(() => {
-    fetch(`${API_URL}/health`)
-      .then(res => res.json())
-      .then(data => setHealth(data))
-      .catch(err => console.error("Health check failed", err));
+    handleRefreshAll();
   }, []);
 
   const handleRefreshAll = () => {

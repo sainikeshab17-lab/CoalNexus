@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { CorrectiveAction } from '../types';
 import { correctiveActionsApi } from '../api/correctiveActions';
 
-export function useCorrectiveActions() {
+export function useCorrectiveActions(manualInit = true) {
   const [correctiveActions, setCorrectiveActions] = useState<CorrectiveAction[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -21,8 +21,10 @@ export function useCorrectiveActions() {
   };
 
   useEffect(() => {
-    fetchCorrectiveActions();
-  }, []);
+    if (manualInit) {
+      fetchCorrectiveActions();
+    }
+  }, [manualInit]);
 
   return { correctiveActions, loading, error, refresh: fetchCorrectiveActions };
 }

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Inspection } from '../types';
 import { inspectionsApi } from '../api/inspections';
 
-export function useInspections() {
+export function useInspections(manualInit = true) {
   const [inspections, setInspections] = useState<Inspection[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -21,8 +21,10 @@ export function useInspections() {
   };
 
   useEffect(() => {
-    fetchInspections();
-  }, []);
+    if (manualInit) {
+      fetchInspections();
+    }
+  }, [manualInit]);
 
   return { inspections, loading, error, refresh: fetchInspections };
 }

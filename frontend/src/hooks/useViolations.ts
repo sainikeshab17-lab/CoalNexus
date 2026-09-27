@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Violation } from '../types';
 import { violationsApi } from '../api/violations';
 
-export function useViolations() {
+export function useViolations(manualInit = true) {
   const [violations, setViolations] = useState<Violation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -21,8 +21,10 @@ export function useViolations() {
   };
 
   useEffect(() => {
-    fetchViolations();
-  }, []);
+    if (manualInit) {
+      fetchViolations();
+    }
+  }, [manualInit]);
 
   return { violations, loading, error, refresh: fetchViolations };
 }

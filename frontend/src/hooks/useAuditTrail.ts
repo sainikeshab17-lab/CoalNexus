@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { AuditTrail } from '../types';
 import { auditApi } from '../api/audit';
 
-export function useAuditTrail() {
+export function useAuditTrail(manualInit = true) {
   const [auditTrail, setAuditTrail] = useState<AuditTrail[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -21,8 +21,10 @@ export function useAuditTrail() {
   };
 
   useEffect(() => {
-    fetchAuditTrail();
-  }, []);
+    if (manualInit) {
+      fetchAuditTrail();
+    }
+  }, [manualInit]);
 
   return { auditTrail, loading, error, refresh: fetchAuditTrail };
 }

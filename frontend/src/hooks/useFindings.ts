@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Finding } from '../types';
 import { findingsApi } from '../api/findings';
 
-export function useFindings() {
+export function useFindings(manualInit = true) {
   const [findings, setFindings] = useState<Finding[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -21,8 +21,10 @@ export function useFindings() {
   };
 
   useEffect(() => {
-    fetchFindings();
-  }, []);
+    if (manualInit) {
+      fetchFindings();
+    }
+  }, [manualInit]);
 
   return { findings, loading, error, refresh: fetchFindings };
 }

@@ -1,7 +1,7 @@
 import 'dart:convert';
-
 import 'package:http/http.dart' as http;
 import 'package:coalnexus/core/api/api_config.dart';
+import 'package:coalnexus/core/storage/token_storage.dart';
 
 class ApiResponse {
   final int statusCode;
@@ -15,14 +15,29 @@ class ApiResponse {
 
 class ApiClient {
   final http.Client _client;
+  final TokenStorage? _tokenStorage;
 
-  ApiClient({http.Client? client}) : _client = client ?? http.Client();
+  ApiClient({http.Client? client, TokenStorage? tokenStorage})
+      : _client = client ?? http.Client(),
+        _tokenStorage = tokenStorage;
+
+  Future<Map<String, String>> _getHeaders() async {
+    final headers = Map<String, String>.from(ApiConfig.headers);
+    if (_tokenStorage != null) {
+      final token = await _tokenStorage!.getAccessToken();
+      if (token != null) {
+        headers['Authorization'] = 'Bearer $token';
+      }
+    }
+    return headers;
+  }
 
   Future<ApiResponse> get(String path) async {
     try {
+      final headers = await _getHeaders();
       final response = await _client.get(
         Uri.parse('${ApiConfig.baseUrl}$path'),
-        headers: ApiConfig.headers,
+        headers: headers,
       );
       return _processResponse(response);
     } catch (e) {
@@ -32,9 +47,10 @@ class ApiClient {
 
   Future<ApiResponse> post(String path, Map<String, dynamic> body) async {
     try {
+      final headers = await _getHeaders();
       final response = await _client.post(
         Uri.parse('${ApiConfig.baseUrl}$path'),
-        headers: ApiConfig.headers,
+        headers: headers,
         body: jsonEncode(body),
       );
       return _processResponse(response);
@@ -45,9 +61,10 @@ class ApiClient {
 
   Future<ApiResponse> put(String path, Map<String, dynamic> body) async {
     try {
+      final headers = await _getHeaders();
       final response = await _client.put(
         Uri.parse('${ApiConfig.baseUrl}$path'),
-        headers: ApiConfig.headers,
+        headers: headers,
         body: jsonEncode(body),
       );
       return _processResponse(response);
