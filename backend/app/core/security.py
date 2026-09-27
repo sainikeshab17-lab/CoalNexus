@@ -15,14 +15,30 @@ def get_current_user_profile(
 ) -> Profile:
     token = credentials.credentials
     try:
-        secret = settings.SUPABASE_SECRET_KEY or settings.SECRET_KEY
-        if not secret and settings.ENVIRONMENT == "production":
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Security configuration error: SECRET_KEY not set",
-            )
-            
-        payload = jwt.decode(token, secret, algorithms=["HS256"], options={"verify_aud": False})
+        # Detect whether the token uses asymmetric signing (JWKS/RS256) or symmetric signing (HS256)
+        unverified_header = jwt.get_unverified_header(token)
+        alg = unverified_header.get("alg", "HS256")
+        
+        if alg in ["RS256", "RS384", "RS512", "ES256", "ES384", "ES512"]:
+            # Asymmetric signing from Supabase
+            if not settings.SUPABASE_URL:
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail="SUPABASE_URL environment variable is required for JWKS validation",
+                )
+            jwks_url = f"{settings.SUPABASE_URL.rstrip('/')}/auth/v1/.well-known/jwks.json"
+            jwk_client = jwt.PyJWKClient(jwks_url)
+            signing_key = jwk_client.get_signing_key_from_jwt(token)
+            payload = jwt.decode(token, signing_key.key, algorithms=[alg], options={"verify_aud": False})
+        else:
+            # Symmetric signing (HS256)
+            secret = settings.SUPABASE_SECRET_KEY or settings.SECRET_KEY
+            if not secret and settings.ENVIRONMENT == "production":
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail="Security configuration error: SECRET_KEY not set",
+                )
+            payload = jwt.decode(token, secret, algorithms=["HS256"], options={"verify_aud": False})
         
         user_id: str = payload.get("sub")
         if user_id is None:
@@ -31,8 +47,6 @@ def get_current_user_profile(
                 detail="Invalid authentication credentials (missing sub claim)",
             )
     except jwt.PyJWTError:
-            # Fallback for easier testing/development or token simulation with basic strings or demo profiles
-            # In production, we MUST fail here.
             if settings.ENVIRONMENT == "production":
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,

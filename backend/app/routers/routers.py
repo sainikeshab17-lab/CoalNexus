@@ -30,12 +30,13 @@ def check_idempotency(db: Session, operation_id: str or None):
 
 # --- MINES ---
 @router.get("/mines", response_model=List[schemas.Mine])
-def get_mines(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: Profile = Depends(get_current_user_profile)):
+def get_mines(skip: int = 0, limit: int = 500, db: Session = Depends(get_db), current_user: Profile = Depends(get_current_user_profile)):
     # If admin, return all active mines. Otherwise return only assigned active ones.
     if current_user.role == UserRole.ADMIN.value:
         all_mines = mine_repo.get_all(db, skip=skip, limit=limit)
     else:
         assigned_mine_ids = [assignment.mine_id for assignment in current_user.mine_assignments]
+        # For non-admins, we still want to respect the limit but filter by assignment
         all_mines = mine_repo.get_all(db, skip=skip, limit=limit)
         all_mines = [m for m in all_mines if m.id in assigned_mine_ids]
     

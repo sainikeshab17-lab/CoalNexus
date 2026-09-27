@@ -55,7 +55,6 @@ function App() {
 
 function DashboardContent() {
   const { signOut } = useAuth();
-  const [health, setHealth] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<ViewMode>('Overview');
   const [searchTerm, setSearchTerm] = useState('');
   const [filterMine, setFilterMine] = useState('ALL');
