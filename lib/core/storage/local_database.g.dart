@@ -593,6 +593,123 @@ class $MinesTable extends Mines with TableInfo<$MinesTable, MineEntity> {
         type: DriftSqlType.string,
         requiredDuringInsert: true,
       ).withConverter<MineStatus>($MinesTable.$converterstatus);
+  static const VerificationMeta _companyMeta = const VerificationMeta(
+    'company',
+  );
+  @override
+  late final GeneratedColumn<String> company = GeneratedColumn<String>(
+    'company',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _districtMeta = const VerificationMeta(
+    'district',
+  );
+  @override
+  late final GeneratedColumn<String> district = GeneratedColumn<String>(
+    'district',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _stateMeta = const VerificationMeta('state');
+  @override
+  late final GeneratedColumn<String> state = GeneratedColumn<String>(
+    'state',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _ownerCodeMeta = const VerificationMeta(
+    'ownerCode',
+  );
+  @override
+  late final GeneratedColumn<String> ownerCode = GeneratedColumn<String>(
+    'owner_code',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _ownerNameMeta = const VerificationMeta(
+    'ownerName',
+  );
+  @override
+  late final GeneratedColumn<String> ownerName = GeneratedColumn<String>(
+    'owner_name',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _ownershipTypeMeta = const VerificationMeta(
+    'ownershipType',
+  );
+  @override
+  late final GeneratedColumn<String> ownershipType = GeneratedColumn<String>(
+    'ownership_type',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _commodityMeta = const VerificationMeta(
+    'commodity',
+  );
+  @override
+  late final GeneratedColumn<String> commodity = GeneratedColumn<String>(
+    'commodity',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _mineTypeMeta = const VerificationMeta(
+    'mineType',
+  );
+  @override
+  late final GeneratedColumn<String> mineType = GeneratedColumn<String>(
+    'mine_type',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _productionHistMeta = const VerificationMeta(
+    'productionHist',
+  );
+  @override
+  late final GeneratedColumn<double> productionHist = GeneratedColumn<double>(
+    'production_hist',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _coordinateAccuracyMeta =
+      const VerificationMeta('coordinateAccuracy');
+  @override
+  late final GeneratedColumn<String> coordinateAccuracy =
+      GeneratedColumn<String>(
+        'coordinate_accuracy',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _sourceMeta = const VerificationMeta('source');
+  @override
+  late final GeneratedColumn<String> source = GeneratedColumn<String>(
+    'source',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -638,6 +755,17 @@ class $MinesTable extends Mines with TableInfo<$MinesTable, MineEntity> {
     latitude,
     longitude,
     status,
+    company,
+    district,
+    state,
+    ownerCode,
+    ownerName,
+    ownershipType,
+    commodity,
+    mineType,
+    productionHist,
+    coordinateAccuracy,
+    source,
     createdAt,
     updatedAt,
     localVersion,
@@ -700,6 +828,81 @@ class $MinesTable extends Mines with TableInfo<$MinesTable, MineEntity> {
     } else if (isInserting) {
       context.missing(_longitudeMeta);
     }
+    if (data.containsKey('company')) {
+      context.handle(
+        _companyMeta,
+        company.isAcceptableOrUnknown(data['company']!, _companyMeta),
+      );
+    }
+    if (data.containsKey('district')) {
+      context.handle(
+        _districtMeta,
+        district.isAcceptableOrUnknown(data['district']!, _districtMeta),
+      );
+    }
+    if (data.containsKey('state')) {
+      context.handle(
+        _stateMeta,
+        state.isAcceptableOrUnknown(data['state']!, _stateMeta),
+      );
+    }
+    if (data.containsKey('owner_code')) {
+      context.handle(
+        _ownerCodeMeta,
+        ownerCode.isAcceptableOrUnknown(data['owner_code']!, _ownerCodeMeta),
+      );
+    }
+    if (data.containsKey('owner_name')) {
+      context.handle(
+        _ownerNameMeta,
+        ownerName.isAcceptableOrUnknown(data['owner_name']!, _ownerNameMeta),
+      );
+    }
+    if (data.containsKey('ownership_type')) {
+      context.handle(
+        _ownershipTypeMeta,
+        ownershipType.isAcceptableOrUnknown(
+          data['ownership_type']!,
+          _ownershipTypeMeta,
+        ),
+      );
+    }
+    if (data.containsKey('commodity')) {
+      context.handle(
+        _commodityMeta,
+        commodity.isAcceptableOrUnknown(data['commodity']!, _commodityMeta),
+      );
+    }
+    if (data.containsKey('mine_type')) {
+      context.handle(
+        _mineTypeMeta,
+        mineType.isAcceptableOrUnknown(data['mine_type']!, _mineTypeMeta),
+      );
+    }
+    if (data.containsKey('production_hist')) {
+      context.handle(
+        _productionHistMeta,
+        productionHist.isAcceptableOrUnknown(
+          data['production_hist']!,
+          _productionHistMeta,
+        ),
+      );
+    }
+    if (data.containsKey('coordinate_accuracy')) {
+      context.handle(
+        _coordinateAccuracyMeta,
+        coordinateAccuracy.isAcceptableOrUnknown(
+          data['coordinate_accuracy']!,
+          _coordinateAccuracyMeta,
+        ),
+      );
+    }
+    if (data.containsKey('source')) {
+      context.handle(
+        _sourceMeta,
+        source.isAcceptableOrUnknown(data['source']!, _sourceMeta),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -760,6 +963,50 @@ class $MinesTable extends Mines with TableInfo<$MinesTable, MineEntity> {
           data['${effectivePrefix}status'],
         )!,
       ),
+      company: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}company'],
+      ),
+      district: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}district'],
+      ),
+      state: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}state'],
+      ),
+      ownerCode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}owner_code'],
+      ),
+      ownerName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}owner_name'],
+      ),
+      ownershipType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}ownership_type'],
+      ),
+      commodity: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}commodity'],
+      ),
+      mineType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}mine_type'],
+      ),
+      productionHist: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}production_hist'],
+      ),
+      coordinateAccuracy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}coordinate_accuracy'],
+      ),
+      source: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source'],
+      ),
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -792,6 +1039,17 @@ class MineEntity extends DataClass implements Insertable<MineEntity> {
   final double latitude;
   final double longitude;
   final MineStatus status;
+  final String? company;
+  final String? district;
+  final String? state;
+  final String? ownerCode;
+  final String? ownerName;
+  final String? ownershipType;
+  final String? commodity;
+  final String? mineType;
+  final double? productionHist;
+  final String? coordinateAccuracy;
+  final String? source;
   final DateTime createdAt;
   final DateTime updatedAt;
   final int localVersion;
@@ -803,6 +1061,17 @@ class MineEntity extends DataClass implements Insertable<MineEntity> {
     required this.latitude,
     required this.longitude,
     required this.status,
+    this.company,
+    this.district,
+    this.state,
+    this.ownerCode,
+    this.ownerName,
+    this.ownershipType,
+    this.commodity,
+    this.mineType,
+    this.productionHist,
+    this.coordinateAccuracy,
+    this.source,
     required this.createdAt,
     required this.updatedAt,
     required this.localVersion,
@@ -823,6 +1092,39 @@ class MineEntity extends DataClass implements Insertable<MineEntity> {
         $MinesTable.$converterstatus.toSql(status),
       );
     }
+    if (!nullToAbsent || company != null) {
+      map['company'] = Variable<String>(company);
+    }
+    if (!nullToAbsent || district != null) {
+      map['district'] = Variable<String>(district);
+    }
+    if (!nullToAbsent || state != null) {
+      map['state'] = Variable<String>(state);
+    }
+    if (!nullToAbsent || ownerCode != null) {
+      map['owner_code'] = Variable<String>(ownerCode);
+    }
+    if (!nullToAbsent || ownerName != null) {
+      map['owner_name'] = Variable<String>(ownerName);
+    }
+    if (!nullToAbsent || ownershipType != null) {
+      map['ownership_type'] = Variable<String>(ownershipType);
+    }
+    if (!nullToAbsent || commodity != null) {
+      map['commodity'] = Variable<String>(commodity);
+    }
+    if (!nullToAbsent || mineType != null) {
+      map['mine_type'] = Variable<String>(mineType);
+    }
+    if (!nullToAbsent || productionHist != null) {
+      map['production_hist'] = Variable<double>(productionHist);
+    }
+    if (!nullToAbsent || coordinateAccuracy != null) {
+      map['coordinate_accuracy'] = Variable<String>(coordinateAccuracy);
+    }
+    if (!nullToAbsent || source != null) {
+      map['source'] = Variable<String>(source);
+    }
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     map['local_version'] = Variable<int>(localVersion);
@@ -840,6 +1142,39 @@ class MineEntity extends DataClass implements Insertable<MineEntity> {
       latitude: Value(latitude),
       longitude: Value(longitude),
       status: Value(status),
+      company: company == null && nullToAbsent
+          ? const Value.absent()
+          : Value(company),
+      district: district == null && nullToAbsent
+          ? const Value.absent()
+          : Value(district),
+      state: state == null && nullToAbsent
+          ? const Value.absent()
+          : Value(state),
+      ownerCode: ownerCode == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ownerCode),
+      ownerName: ownerName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ownerName),
+      ownershipType: ownershipType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ownershipType),
+      commodity: commodity == null && nullToAbsent
+          ? const Value.absent()
+          : Value(commodity),
+      mineType: mineType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(mineType),
+      productionHist: productionHist == null && nullToAbsent
+          ? const Value.absent()
+          : Value(productionHist),
+      coordinateAccuracy: coordinateAccuracy == null && nullToAbsent
+          ? const Value.absent()
+          : Value(coordinateAccuracy),
+      source: source == null && nullToAbsent
+          ? const Value.absent()
+          : Value(source),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
       localVersion: Value(localVersion),
@@ -861,6 +1196,19 @@ class MineEntity extends DataClass implements Insertable<MineEntity> {
       status: $MinesTable.$converterstatus.fromJson(
         serializer.fromJson<String>(json['status']),
       ),
+      company: serializer.fromJson<String?>(json['company']),
+      district: serializer.fromJson<String?>(json['district']),
+      state: serializer.fromJson<String?>(json['state']),
+      ownerCode: serializer.fromJson<String?>(json['ownerCode']),
+      ownerName: serializer.fromJson<String?>(json['ownerName']),
+      ownershipType: serializer.fromJson<String?>(json['ownershipType']),
+      commodity: serializer.fromJson<String?>(json['commodity']),
+      mineType: serializer.fromJson<String?>(json['mineType']),
+      productionHist: serializer.fromJson<double?>(json['productionHist']),
+      coordinateAccuracy: serializer.fromJson<String?>(
+        json['coordinateAccuracy'],
+      ),
+      source: serializer.fromJson<String?>(json['source']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       localVersion: serializer.fromJson<int>(json['localVersion']),
@@ -879,6 +1227,17 @@ class MineEntity extends DataClass implements Insertable<MineEntity> {
       'status': serializer.toJson<String>(
         $MinesTable.$converterstatus.toJson(status),
       ),
+      'company': serializer.toJson<String?>(company),
+      'district': serializer.toJson<String?>(district),
+      'state': serializer.toJson<String?>(state),
+      'ownerCode': serializer.toJson<String?>(ownerCode),
+      'ownerName': serializer.toJson<String?>(ownerName),
+      'ownershipType': serializer.toJson<String?>(ownershipType),
+      'commodity': serializer.toJson<String?>(commodity),
+      'mineType': serializer.toJson<String?>(mineType),
+      'productionHist': serializer.toJson<double?>(productionHist),
+      'coordinateAccuracy': serializer.toJson<String?>(coordinateAccuracy),
+      'source': serializer.toJson<String?>(source),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'localVersion': serializer.toJson<int>(localVersion),
@@ -893,6 +1252,17 @@ class MineEntity extends DataClass implements Insertable<MineEntity> {
     double? latitude,
     double? longitude,
     MineStatus? status,
+    Value<String?> company = const Value.absent(),
+    Value<String?> district = const Value.absent(),
+    Value<String?> state = const Value.absent(),
+    Value<String?> ownerCode = const Value.absent(),
+    Value<String?> ownerName = const Value.absent(),
+    Value<String?> ownershipType = const Value.absent(),
+    Value<String?> commodity = const Value.absent(),
+    Value<String?> mineType = const Value.absent(),
+    Value<double?> productionHist = const Value.absent(),
+    Value<String?> coordinateAccuracy = const Value.absent(),
+    Value<String?> source = const Value.absent(),
     DateTime? createdAt,
     DateTime? updatedAt,
     int? localVersion,
@@ -904,6 +1274,23 @@ class MineEntity extends DataClass implements Insertable<MineEntity> {
     latitude: latitude ?? this.latitude,
     longitude: longitude ?? this.longitude,
     status: status ?? this.status,
+    company: company.present ? company.value : this.company,
+    district: district.present ? district.value : this.district,
+    state: state.present ? state.value : this.state,
+    ownerCode: ownerCode.present ? ownerCode.value : this.ownerCode,
+    ownerName: ownerName.present ? ownerName.value : this.ownerName,
+    ownershipType: ownershipType.present
+        ? ownershipType.value
+        : this.ownershipType,
+    commodity: commodity.present ? commodity.value : this.commodity,
+    mineType: mineType.present ? mineType.value : this.mineType,
+    productionHist: productionHist.present
+        ? productionHist.value
+        : this.productionHist,
+    coordinateAccuracy: coordinateAccuracy.present
+        ? coordinateAccuracy.value
+        : this.coordinateAccuracy,
+    source: source.present ? source.value : this.source,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
     localVersion: localVersion ?? this.localVersion,
@@ -917,6 +1304,23 @@ class MineEntity extends DataClass implements Insertable<MineEntity> {
       latitude: data.latitude.present ? data.latitude.value : this.latitude,
       longitude: data.longitude.present ? data.longitude.value : this.longitude,
       status: data.status.present ? data.status.value : this.status,
+      company: data.company.present ? data.company.value : this.company,
+      district: data.district.present ? data.district.value : this.district,
+      state: data.state.present ? data.state.value : this.state,
+      ownerCode: data.ownerCode.present ? data.ownerCode.value : this.ownerCode,
+      ownerName: data.ownerName.present ? data.ownerName.value : this.ownerName,
+      ownershipType: data.ownershipType.present
+          ? data.ownershipType.value
+          : this.ownershipType,
+      commodity: data.commodity.present ? data.commodity.value : this.commodity,
+      mineType: data.mineType.present ? data.mineType.value : this.mineType,
+      productionHist: data.productionHist.present
+          ? data.productionHist.value
+          : this.productionHist,
+      coordinateAccuracy: data.coordinateAccuracy.present
+          ? data.coordinateAccuracy.value
+          : this.coordinateAccuracy,
+      source: data.source.present ? data.source.value : this.source,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       localVersion: data.localVersion.present
@@ -935,6 +1339,17 @@ class MineEntity extends DataClass implements Insertable<MineEntity> {
           ..write('latitude: $latitude, ')
           ..write('longitude: $longitude, ')
           ..write('status: $status, ')
+          ..write('company: $company, ')
+          ..write('district: $district, ')
+          ..write('state: $state, ')
+          ..write('ownerCode: $ownerCode, ')
+          ..write('ownerName: $ownerName, ')
+          ..write('ownershipType: $ownershipType, ')
+          ..write('commodity: $commodity, ')
+          ..write('mineType: $mineType, ')
+          ..write('productionHist: $productionHist, ')
+          ..write('coordinateAccuracy: $coordinateAccuracy, ')
+          ..write('source: $source, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('localVersion: $localVersion')
@@ -943,7 +1358,7 @@ class MineEntity extends DataClass implements Insertable<MineEntity> {
   }
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     localId,
     serverId,
     name,
@@ -951,10 +1366,21 @@ class MineEntity extends DataClass implements Insertable<MineEntity> {
     latitude,
     longitude,
     status,
+    company,
+    district,
+    state,
+    ownerCode,
+    ownerName,
+    ownershipType,
+    commodity,
+    mineType,
+    productionHist,
+    coordinateAccuracy,
+    source,
     createdAt,
     updatedAt,
     localVersion,
-  );
+  ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -966,6 +1392,17 @@ class MineEntity extends DataClass implements Insertable<MineEntity> {
           other.latitude == this.latitude &&
           other.longitude == this.longitude &&
           other.status == this.status &&
+          other.company == this.company &&
+          other.district == this.district &&
+          other.state == this.state &&
+          other.ownerCode == this.ownerCode &&
+          other.ownerName == this.ownerName &&
+          other.ownershipType == this.ownershipType &&
+          other.commodity == this.commodity &&
+          other.mineType == this.mineType &&
+          other.productionHist == this.productionHist &&
+          other.coordinateAccuracy == this.coordinateAccuracy &&
+          other.source == this.source &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
           other.localVersion == this.localVersion);
@@ -979,6 +1416,17 @@ class MinesCompanion extends UpdateCompanion<MineEntity> {
   final Value<double> latitude;
   final Value<double> longitude;
   final Value<MineStatus> status;
+  final Value<String?> company;
+  final Value<String?> district;
+  final Value<String?> state;
+  final Value<String?> ownerCode;
+  final Value<String?> ownerName;
+  final Value<String?> ownershipType;
+  final Value<String?> commodity;
+  final Value<String?> mineType;
+  final Value<double?> productionHist;
+  final Value<String?> coordinateAccuracy;
+  final Value<String?> source;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<int> localVersion;
@@ -991,6 +1439,17 @@ class MinesCompanion extends UpdateCompanion<MineEntity> {
     this.latitude = const Value.absent(),
     this.longitude = const Value.absent(),
     this.status = const Value.absent(),
+    this.company = const Value.absent(),
+    this.district = const Value.absent(),
+    this.state = const Value.absent(),
+    this.ownerCode = const Value.absent(),
+    this.ownerName = const Value.absent(),
+    this.ownershipType = const Value.absent(),
+    this.commodity = const Value.absent(),
+    this.mineType = const Value.absent(),
+    this.productionHist = const Value.absent(),
+    this.coordinateAccuracy = const Value.absent(),
+    this.source = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.localVersion = const Value.absent(),
@@ -1004,6 +1463,17 @@ class MinesCompanion extends UpdateCompanion<MineEntity> {
     required double latitude,
     required double longitude,
     required MineStatus status,
+    this.company = const Value.absent(),
+    this.district = const Value.absent(),
+    this.state = const Value.absent(),
+    this.ownerCode = const Value.absent(),
+    this.ownerName = const Value.absent(),
+    this.ownershipType = const Value.absent(),
+    this.commodity = const Value.absent(),
+    this.mineType = const Value.absent(),
+    this.productionHist = const Value.absent(),
+    this.coordinateAccuracy = const Value.absent(),
+    this.source = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.localVersion = const Value.absent(),
@@ -1022,6 +1492,17 @@ class MinesCompanion extends UpdateCompanion<MineEntity> {
     Expression<double>? latitude,
     Expression<double>? longitude,
     Expression<String>? status,
+    Expression<String>? company,
+    Expression<String>? district,
+    Expression<String>? state,
+    Expression<String>? ownerCode,
+    Expression<String>? ownerName,
+    Expression<String>? ownershipType,
+    Expression<String>? commodity,
+    Expression<String>? mineType,
+    Expression<double>? productionHist,
+    Expression<String>? coordinateAccuracy,
+    Expression<String>? source,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<int>? localVersion,
@@ -1035,6 +1516,17 @@ class MinesCompanion extends UpdateCompanion<MineEntity> {
       if (latitude != null) 'latitude': latitude,
       if (longitude != null) 'longitude': longitude,
       if (status != null) 'status': status,
+      if (company != null) 'company': company,
+      if (district != null) 'district': district,
+      if (state != null) 'state': state,
+      if (ownerCode != null) 'owner_code': ownerCode,
+      if (ownerName != null) 'owner_name': ownerName,
+      if (ownershipType != null) 'ownership_type': ownershipType,
+      if (commodity != null) 'commodity': commodity,
+      if (mineType != null) 'mine_type': mineType,
+      if (productionHist != null) 'production_hist': productionHist,
+      if (coordinateAccuracy != null) 'coordinate_accuracy': coordinateAccuracy,
+      if (source != null) 'source': source,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (localVersion != null) 'local_version': localVersion,
@@ -1050,6 +1542,17 @@ class MinesCompanion extends UpdateCompanion<MineEntity> {
     Value<double>? latitude,
     Value<double>? longitude,
     Value<MineStatus>? status,
+    Value<String?>? company,
+    Value<String?>? district,
+    Value<String?>? state,
+    Value<String?>? ownerCode,
+    Value<String?>? ownerName,
+    Value<String?>? ownershipType,
+    Value<String?>? commodity,
+    Value<String?>? mineType,
+    Value<double?>? productionHist,
+    Value<String?>? coordinateAccuracy,
+    Value<String?>? source,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
     Value<int>? localVersion,
@@ -1063,6 +1566,17 @@ class MinesCompanion extends UpdateCompanion<MineEntity> {
       latitude: latitude ?? this.latitude,
       longitude: longitude ?? this.longitude,
       status: status ?? this.status,
+      company: company ?? this.company,
+      district: district ?? this.district,
+      state: state ?? this.state,
+      ownerCode: ownerCode ?? this.ownerCode,
+      ownerName: ownerName ?? this.ownerName,
+      ownershipType: ownershipType ?? this.ownershipType,
+      commodity: commodity ?? this.commodity,
+      mineType: mineType ?? this.mineType,
+      productionHist: productionHist ?? this.productionHist,
+      coordinateAccuracy: coordinateAccuracy ?? this.coordinateAccuracy,
+      source: source ?? this.source,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       localVersion: localVersion ?? this.localVersion,
@@ -1096,6 +1610,39 @@ class MinesCompanion extends UpdateCompanion<MineEntity> {
         $MinesTable.$converterstatus.toSql(status.value),
       );
     }
+    if (company.present) {
+      map['company'] = Variable<String>(company.value);
+    }
+    if (district.present) {
+      map['district'] = Variable<String>(district.value);
+    }
+    if (state.present) {
+      map['state'] = Variable<String>(state.value);
+    }
+    if (ownerCode.present) {
+      map['owner_code'] = Variable<String>(ownerCode.value);
+    }
+    if (ownerName.present) {
+      map['owner_name'] = Variable<String>(ownerName.value);
+    }
+    if (ownershipType.present) {
+      map['ownership_type'] = Variable<String>(ownershipType.value);
+    }
+    if (commodity.present) {
+      map['commodity'] = Variable<String>(commodity.value);
+    }
+    if (mineType.present) {
+      map['mine_type'] = Variable<String>(mineType.value);
+    }
+    if (productionHist.present) {
+      map['production_hist'] = Variable<double>(productionHist.value);
+    }
+    if (coordinateAccuracy.present) {
+      map['coordinate_accuracy'] = Variable<String>(coordinateAccuracy.value);
+    }
+    if (source.present) {
+      map['source'] = Variable<String>(source.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -1121,6 +1668,17 @@ class MinesCompanion extends UpdateCompanion<MineEntity> {
           ..write('latitude: $latitude, ')
           ..write('longitude: $longitude, ')
           ..write('status: $status, ')
+          ..write('company: $company, ')
+          ..write('district: $district, ')
+          ..write('state: $state, ')
+          ..write('ownerCode: $ownerCode, ')
+          ..write('ownerName: $ownerName, ')
+          ..write('ownershipType: $ownershipType, ')
+          ..write('commodity: $commodity, ')
+          ..write('mineType: $mineType, ')
+          ..write('productionHist: $productionHist, ')
+          ..write('coordinateAccuracy: $coordinateAccuracy, ')
+          ..write('source: $source, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('localVersion: $localVersion, ')
@@ -6219,6 +6777,17 @@ typedef $$MinesTableCreateCompanionBuilder = MinesCompanion Function({
   required double latitude,
   required double longitude,
   required MineStatus status,
+  Value<String?> company,
+  Value<String?> district,
+  Value<String?> state,
+  Value<String?> ownerCode,
+  Value<String?> ownerName,
+  Value<String?> ownershipType,
+  Value<String?> commodity,
+  Value<String?> mineType,
+  Value<double?> productionHist,
+  Value<String?> coordinateAccuracy,
+  Value<String?> source,
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
   Value<int> localVersion,
@@ -6232,6 +6801,17 @@ typedef $$MinesTableUpdateCompanionBuilder = MinesCompanion Function({
   Value<double> latitude,
   Value<double> longitude,
   Value<MineStatus> status,
+  Value<String?> company,
+  Value<String?> district,
+  Value<String?> state,
+  Value<String?> ownerCode,
+  Value<String?> ownerName,
+  Value<String?> ownershipType,
+  Value<String?> commodity,
+  Value<String?> mineType,
+  Value<double?> productionHist,
+  Value<String?> coordinateAccuracy,
+  Value<String?> source,
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
   Value<int> localVersion,
@@ -6281,6 +6861,61 @@ class $$MinesTableFilterComposer extends Composer<_$AppDatabase, $MinesTable> {
         column: $table.status,
         builder: (column) => ColumnWithTypeConverterFilters(column),
       );
+
+  ColumnFilters<String> get company => $composableBuilder(
+    column: $table.company,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get district => $composableBuilder(
+    column: $table.district,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get state => $composableBuilder(
+    column: $table.state,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get ownerCode => $composableBuilder(
+    column: $table.ownerCode,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get ownerName => $composableBuilder(
+    column: $table.ownerName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get ownershipType => $composableBuilder(
+    column: $table.ownershipType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get commodity => $composableBuilder(
+    column: $table.commodity,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get mineType => $composableBuilder(
+    column: $table.mineType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get productionHist => $composableBuilder(
+    column: $table.productionHist,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get coordinateAccuracy => $composableBuilder(
+    column: $table.coordinateAccuracy,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnFilters(column),
+  );
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
@@ -6342,6 +6977,61 @@ class $$MinesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get company => $composableBuilder(
+    column: $table.company,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get district => $composableBuilder(
+    column: $table.district,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get state => $composableBuilder(
+    column: $table.state,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get ownerCode => $composableBuilder(
+    column: $table.ownerCode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get ownerName => $composableBuilder(
+    column: $table.ownerName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get ownershipType => $composableBuilder(
+    column: $table.ownershipType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get commodity => $composableBuilder(
+    column: $table.commodity,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get mineType => $composableBuilder(
+    column: $table.mineType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get productionHist => $composableBuilder(
+    column: $table.productionHist,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get coordinateAccuracy => $composableBuilder(
+    column: $table.coordinateAccuracy,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -6387,6 +7077,45 @@ class $$MinesTableAnnotationComposer
 
   GeneratedColumnWithTypeConverter<MineStatus, String> get status =>
       $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<String> get company =>
+      $composableBuilder(column: $table.company, builder: (column) => column);
+
+  GeneratedColumn<String> get district =>
+      $composableBuilder(column: $table.district, builder: (column) => column);
+
+  GeneratedColumn<String> get state =>
+      $composableBuilder(column: $table.state, builder: (column) => column);
+
+  GeneratedColumn<String> get ownerCode =>
+      $composableBuilder(column: $table.ownerCode, builder: (column) => column);
+
+  GeneratedColumn<String> get ownerName =>
+      $composableBuilder(column: $table.ownerName, builder: (column) => column);
+
+  GeneratedColumn<String> get ownershipType => $composableBuilder(
+    column: $table.ownershipType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get commodity =>
+      $composableBuilder(column: $table.commodity, builder: (column) => column);
+
+  GeneratedColumn<String> get mineType =>
+      $composableBuilder(column: $table.mineType, builder: (column) => column);
+
+  GeneratedColumn<double> get productionHist => $composableBuilder(
+    column: $table.productionHist,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get coordinateAccuracy => $composableBuilder(
+    column: $table.coordinateAccuracy,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get source =>
+      $composableBuilder(column: $table.source, builder: (column) => column);
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -6435,6 +7164,17 @@ class $$MinesTableTableManager
                 Value<double> latitude = const Value.absent(),
                 Value<double> longitude = const Value.absent(),
                 Value<MineStatus> status = const Value.absent(),
+                Value<String?> company = const Value.absent(),
+                Value<String?> district = const Value.absent(),
+                Value<String?> state = const Value.absent(),
+                Value<String?> ownerCode = const Value.absent(),
+                Value<String?> ownerName = const Value.absent(),
+                Value<String?> ownershipType = const Value.absent(),
+                Value<String?> commodity = const Value.absent(),
+                Value<String?> mineType = const Value.absent(),
+                Value<double?> productionHist = const Value.absent(),
+                Value<String?> coordinateAccuracy = const Value.absent(),
+                Value<String?> source = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<int> localVersion = const Value.absent(),
@@ -6447,6 +7187,17 @@ class $$MinesTableTableManager
                 latitude: latitude,
                 longitude: longitude,
                 status: status,
+                company: company,
+                district: district,
+                state: state,
+                ownerCode: ownerCode,
+                ownerName: ownerName,
+                ownershipType: ownershipType,
+                commodity: commodity,
+                mineType: mineType,
+                productionHist: productionHist,
+                coordinateAccuracy: coordinateAccuracy,
+                source: source,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 localVersion: localVersion,
@@ -6461,6 +7212,17 @@ class $$MinesTableTableManager
                 required double latitude,
                 required double longitude,
                 required MineStatus status,
+                Value<String?> company = const Value.absent(),
+                Value<String?> district = const Value.absent(),
+                Value<String?> state = const Value.absent(),
+                Value<String?> ownerCode = const Value.absent(),
+                Value<String?> ownerName = const Value.absent(),
+                Value<String?> ownershipType = const Value.absent(),
+                Value<String?> commodity = const Value.absent(),
+                Value<String?> mineType = const Value.absent(),
+                Value<double?> productionHist = const Value.absent(),
+                Value<String?> coordinateAccuracy = const Value.absent(),
+                Value<String?> source = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<int> localVersion = const Value.absent(),
@@ -6473,6 +7235,17 @@ class $$MinesTableTableManager
                 latitude: latitude,
                 longitude: longitude,
                 status: status,
+                company: company,
+                district: district,
+                state: state,
+                ownerCode: ownerCode,
+                ownerName: ownerName,
+                ownershipType: ownershipType,
+                commodity: commodity,
+                mineType: mineType,
+                productionHist: productionHist,
+                coordinateAccuracy: coordinateAccuracy,
+                source: source,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 localVersion: localVersion,

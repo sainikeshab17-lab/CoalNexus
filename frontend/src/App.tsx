@@ -19,7 +19,8 @@ import {
   RefreshCw,
   ArrowRight,
   Plus,
-  Edit2
+  Edit2,
+  X
 } from 'lucide-react';
 
 import { useMines } from './hooks/useMines';
@@ -58,6 +59,7 @@ function DashboardContent() {
   const [activeTab, setActiveTab] = useState<ViewMode>('Overview');
   const [searchTerm, setSearchTerm] = useState('');
   const [filterMine, setFilterMine] = useState('ALL');
+  const [selectedMineId, setSelectedMineId] = useState<string | null>(null);
 
   // Modals
   const [showCreateInspection, setShowCreateInspection] = useState(false);
@@ -249,7 +251,7 @@ function DashboardContent() {
                     {minesLoading ? (
                       <LoadingState message="Loading spatial assets..." />
                     ) : (
-                      <MineRiskMap mines={mines} />
+                      <MineRiskMap mines={mines} onMineSelect={setSelectedMineId} selectedMineId={selectedMineId} />
                     )}
                   </div>
                 </div>
@@ -316,6 +318,7 @@ function DashboardContent() {
                         riskScore={riskScore}
                         riskColor={riskColor}
                         metrics={`Alerts: ${mineAlerts.length}; Open Violations: ${mineViols.length}`}
+                        onClick={() => setSelectedMineId(mine.id)}
                       />
                     );
                   })}
@@ -329,10 +332,11 @@ function DashboardContent() {
               {minesLoading ? (
                 <LoadingState message="Mapping local and server PostGIS point coordinates..." />
               ) : (
-                <MineRiskMap mines={mines} />
+                <MineRiskMap mines={mines} onMineSelect={setSelectedMineId} selectedMineId={selectedMineId} />
               )}
             </div>
           )}
+
 
           {activeTab === 'Inspections' && (
             <div className="bg-coal-900 border border-coal-800 rounded-xl p-5 shadow-xl overflow-x-auto">
@@ -617,9 +621,19 @@ function DashboardContent() {
           onSuccess={refreshCAs}
         />
       )}
+      {selectedMineId && (
+        <MineDetailsContextPanel
+          mineId={selectedMineId}
+          onClose={() => setSelectedMineId(null)}
+          mines={mines}
+          alerts={alerts}
+          violations={violations}
+        />
+      )}
     </div>
   );
 }
+
 
 function SidebarItem({ icon, label, active, onClick }: { icon: React.ReactNode, label: ViewMode, active: boolean, onClick: () => void }) {
   return (
@@ -671,9 +685,9 @@ function TelemetryProgressRow({ label, value, status, color }: { label: string, 
   );
 }
 
-function SectorOverviewCard({ name, status, riskScore, riskColor, metrics }: { name: string, status: string, riskScore: string, riskColor: string, metrics: string }) {
+function SectorOverviewCard({ name, status, riskScore, riskColor, metrics, onClick }: { name: string, status: string, riskScore: string, riskColor: string, metrics: string, onClick?: () => void }) {
   return (
-    <div className="bg-coal-900 border border-coal-800 rounded-xl p-4 shadow-xl flex flex-col justify-between hover:border-coal-700 transition-colors duration-200">
+    <div onClick={onClick} className="bg-coal-900 border border-coal-800 rounded-xl p-4 shadow-xl flex flex-col justify-between hover:border-amber-500/50 transition-colors duration-200 cursor-pointer">
       <div className="flex justify-between items-start mb-2">
         <div>
           <h4 className="text-xs font-bold text-white tracking-wide">{name}</h4>
@@ -690,4 +704,147 @@ function SectorOverviewCard({ name, status, riskScore, riskColor, metrics }: { n
   );
 }
 
+
+function MineDetailsContextPanel({ mineId, onClose, mines, alerts, violations }: { mineId: string, onClose: () => void, mines: any[], alerts: any[], violations: any[] }) {
+  const currentMine = mines.find(m => m.id === mineId || m.local_id === mineId);
+  const { telemetry, loading: telLoading } = useTelemetry(mineId);
+
+  if (!currentMine) return null;
+
+  const mineAlerts = alerts.filter(a => a.mine_id === currentMine.id && !a.is_read);
+  const mineViolations = violations.filter(v => v.mine_id === currentMine.id);
+
+  // Latest single telemetry from hook
+  const activeReading = telemetry && telemetry.length > 0 ? telemetry[0].readings : null;
+
+  return (
+    <div className="fixed inset-y-0 right-0 w-full sm:w-96 bg-coal-900 border-l border-coal-800 shadow-2xl z-50 flex flex-col font-mono text-xs text-slate-200 animate-slide-in">
+      {/* Header */}
+      <div className="p-4 border-b border-coal-800 flex justify-between items-center bg-coal-950">
+        <div>
+          <h3 className="text-sm font-bold text-white uppercase tracking-tight">{currentMine.name}</h3>
+          <p className="text-xxs text-slate-400">Mined Code: {currentMine.mine_code}</p>
+        </div>
+        <button onClick={onClose} className="p-1.5 hover:bg-coal-800 rounded-lg text-slate-400 hover:text-white transition-colors">
+          <X className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* Content Body */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-5">
+        {/* Core Attributes */}
+        <div className="bg-coal-950 border border-coal-800 rounded-lg p-3 space-y-2">
+          <p className="text-xxs font-bold text-amber-500 uppercase tracking-widest border-b border-coal-800 pb-1">Geospatial & Corporate Profile</p>
+          <div className="grid grid-cols-2 gap-y-1.5 gap-x-2 text-xxs">
+            <span className="text-slate-500">Status:</span>
+            <span className="text-right"><StatusBadge status={currentMine.status} /></span>
+
+            <span className="text-slate-500">District:</span>
+            <span className="text-right text-slate-300 truncate">{currentMine.district || 'N/A'}</span>
+
+            <span className="text-slate-500">State:</span>
+            <span className="text-right text-slate-300 truncate">{currentMine.state || 'N/A'}</span>
+
+            <span className="text-slate-500">Owner Name:</span>
+            <span className="text-right text-slate-300 truncate" title={currentMine.owner_name}>{currentMine.owner_name || 'N/A'}</span>
+
+            <span className="text-slate-500">Ownership Type:</span>
+            <span className="text-right text-slate-300">{currentMine.ownership_type || 'N/A'}</span>
+
+            <span className="text-slate-500">Mine Type:</span>
+            <span className="text-right text-slate-300">{currentMine.mine_type || 'N/A'}</span>
+
+            <span className="text-slate-500">Commodity:</span>
+            <span className="text-right text-slate-300">{currentMine.commodity || 'N/A'}</span>
+
+            <span className="text-slate-500">Prod Hist (19-20):</span>
+            <span className="text-right text-amber-400 font-bold">{currentMine.production_hist ? `${currentMine.production_hist} MT` : '0 MT'}</span>
+
+            <span className="text-slate-500">Accuracy Rank:</span>
+            <span className="text-right text-slate-400 text-[10px]">{currentMine.coordinate_accuracy || 'Unverified'}</span>
+          </div>
+          <div className="text-[10px] text-slate-500 text-center pt-1 border-t border-coal-900 font-sans">
+            POINT({currentMine.longitude.toFixed(5)} {currentMine.latitude.toFixed(5)})
+          </div>
+        </div>
+
+        {/* Live Telemetric Risk Levels */}
+        <div className="space-y-2">
+          <p className="text-xxs font-bold text-rose-400 uppercase tracking-widest flex items-center gap-1.5">
+            <Activity className="w-3.5 h-3.5 text-rose-500 animate-pulse" /> Live Telemetric Asset Stream
+          </p>
+
+          {telLoading && telemetry.length === 0 ? (
+            <div className="p-3 bg-coal-950 border border-coal-800 rounded-lg text-slate-500 text-center text-xxs">
+              Polling FastAPI live sockets...
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <TelemetryProgressRow
+                label="Methane (CH₄)"
+                value={`${activeReading?.methane ?? 0.14}%`}
+                status={(activeReading?.methane ?? 0.14) > 1.0 ? 'Critical' : 'Normal'}
+                color="bg-emerald-500"
+              />
+              <TelemetryProgressRow
+                label="Carbon Monoxide"
+                value={`${activeReading?.carbon_monoxide ?? 3.8} ppm`}
+                status={(activeReading?.carbon_monoxide ?? 3.8) > 20 ? 'Elevated' : 'Normal'}
+                color="bg-emerald-500"
+              />
+              <TelemetryProgressRow
+                label="Ambient Temp"
+                value={`${activeReading?.temperature ?? 30.5} °C`}
+                status={(activeReading?.temperature ?? 30.5) > 38 ? 'Elevated' : 'Normal'}
+                color="bg-amber-500"
+              />
+              <TelemetryProgressRow
+                label="Relative Humidity"
+                value={`${activeReading?.humidity ?? 76.1}%`}
+                status="Normal"
+                color="bg-emerald-500"
+              />
+              <TelemetryProgressRow
+                label="Oxygen Saturation"
+                value={`${activeReading?.oxygen ?? 20.9}%`}
+                status={(activeReading?.oxygen ?? 20.9) < 19.5 ? 'Critical' : 'Normal'}
+                color="bg-emerald-500"
+              />
+              <TelemetryProgressRow
+                label="Suspended Dust"
+                value={`${activeReading?.dust ?? 135} mg/m³`}
+                status={(activeReading?.dust ?? 135) > 150 ? 'Critical' : 'Normal'}
+                color="bg-rose-500"
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Operational Indicators */}
+        <div className="bg-coal-950 border border-coal-800 rounded-lg p-3 space-y-2 text-xxs">
+          <p className="text-xxs font-bold text-sky-400 uppercase tracking-widest border-b border-coal-800 pb-1">Safety Incidents & Breaches</p>
+          <div className="flex justify-between">
+            <span className="text-slate-500">Unread System Alerts:</span>
+            <span className={`font-bold ${mineAlerts.length > 0 ? 'text-rose-400' : 'text-slate-400'}`}>{mineAlerts.length}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-slate-500">Total Tracked Violations:</span>
+            <span className={`font-bold ${mineViolations.length > 0 ? 'text-amber-400' : 'text-slate-400'}`}>{mineViolations.length}</span>
+          </div>
+          {mineAlerts.length > 0 && (
+            <div className="mt-2 pt-2 border-t border-coal-900 max-h-24 overflow-y-auto space-y-1 pr-1">
+              {mineAlerts.map((a: any) => (
+                <div key={a.id} className="text-[10px] text-rose-300/90 bg-rose-950/20 border border-rose-900/30 p-1 rounded truncate">
+                  [{a.severity}] {a.title}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default App;
+

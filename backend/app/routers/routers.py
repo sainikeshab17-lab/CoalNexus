@@ -31,13 +31,15 @@ def check_idempotency(db: Session, operation_id: str or None):
 # --- MINES ---
 @router.get("/mines", response_model=List[schemas.Mine])
 def get_mines(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: Profile = Depends(get_current_user_profile)):
-    # If admin, return all mines. Otherwise return only assigned ones.
+    # If admin, return all active mines. Otherwise return only assigned active ones.
     if current_user.role == UserRole.ADMIN.value:
-        return mine_repo.get_all(db, skip=skip, limit=limit)
+        all_mines = mine_repo.get_all(db, skip=skip, limit=limit)
+    else:
+        assigned_mine_ids = [assignment.mine_id for assignment in current_user.mine_assignments]
+        all_mines = mine_repo.get_all(db, skip=skip, limit=limit)
+        all_mines = [m for m in all_mines if m.id in assigned_mine_ids]
     
-    assigned_mine_ids = [assignment.mine_id for assignment in current_user.mine_assignments]
-    all_mines = mine_repo.get_all(db, skip=skip, limit=limit)
-    return [m for m in all_mines if m.id in assigned_mine_ids]
+    return [m for m in all_mines if m.status != "inactive"]
 
 @router.get("/mines/{mine_id}", response_model=schemas.Mine)
 def get_mine(mine_id: str, db: Session = Depends(get_db), current_user: Profile = Depends(get_current_user_profile)):
@@ -65,7 +67,19 @@ def create_mine(mine_in: schemas.MineCreate, db: Session = Depends(get_db), curr
         mine_code=mine_in.mine_code,
         latitude=mine_in.latitude,
         longitude=mine_in.longitude,
+        location=f"POINT({mine_in.longitude} {mine_in.latitude})",
         status=mine_in.status.value,
+        company=mine_in.company,
+        district=mine_in.district,
+        state=mine_in.state,
+        owner_code=mine_in.owner_code,
+        owner_name=mine_in.owner_name,
+        ownership_type=mine_in.ownership_type,
+        commodity=mine_in.commodity,
+        mine_type=mine_in.mine_type,
+        production_hist=mine_in.production_hist,
+        coordinate_accuracy=mine_in.coordinate_accuracy,
+        source=mine_in.source,
         local_version=mine_in.local_version,
         operation_id=mine_in.operation_id
     )
@@ -110,7 +124,19 @@ def update_mine(mine_id: str, mine_in: schemas.MineUpdate, db: Session = Depends
         "mine_code": mine_in.mine_code,
         "latitude": mine_in.latitude,
         "longitude": mine_in.longitude,
+        "location": f"POINT({mine_in.longitude} {mine_in.latitude})",
         "status": mine_in.status.value,
+        "company": mine_in.company,
+        "district": mine_in.district,
+        "state": mine_in.state,
+        "owner_code": mine_in.owner_code,
+        "owner_name": mine_in.owner_name,
+        "ownership_type": mine_in.ownership_type,
+        "commodity": mine_in.commodity,
+        "mine_type": mine_in.mine_type,
+        "production_hist": mine_in.production_hist,
+        "coordinate_accuracy": mine_in.coordinate_accuracy,
+        "source": mine_in.source,
         "local_version": mine_in.local_version,
         "operation_id": mine_in.operation_id
     }

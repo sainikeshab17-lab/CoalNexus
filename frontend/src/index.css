@@ -5,6 +5,12 @@
   --color-coal-900: #171717;
   --color-coal-800: #262626;
   --color-coal-700: #404040;
+
+  @keyframes slide-in {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+  }
+  --animate-slide-in: slide-in 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 :root {

@@ -11,6 +11,17 @@ class Mine {
   final double latitude;
   final double longitude;
   final MineStatus status;
+  final String? company;
+  final String? district;
+  final String? state;
+  final String? ownerCode;
+  final String? ownerName;
+  final String? ownershipType;
+  final String? commodity;
+  final String? mineType;
+  final double? productionHist;
+  final String? coordinateAccuracy;
+  final String? source;
   final DateTime createdAt;
   final DateTime updatedAt;
   final int localVersion;
@@ -23,6 +34,17 @@ class Mine {
     required this.latitude,
     required this.longitude,
     required this.status,
+    this.company,
+    this.district,
+    this.state,
+    this.ownerCode,
+    this.ownerName,
+    this.ownershipType,
+    this.commodity,
+    this.mineType,
+    this.productionHist,
+    this.coordinateAccuracy,
+    this.source,
     required this.createdAt,
     required this.updatedAt,
     this.localVersion = 1,
@@ -40,6 +62,17 @@ class Mine {
           latitude == other.latitude &&
           longitude == other.longitude &&
           status == other.status &&
+          company == other.company &&
+          district == other.district &&
+          state == other.state &&
+          ownerCode == other.ownerCode &&
+          ownerName == other.ownerName &&
+          ownershipType == other.ownershipType &&
+          commodity == other.commodity &&
+          mineType == other.mineType &&
+          productionHist == other.productionHist &&
+          coordinateAccuracy == other.coordinateAccuracy &&
+          source == other.source &&
           createdAt == other.createdAt &&
           updatedAt == other.updatedAt &&
           localVersion == other.localVersion;
@@ -53,6 +86,17 @@ class Mine {
       latitude.hashCode ^
       longitude.hashCode ^
       status.hashCode ^
+      company.hashCode ^
+      district.hashCode ^
+      state.hashCode ^
+      ownerCode.hashCode ^
+      ownerName.hashCode ^
+      ownershipType.hashCode ^
+      commodity.hashCode ^
+      mineType.hashCode ^
+      productionHist.hashCode ^
+      coordinateAccuracy.hashCode ^
+      source.hashCode ^
       createdAt.hashCode ^
       updatedAt.hashCode ^
       localVersion.hashCode;
@@ -65,6 +109,17 @@ class Mine {
     double? latitude,
     double? longitude,
     MineStatus? status,
+    String? company,
+    String? district,
+    String? state,
+    String? ownerCode,
+    String? ownerName,
+    String? ownershipType,
+    String? commodity,
+    String? mineType,
+    double? productionHist,
+    String? coordinateAccuracy,
+    String? source,
     DateTime? createdAt,
     DateTime? updatedAt,
     int? localVersion,
@@ -77,6 +132,17 @@ class Mine {
       latitude: latitude ?? this.latitude,
       longitude: longitude ?? this.longitude,
       status: status ?? this.status,
+      company: company ?? this.company,
+      district: district ?? this.district,
+      state: state ?? this.state,
+      ownerCode: ownerCode ?? this.ownerCode,
+      ownerName: ownerName ?? this.ownerName,
+      ownershipType: ownershipType ?? this.ownershipType,
+      commodity: commodity ?? this.commodity,
+      mineType: mineType ?? this.mineType,
+      productionHist: productionHist ?? this.productionHist,
+      coordinateAccuracy: coordinateAccuracy ?? this.coordinateAccuracy,
+      source: source ?? this.source,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       localVersion: localVersion ?? this.localVersion,

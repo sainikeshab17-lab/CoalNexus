@@ -8,6 +8,17 @@ export interface Mine {
   latitude: number;
   longitude: number;
   status: MineStatus;
+  company?: string;
+  district?: string;
+  state?: string;
+  owner_code?: string;
+  owner_name?: string;
+  ownership_type?: string;
+  commodity?: string;
+  mine_type?: string;
+  production_hist?: number;
+  coordinate_accuracy?: string;
+  source?: string;
   created_at: string;
   updated_at: string;
 }

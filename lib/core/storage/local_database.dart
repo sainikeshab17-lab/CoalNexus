@@ -104,6 +104,17 @@ class Mines extends Table {
   RealColumn get longitude => real()();
   TextColumn get status =>
       text().map(const EnumNameConverter(MineStatus.values))();
+  TextColumn get company => text().nullable()();
+  TextColumn get district => text().nullable()();
+  TextColumn get state => text().nullable()();
+  TextColumn get ownerCode => text().nullable()();
+  TextColumn get ownerName => text().nullable()();
+  TextColumn get ownershipType => text().nullable()();
+  TextColumn get commodity => text().nullable()();
+  TextColumn get mineType => text().nullable()();
+  RealColumn get productionHist => real().nullable()();
+  TextColumn get coordinateAccuracy => text().nullable()();
+  TextColumn get source => text().nullable()();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
   IntColumn get localVersion => integer().withDefault(const Constant(1))();
@@ -207,7 +218,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e, {bool seed = false}) : _shouldSeed = seed;
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration {
@@ -232,6 +243,19 @@ class AppDatabase extends _$AppDatabase {
           await m.addColumn(inspectionFindings, inspectionFindings.severity);
           await m.createTable(correctiveActions);
           await m.createTable(auditTrails);
+        }
+        if (from < 6) {
+          await m.addColumn(mines, mines.company);
+          await m.addColumn(mines, mines.district);
+          await m.addColumn(mines, mines.state);
+          await m.addColumn(mines, mines.ownerCode);
+          await m.addColumn(mines, mines.ownerName);
+          await m.addColumn(mines, mines.ownershipType);
+          await m.addColumn(mines, mines.commodity);
+          await m.addColumn(mines, mines.mineType);
+          await m.addColumn(mines, mines.productionHist);
+          await m.addColumn(mines, mines.coordinateAccuracy);
+          await m.addColumn(mines, mines.source);
         }
       },
       beforeOpen: (details) async {

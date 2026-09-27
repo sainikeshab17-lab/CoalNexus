@@ -20,6 +20,17 @@ class MineBase(BaseModel):
     latitude: float
     longitude: float
     status: MineStatus
+    company: Optional[str] = None
+    district: Optional[str] = None
+    state: Optional[str] = None
+    owner_code: Optional[str] = None
+    owner_name: Optional[str] = None
+    ownership_type: Optional[str] = None
+    commodity: Optional[str] = None
+    mine_type: Optional[str] = None
+    production_hist: Optional[float] = None
+    coordinate_accuracy: Optional[str] = None
+    source: Optional[str] = None
 
 class MineCreate(MineBase, SyncBase):
     pass

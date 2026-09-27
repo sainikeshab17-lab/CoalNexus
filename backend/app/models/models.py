@@ -58,7 +58,7 @@ class Mine(SyncableModel):
     
     name = Column(String, nullable=False)
     mine_code = Column(String, unique=True, nullable=False)
-    company = Column(String, nullable=True, server_default="WCL")
+    company = Column(String, nullable=True)
     district = Column(String, nullable=True)
     state = Column(String, nullable=True)
     latitude = Column(Float, nullable=False)
@@ -66,6 +66,16 @@ class Mine(SyncableModel):
     # PostGIS location
     location = Column(Geometry(geometry_type='POINT', srid=4326))
     status = Column(String, nullable=False) # active, inactive, etc.
+
+    # Dataset fields
+    owner_code = Column(String, nullable=True)
+    owner_name = Column(String, nullable=True)
+    ownership_type = Column(String, nullable=True) # Govt/Private (G/P)
+    commodity = Column(String, nullable=True) # Coal/Lignite
+    mine_type = Column(String, nullable=True) # OC/UG/Mixed
+    production_hist = Column(Float, nullable=True) # Historical master data from 2019-2020
+    coordinate_accuracy = Column(String, nullable=True)
+    source = Column(String, nullable=True)
 
     inspections = relationship("Inspection", back_populates="mine")
     violations = relationship("Violation", back_populates="mine")
