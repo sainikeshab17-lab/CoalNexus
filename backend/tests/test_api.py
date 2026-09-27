@@ -1,7 +1,8 @@
 import pytest
+from fastapi import Depends, HTTPException
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import Session, sessionmaker
 import sys
 import os
 
@@ -10,6 +11,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from app.main import app
 from app.database import Base, get_db
 from app.models.models import UserRole, Profile, UserMineAssignment, Mine
+from app.core.security import get_current_user_profile
 from geoalchemy2 import Geometry
 import geoalchemy2.admin.dialects.sqlite
 
@@ -74,7 +76,20 @@ def override_get_db():
     finally:
         db.close()
 
+current_test_user_id = "demo-admin-id-111"
+
+def override_get_current_user_profile(db: Session = Depends(override_get_db)):
+    if current_test_user_id is None:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    profile = db.query(Profile).filter(Profile.id == current_test_user_id).first()
+    if not profile:
+        raise HTTPException(status_code=401, detail="User profile not found in database")
+    if not profile.is_active:
+        raise HTTPException(status_code=403, detail="User profile is inactive")
+    return profile
+
 app.dependency_overrides[get_db] = override_get_db
+app.dependency_overrides[get_current_user_profile] = override_get_current_user_profile
 
 client = TestClient(app)
 
@@ -222,3 +237,37 @@ def test_corrective_action_workflow():
     response = client.put("/api/corrective-actions/ca1", json=ca_data)
     assert response.status_code == 422
     assert "Invalid corrective action transition" in response.json()["detail"]
+
+def test_unauthenticated_access():
+    global current_test_user_id
+    old_user = current_test_user_id
+    current_test_user_id = None
+    try:
+        response = client.get("/api/mines")
+        assert response.status_code == 401
+    finally:
+        current_test_user_id = old_user
+
+def test_inactive_user_access():
+    global current_test_user_id
+    # Create an inactive user in the DB
+    db = TestingSessionLocal()
+    inactive_user = Profile(
+        id="inactive-user-id",
+        email="inactive@coalnexus.com",
+        full_name="Inactive User",
+        role=UserRole.INSPECTOR.value,
+        is_active=False
+    )
+    db.add(inactive_user)
+    db.commit()
+    db.close()
+    
+    old_user = current_test_user_id
+    current_test_user_id = "inactive-user-id"
+    try:
+        response = client.get("/api/mines")
+        assert response.status_code == 403
+        assert "inactive" in response.json()["detail"].lower()
+    finally:
+        current_test_user_id = old_user
