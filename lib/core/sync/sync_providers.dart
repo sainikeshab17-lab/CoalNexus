@@ -29,7 +29,8 @@ final syncRepositoryProvider = Provider<SyncRepository>((ref) {
 
 final outboxServiceProvider = Provider<OutboxService>((ref) {
   final repository = ref.watch(syncRepositoryProvider);
-  return OutboxService(repository);
+  final apiClient = ref.watch(apiClientProvider);
+  return OutboxService(repository, apiClient: apiClient);
 });
 
 final syncProcessorProvider = Provider<SyncProcessor>((ref) {

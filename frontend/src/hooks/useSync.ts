@@ -8,12 +8,12 @@ import { useAlerts } from './useAlerts';
 import { useAuditTrail } from './useAuditTrail';
 
 export function useSync(manualInit = true) {
-  const { refresh: refreshMines } = useMines(false);
-  const { refresh: refreshInspections } = useInspections(false);
+  const { refresh: refreshMines } = useMines();
+  const { refresh: refreshInspections } = useInspections();
   const { refresh: refreshFindings } = useFindings(false);
-  const { refresh: refreshViolations } = useViolations(false);
-  const { refresh: refreshCAs } = useCorrectiveActions(false);
-  const { refresh: refreshAlerts } = useAlerts(false);
+  const { refresh: refreshViolations } = useViolations();
+  const { refresh: refreshCAs } = useCorrectiveActions();
+  const { refresh: refreshAlerts } = useAlerts();
   const { refresh: refreshAudit } = useAuditTrail(false);
 
   const refreshMap: Record<string, () => void> = {

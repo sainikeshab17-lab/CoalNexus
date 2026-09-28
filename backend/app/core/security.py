@@ -40,18 +40,24 @@ def get_current_user_profile(
                 )
             payload = jwt.decode(token, secret, algorithms=["HS256"], options={"verify_aud": False})
         
-        user_id: str = payload.get("sub")
+        user_id = payload.get("sub")
         if user_id is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid authentication credentials (missing sub claim)",
             )
-    except jwt.PyJWTError:
-            if settings.ENVIRONMENT == "production":
-                raise HTTPException(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="Invalid token",
-                )
+    except jwt.PyJWTError as e:
+        if settings.ENVIRONMENT == "production":
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail=f"Invalid token: {str(e)}",
+            )
+        
+        # Development fallback only
+        try:
+            payload = jwt.decode(token, options={"verify_signature": False, "verify_aud": False})
+            user_id = payload.get("sub") or token
+        except Exception:
             user_id = token
         
     profile = db.query(Profile).filter(Profile.id == user_id).first()

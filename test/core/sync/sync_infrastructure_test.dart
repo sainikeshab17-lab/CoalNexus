@@ -19,7 +19,7 @@ class FakeApiClient implements ApiClient {
   }
 
   @override
-  Future<ApiResponse> get(String path) async {
+  Future<ApiResponse> get(String path, {bool authenticated = true}) async {
     return ApiResponse(statusCode: 200, data: {});
   }
 }

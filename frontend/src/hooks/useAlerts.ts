@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Alert } from '../types';
 import { alertsApi } from '../api/alerts';
 
-export function useAlerts(manualInit = true) {
+export function useAlerts(mineId?: string) {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -10,7 +10,7 @@ export function useAlerts(manualInit = true) {
   const fetchAlerts = async () => {
     try {
       setLoading(true);
-      const data = await alertsApi.getAll();
+      const data = await alertsApi.getAll(mineId ? { mine_id: mineId } : undefined);
       setAlerts(data);
       setError(null);
     } catch (err: any) {
@@ -21,10 +21,8 @@ export function useAlerts(manualInit = true) {
   };
 
   useEffect(() => {
-    if (manualInit) {
-      fetchAlerts();
-    }
-  }, [manualInit]);
+    fetchAlerts();
+  }, [mineId]);
 
   return { alerts, loading, error, refresh: fetchAlerts };
 }

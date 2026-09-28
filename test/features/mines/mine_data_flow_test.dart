@@ -36,6 +36,11 @@ class FakeMineLocalDataSource implements MineLocalDataSource {
   }
 
   @override
+  Future<void> upsertMine(Mine mine, {int? localVersion}) async {
+    _mines[mine.localId] = MineModel.fromDomain(mine, localVersion: localVersion);
+  }
+
+  @override
   Future<void> updateMine(Mine mine, {int? expectedVersion}) async {
     if (expectedVersion != null && _mines[mine.localId]?.localVersion != expectedVersion) {
       throw Exception('Version mismatch');

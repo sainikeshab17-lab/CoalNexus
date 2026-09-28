@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:coalnexus/features/mines/domain/entities/mine.dart';
 import 'package:coalnexus/features/mines/presentation/providers/mine_providers.dart';
@@ -12,8 +13,16 @@ class MineListNotifier extends Notifier<AsyncValue<List<Mine>>> {
 
   @override
   AsyncValue<List<Mine>> build() {
-    loadMines();
+    Future.microtask(() async {
+      await syncAndLoad();
+    });
     return const AsyncValue.loading();
+  }
+
+  Future<void> syncAndLoad() async {
+    final repository = ref.read(mineRepositoryProvider);
+    await repository.syncPublicMines();
+    await loadMines();
   }
 
   Future<void> loadMines() async {
@@ -22,6 +31,7 @@ class MineListNotifier extends Notifier<AsyncValue<List<Mine>>> {
       final mines = _query.isEmpty
           ? await ref.read(getCachedMinesProvider)()
           : await ref.read(searchMinesProvider)(_query);
+      print('[MINE_PROVIDER_COUNT] Provider loaded ${mines.length} mines');
       state = AsyncValue.data(mines);
     } catch (e, st) {
       state = AsyncValue.error(e, st);

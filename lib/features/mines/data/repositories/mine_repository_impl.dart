@@ -78,6 +78,48 @@ class MineRepositoryImpl implements MineRepository {
   }
 
   @override
+  Future<void> syncPublicMines() async {
+    try {
+      print('[MINE_PUBLIC_API] GET /public/mines');
+      final response = await _outboxService.apiClient.get(
+        '/public/mines?limit=500',
+        authenticated: false,
+      );
+
+      print('[MINE_PUBLIC_API_RESPONSE] status=${response.statusCode}');
+
+      if (response.isSuccess) {
+        final List<dynamic> data = response.data;
+        final models = data.map((json) => MineModel.fromJson(json)).toList();
+        print('[MINE_PUBLIC_API_COUNT] count=${models.length}');
+
+        if (models.isNotEmpty) {
+          print('First 3 mine names:');
+          for (var i = 0; i < models.length && i < 3; i++) {
+            print(models[i].name);
+          }
+        }
+
+        await _localDataSource.transaction(() async {
+          for (final model in models) {
+            await _localDataSource.upsertMine(
+              model.toDomain(),
+              localVersion: model.localVersion,
+            );
+          }
+        });
+
+        final finalCount = (await _localDataSource.getCachedMines()).length;
+        print('[MINE_DRIFT_COUNT] count=$finalCount');
+      } else {
+        print('[MINE_PUBLIC_API] Error: ${response.error}');
+      }
+    } catch (e) {
+      print('[MINE_PUBLIC_API] Exception: $e');
+    }
+  }
+
+  @override
   Future<void> createMine(Mine mine) async {
     await _localDataSource.transaction(() async {
       await _localDataSource.saveMine(mine);

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:coalnexus/core/storage/token_storage.dart';
 import 'package:coalnexus/features/auth/data/models/user_model.dart';
 import 'package:coalnexus/features/auth/domain/repositories/auth_repository.dart';
@@ -60,13 +61,33 @@ class AuthRepositoryImpl implements AuthRepository {
       isActive: true,
     );
 
-    // Store tokens securely
-    await _tokenStorage.saveAccessToken('mock_access_token_${user.id}');
+    // Store tokens securely with structured JWT for backend/offline compatibility
+    final accessToken = _createMockJwt(user.id, user.email, user.role.name);
+    await _tokenStorage.saveAccessToken(accessToken);
     await _tokenStorage.saveRefreshToken('mock_refresh_token_${user.id}');
 
     // Simulate serializing/storing user metadata if needed, but here we keep in memory
     _currentUser = user;
     return user;
+  }
+
+  String _createMockJwt(String userId, String email, String role) {
+    final header = {'alg': 'HS256', 'typ': 'JWT'};
+    final payload = {
+      'sub': userId,
+      'email': email,
+      'role': role,
+      'exp': DateTime.now().add(const Duration(days: 7)).millisecondsSinceEpoch ~/ 1000,
+    };
+
+    final headerBase64 =
+        base64Url.encode(utf8.encode(jsonEncode(header))).replaceAll('=', '');
+    final payloadBase64 =
+        base64Url.encode(utf8.encode(jsonEncode(payload))).replaceAll('=', '');
+    final signatureBase64 =
+        base64Url.encode(utf8.encode('mock_signature')).replaceAll('=', '');
+
+    return '$headerBase64.$payloadBase64.$signatureBase64';
   }
 
   @override
@@ -81,24 +102,70 @@ class AuthRepositoryImpl implements AuthRepository {
     final token = await _tokenStorage.getAccessToken();
     if (token == null) return null;
 
-    // Simulate recovery from token or cached profile
-    // In production this might read from local db or decode non-sensitive JWT claims.
-    // For development, reconstruct an inspector user using the token suffix
-    final parts = token.split('_');
-    final id = parts.isNotEmpty ? parts.last : 'recovered_user';
+    String id = 'recovered_user';
+    String email = 'operator@coalnexus.gov.in';
+    UserRole role = UserRole.inspector;
+
+    try {
+      final parts = token.split('.');
+      if (parts.length == 3) {
+        var payloadPart = parts[1];
+        // Normalize padding for base64url
+        while (payloadPart.length % 4 != 0) {
+          payloadPart += '=';
+        }
+        final payloadJson = utf8.decode(base64Url.decode(payloadPart));
+        final payload = jsonDecode(payloadJson) as Map<String, dynamic>;
+        id = payload['sub'] as String? ?? id;
+        email = payload['email'] as String? ?? email;
+        final roleStr = payload['role'] as String?;
+        if (roleStr != null) {
+          role = UserRole.values.firstWhere(
+            (e) => e.name.toLowerCase() == roleStr.toLowerCase(),
+            orElse: () => UserRole.inspector,
+          );
+        }
+      } else {
+        // Fallback for old token formats
+        final partsOld = token.split('_');
+        id = partsOld.isNotEmpty ? partsOld.last : 'recovered_user';
+      }
+    } catch (e) {
+      // Log and fallback
+      print('[AUTH_SYNC] Token recovery error: $e');
+      final partsOld = token.split('_');
+      id = partsOld.isNotEmpty ? partsOld.last : 'recovered_user';
+    }
+
+    // Role simulation based on recovered role
+    Set<UserPermission> permissions = {
+      UserPermission.viewDashboard,
+      UserPermission.viewMine,
+      UserPermission.createInspection,
+      UserPermission.submitInspection,
+      UserPermission.viewViolation,
+    };
+
+    if (role == UserRole.admin) {
+      permissions = UserPermission.values.toSet();
+    } else if (role == UserRole.manager) {
+      permissions = {
+        UserPermission.viewDashboard,
+        UserPermission.viewMine,
+        UserPermission.viewViolation,
+        UserPermission.createViolation,
+        UserPermission.assignCorrectiveAction,
+        UserPermission.verifyCorrectiveAction,
+        UserPermission.viewRisk,
+      };
+    }
 
     _currentUser = UserModel(
       id: id,
-      name: 'OPERATOR',
-      email: 'operator@coalnexus.gov.in',
-      role: UserRole.inspector,
-      permissions: const {
-        UserPermission.viewDashboard,
-        UserPermission.viewMine,
-        UserPermission.createInspection,
-        UserPermission.submitInspection,
-        UserPermission.viewViolation,
-      },
+      name: email.split('@').first.toUpperCase(),
+      email: email,
+      role: role,
+      permissions: permissions,
       isActive: true,
     );
     return _currentUser;

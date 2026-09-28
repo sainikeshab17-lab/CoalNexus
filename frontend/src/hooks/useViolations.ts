@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Violation } from '../types';
 import { violationsApi } from '../api/violations';
 
-export function useViolations(manualInit = true) {
+export function useViolations(mineId?: string) {
   const [violations, setViolations] = useState<Violation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -10,7 +10,7 @@ export function useViolations(manualInit = true) {
   const fetchViolations = async () => {
     try {
       setLoading(true);
-      const data = await violationsApi.getAll();
+      const data = await violationsApi.getAll(mineId ? { mine_id: mineId } : undefined);
       setViolations(data);
       setError(null);
     } catch (err: any) {
@@ -21,10 +21,8 @@ export function useViolations(manualInit = true) {
   };
 
   useEffect(() => {
-    if (manualInit) {
-      fetchViolations();
-    }
-  }, [manualInit]);
+    fetchViolations();
+  }, [mineId]);
 
   return { violations, loading, error, refresh: fetchViolations };
 }

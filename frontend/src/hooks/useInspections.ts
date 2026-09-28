@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Inspection } from '../types';
 import { inspectionsApi } from '../api/inspections';
 
-export function useInspections(manualInit = true) {
+export function useInspections(mineId?: string) {
   const [inspections, setInspections] = useState<Inspection[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -10,7 +10,7 @@ export function useInspections(manualInit = true) {
   const fetchInspections = async () => {
     try {
       setLoading(true);
-      const data = await inspectionsApi.getAll();
+      const data = await inspectionsApi.getAll(mineId ? { mine_id: mineId } : undefined);
       setInspections(data);
       setError(null);
     } catch (err: any) {
@@ -21,10 +21,8 @@ export function useInspections(manualInit = true) {
   };
 
   useEffect(() => {
-    if (manualInit) {
-      fetchInspections();
-    }
-  }, [manualInit]);
+    fetchInspections();
+  }, [mineId]);
 
   return { inspections, loading, error, refresh: fetchInspections };
 }

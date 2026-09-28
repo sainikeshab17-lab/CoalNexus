@@ -9,6 +9,7 @@ import 'package:coalnexus/features/risk/domain/entities/risk_score.dart';
 import 'package:coalnexus/features/risk/presentation/providers/risk_providers.dart';
 import 'package:coalnexus/features/risk/presentation/widgets/risk_overview_widget.dart';
 import 'package:coalnexus/features/map/presentation/widgets/mine_risk_map.dart';
+import 'package:coalnexus/features/mines/presentation/providers/mine_list_provider.dart';
 import 'package:coalnexus/features/mines/presentation/providers/mine_providers.dart';
 import 'package:coalnexus/features/iot/domain/repositories/sensor_repository.dart';
 import 'package:coalnexus/features/iot/presentation/providers/iot_providers.dart';
@@ -24,6 +25,10 @@ class DashboardShellScreen extends ConsumerWidget {
     final inspectionCount =
         ref.watch(inspectionListProvider).value?.length ?? 0;
     final violationCount = ref.watch(violationListProvider).value?.length ?? 0;
+
+    final mineListAsync = ref.watch(mineListProvider);
+    final totalMinesCount = mineListAsync.value?.length ?? 0;
+    print('[DASH_MINE_COUNT] Dashboard showing $totalMinesCount mines');
 
     final allRisks = ref.watch(allMinesRiskProvider).value ?? [];
     final highRiskMinesCount = allRisks
@@ -71,11 +76,20 @@ class DashboardShellScreen extends ConsumerWidget {
             LayoutBuilder(
               builder: (context, constraints) {
                 final double itemWidth =
-                    (constraints.maxWidth - (AppSpacing.xs * 3)) / 4;
+                    (constraints.maxWidth - (AppSpacing.xs * 4)) / 5;
                 return Wrap(
                   spacing: AppSpacing.xs,
                   runSpacing: AppSpacing.xs,
                   children: [
+                    SizedBox(
+                      width: itemWidth.clamp(70.0, double.infinity),
+                      child: _StatCard(
+                        count: totalMinesCount.toString().padLeft(2, '0'),
+                        label: 'Total Mines',
+                        icon: Icons.layers_outlined,
+                        onTap: () => context.go('/mines'),
+                      ),
+                    ),
                     SizedBox(
                       width: itemWidth.clamp(70.0, double.infinity),
                       child: _StatCard(
@@ -190,7 +204,7 @@ class DashboardShellScreen extends ConsumerWidget {
                       ),
                     ),
                     subtitle: const Text(
-                      'WCL Umrer • 2 hours ago',
+                      'Routine Inspection Completed • 2 hours ago',
                       style: TextStyle(fontSize: 11),
                     ),
                   ),
@@ -493,7 +507,7 @@ class _SimulationControlPanel extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      'WCL Umrer Emergency Scenario',
+                      'Emergency Simulation Scenario',
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.w900,
                         color: Colors.black87,

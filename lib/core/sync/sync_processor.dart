@@ -99,7 +99,9 @@ class SyncProcessorImpl implements SyncProcessor {
       ApiResponse response;
       final action = item.actionType.toUpperCase();
 
-      if (action.contains('CREATE')) {
+      print('[SYNC_DEBUG] Syncing ${item.featureName} action=$action path=$path');
+
+      if (action.contains('CREATE') || action.contains('ADD')) {
         response = await _apiClient.post(path, payload);
       } else if (action.contains('UPDATE')) {
         final id = item.serverId ?? item.localId;
@@ -111,6 +113,7 @@ class SyncProcessorImpl implements SyncProcessor {
         }
       } else {
         // Fallback or not supported action type
+        print('[SYNC_DEBUG] Action $action not mapped to remote, using simulation.');
         response = ApiResponse(
           statusCode: 200,
           data: {'id': item.serverId ?? 'srv_${item.localId}'},

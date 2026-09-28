@@ -5,6 +5,7 @@ abstract class MineRepository {
   Future<Mine?> getMineById(String id);
   Future<List<Mine>> searchMines(String query);
   Future<void> refreshMines();
+  Future<void> syncPublicMines();
   Future<void> createMine(Mine mine);
   Future<void> updateMine(Mine mine);
   Future<void> deleteMine(String id);

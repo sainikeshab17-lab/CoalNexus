@@ -9,6 +9,7 @@ abstract class MineLocalDataSource {
   Future<MineModel?> getMineById(String id);
   Future<List<MineModel>> searchMines(String query);
   Future<void> saveMine(Mine mine, {int localVersion = 1});
+  Future<void> upsertMine(Mine mine, {int? localVersion});
   Future<void> updateMine(Mine mine, {int? expectedVersion});
   Future<void> deleteMine(String id);
   Future<void> clearAllMines();
@@ -50,6 +51,12 @@ class MineLocalDataSourceImpl implements MineLocalDataSource {
   Future<void> saveMine(Mine mine, {int localVersion = 1}) async {
     final entity = MineMapper.toEntity(mine, localVersion: localVersion);
     await _database.into(_database.mines).insert(entity);
+  }
+
+  @override
+  Future<void> upsertMine(Mine mine, {int? localVersion}) async {
+    final entity = MineMapper.toEntity(mine, localVersion: localVersion);
+    await _database.into(_database.mines).insertOnConflictUpdate(entity);
   }
 
   @override

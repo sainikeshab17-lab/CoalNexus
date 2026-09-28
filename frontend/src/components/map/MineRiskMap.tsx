@@ -35,12 +35,15 @@ function ChangeView({ center }: { center: [number, number] }) {
   return null;
 }
 
-export function MineRiskMap({ mines, onMineSelect }: MineRiskMapProps) {
+export function MineRiskMap({ mines, onMineSelect, selectedMineId }: MineRiskMapProps) {
   // Let's filter out mines with 0,0 coordinates for center calculation to zoom into actual data points
   const validMines = mines.filter(m => m.latitude !== 0 || m.longitude !== 0);
-  const center: [number, number] = validMines.length > 0
-    ? [validMines[0].latitude, validMines[0].longitude]
-    : [20.5937, 78.9629]; // India center
+  const selectedMine = selectedMineId ? mines.find(m => m.id === selectedMineId) : null;
+  const center: [number, number] = selectedMine && (selectedMine.latitude !== 0 || selectedMine.longitude !== 0)
+    ? [selectedMine.latitude, selectedMine.longitude]
+    : validMines.length > 0
+      ? [validMines[0].latitude, validMines[0].longitude]
+      : [20.5937, 78.9629]; // India center
 
   return (
     <div className="h-full w-full rounded-lg overflow-hidden border border-coal-800">

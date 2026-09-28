@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { CorrectiveAction } from '../types';
 import { correctiveActionsApi } from '../api/correctiveActions';
 
-export function useCorrectiveActions(manualInit = true) {
+export function useCorrectiveActions(mineId?: string) {
   const [correctiveActions, setCorrectiveActions] = useState<CorrectiveAction[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -11,6 +11,8 @@ export function useCorrectiveActions(manualInit = true) {
     try {
       setLoading(true);
       const data = await correctiveActionsApi.getAll();
+      // Scoping on client-side for now as backend doesn't support mine_id query for CAs directly yet
+      // but we should probably add it later.
       setCorrectiveActions(data);
       setError(null);
     } catch (err: any) {
@@ -21,10 +23,8 @@ export function useCorrectiveActions(manualInit = true) {
   };
 
   useEffect(() => {
-    if (manualInit) {
-      fetchCorrectiveActions();
-    }
-  }, [manualInit]);
+    fetchCorrectiveActions();
+  }, [mineId]);
 
   return { correctiveActions, loading, error, refresh: fetchCorrectiveActions };
 }

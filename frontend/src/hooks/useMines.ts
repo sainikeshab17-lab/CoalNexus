@@ -1,16 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Mine } from '../types';
-import { minesApi } from '../api/mines';
+import { minesApi, MineFilters } from '../api/mines';
 
-export function useMines(manualInit = true) {
+export function useMines(manualInitOrFilters: boolean | MineFilters = true) {
   const [mines, setMines] = useState<Mine[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchMines = async () => {
+  const fetchMines = useCallback(async (filters?: MineFilters) => {
+    setLoading(true);
     try {
-      setLoading(true);
-      const data = await minesApi.getAll();
+      const data = await minesApi.getAll(filters);
       setMines(data);
       setError(null);
     } catch (err: any) {
@@ -18,13 +18,17 @@ export function useMines(manualInit = true) {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    if (manualInit) {
-      fetchMines();
+    if (typeof manualInitOrFilters === 'boolean') {
+      if (manualInitOrFilters) {
+        fetchMines();
+      }
+    } else {
+      fetchMines(manualInitOrFilters);
     }
-  }, [manualInit]);
+  }, [manualInitOrFilters, fetchMines]);
 
   return { mines, loading, error, refresh: fetchMines };
 }

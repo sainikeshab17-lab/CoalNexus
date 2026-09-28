@@ -283,7 +283,7 @@ class AppDatabase extends _$AppDatabase {
     // 1. Seed Mines
     final mineIds = ['seed_m1', 'seed_m2', 'seed_m3', 'seed_m4', 'seed_m5'];
     final mineNames = [
-      'WCL Umrer',
+      'ENA Colliery',
       'Raniganj Mine',
       'Korba East Block',
       'Singrauli Main',
