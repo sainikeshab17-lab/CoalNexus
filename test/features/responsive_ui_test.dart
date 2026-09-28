@@ -7,7 +7,25 @@ import 'package:coalnexus/features/profile/presentation/profile_shell_screen.dar
 import 'package:coalnexus/core/widgets/app_widgets.dart';
 import 'package:coalnexus/features/mines/presentation/providers/mine_providers.dart';
 import 'package:coalnexus/core/storage/local_database.dart';
+import 'package:coalnexus/features/auth/presentation/providers/auth_provider.dart';
+import 'package:coalnexus/features/auth/presentation/providers/auth_state.dart';
+import 'package:coalnexus/shared/domain/entities/user.dart';
 import 'package:drift/native.dart';
+
+class FakeAuthNotifier extends AuthNotifier {
+  @override
+  AuthState build() {
+    return AuthState.authenticated(
+      const User(
+        id: '1',
+        name: 'Rahul Sharma',
+        email: 'rahul@coalnexus.gov',
+        role: UserRole.inspector,
+        permissions: {},
+      ),
+    );
+  }
+}
 
 void main() {
   Widget createTestWidget(Widget child) {
@@ -18,6 +36,7 @@ void main() {
           ref.onDispose(() => db.close());
           return db;
         }),
+        authNotifierProvider.overrideWith(() => FakeAuthNotifier()),
       ],
       child: MaterialApp(
         home: Scaffold(body: child),
@@ -52,9 +71,9 @@ void main() {
 
     // Since AuthNotifier defaults to initializing, let's see what is rendered.
     // Let's use textContaining to see what text is found. It's usually 'Guest User' if token is null.
-    expect(find.textContaining('User'), findsOneWidget);
-    expect(find.textContaining('Role'), findsOneWidget);
-    expect(find.textContaining('Synchronized'), findsOneWidget);
+    expect(find.text('Rahul Sharma'), findsOneWidget);
+    expect(find.textContaining('Role: INSPECTOR'), findsOneWidget);
+    expect(find.textContaining('Database Synchronized'), findsOneWidget);
 
     await tester.pumpWidget(const SizedBox());
     await tester.pump(const Duration(milliseconds: 100));
