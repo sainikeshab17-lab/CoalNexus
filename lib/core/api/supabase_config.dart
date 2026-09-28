@@ -1,4 +1,10 @@
 class SupabaseConfig {
-  static const String url = 'https://[REF].supabase.co'; // Replace with actual URL or use environment variables
-  static const String anonKey = 'your-anon-key'; // Replace with actual key or use environment variables
+  static const String url = String.fromEnvironment(
+    'SUPABASE_URL',
+    defaultValue: 'https://zbgcecjbcliugltmirii.supabase.co',
+  );
+  static const String publishableKey = String.fromEnvironment(
+    'SUPABASE_PUBLISHABLE_KEY',
+    defaultValue: 'sb_publishable_pCgLYGcUf56CFlLh2uG5LA_viQSM7bU',
+  );
 }
