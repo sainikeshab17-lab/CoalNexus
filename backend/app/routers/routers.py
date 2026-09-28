@@ -29,6 +29,15 @@ def check_idempotency(db: Session, operation_id: str or None):
     return False
 
 # --- MINES ---
+@router.get("/public/mines", response_model=List[schemas.Mine])
+def get_public_mines(skip: int = 0, limit: int = 500, db: Session = Depends(get_db)):
+    """
+    Public read-only access to the mine dataset.
+    Returns all active mines without authentication.
+    """
+    all_mines = mine_repo.get_all(db, skip=skip, limit=limit)
+    return [m for m in all_mines if m.status != "inactive"]
+
 @router.get("/mines", response_model=List[schemas.Mine])
 def get_mines(skip: int = 0, limit: int = 500, db: Session = Depends(get_db), current_user: Profile = Depends(get_current_user_profile)):
     # If admin, return all active mines. Otherwise return only assigned active ones.

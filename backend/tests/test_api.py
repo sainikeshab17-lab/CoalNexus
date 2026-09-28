@@ -271,3 +271,26 @@ def test_inactive_user_access():
         assert "inactive" in response.json()["detail"].lower()
     finally:
         current_test_user_id = old_user
+
+def test_public_mines_access():
+    global current_test_user_id
+    # Ensure even unauthenticated or any users can access the public endpoint
+    old_user = current_test_user_id
+    current_test_user_id = None
+    try:
+        # Create a mine first via admin to make sure we have data
+        current_test_user_id = "demo-admin-id-111"
+        client.post("/api/mines", json={
+            "local_id": "pub_m1", "name": "Public Mine 1", "mine_code": "PM001", "latitude": 22.5, "longitude": 85.3, "status": "active", "operation_id": "op_pub_1"
+        }, headers={"Authorization": "Bearer demo-admin-id-111"})
+
+        # Switch to unauthenticated
+        current_test_user_id = None
+        response = client.get("/api/public/mines")
+        assert response.status_code == 200
+        data = response.json()
+        assert len(data) >= 1
+        assert any(m["local_id"] == "pub_m1" for m in data)
+    finally:
+        current_test_user_id = old_user
+
