@@ -1,7 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 import uuid
 
 from ..database import get_db
@@ -30,26 +30,92 @@ def check_idempotency(db: Session, operation_id: str or None):
 
 # --- MINES ---
 @router.get("/public/mines", response_model=List[schemas.Mine])
-def get_public_mines(skip: int = 0, limit: int = 500, db: Session = Depends(get_db)):
+def get_public_mines(
+    skip: int = Query(0, ge=0),
+    limit: int = Query(500, ge=1, le=500),
+    state: Optional[str] = None,
+    district: Optional[str] = None,
+    owner_code: Optional[str] = None,
+    owner: Optional[str] = None,
+    mine_type: Optional[str] = None,
+    ownership_type: Optional[str] = None,
+    commodity: Optional[str] = None,
+    status: Optional[str] = "active",
+    search: Optional[str] = None,
+    sort_by: Optional[str] = None,
+    sort_order: str = Query("asc", regex="^(asc|desc)$"),
+    db: Session = Depends(get_db)
+):
     """
-    Public read-only access to the mine dataset.
-    Returns all active mines without authentication.
+    Public read-only access to the mine dataset with filtering, search, sorting, and pagination.
+    Returns active mines by default without authentication.
     """
-    all_mines = mine_repo.get_all(db, skip=skip, limit=limit)
-    return [m for m in all_mines if m.status != "inactive"]
+    if sort_by and sort_by not in ["name", "state", "district", "company", "mine_code"]:
+        raise HTTPException(status_code=400, detail=f"Unsupported sort field: {sort_by}")
+        
+    return mine_repo.get_mines_filtered(
+        db,
+        skip=skip,
+        limit=limit,
+        state=state,
+        district=district,
+        owner_code=owner_code,
+        company=owner, # map owner parameter to company field
+        mine_type=mine_type,
+        ownership_type=ownership_type,
+        commodity=commodity,
+        status=status,
+        search=search,
+        sort_by=sort_by,
+        sort_order=sort_order
+    )
 
 @router.get("/mines", response_model=List[schemas.Mine])
-def get_mines(skip: int = 0, limit: int = 500, db: Session = Depends(get_db), current_user: Profile = Depends(get_current_user_profile)):
-    # If admin, return all active mines. Otherwise return only assigned active ones.
+def get_mines(
+    skip: int = Query(0, ge=0),
+    limit: int = Query(500, ge=1, le=500),
+    state: Optional[str] = None,
+    district: Optional[str] = None,
+    owner_code: Optional[str] = None,
+    owner: Optional[str] = None,
+    mine_type: Optional[str] = None,
+    ownership_type: Optional[str] = None,
+    commodity: Optional[str] = None,
+    status: Optional[str] = "active",
+    search: Optional[str] = None,
+    sort_by: Optional[str] = None,
+    sort_order: str = Query("asc", regex="^(asc|desc)$"),
+    db: Session = Depends(get_db),
+    current_user: Profile = Depends(get_current_user_profile)
+):
+    if sort_by and sort_by not in ["name", "state", "district", "company", "mine_code"]:
+        raise HTTPException(status_code=400, detail=f"Unsupported sort field: {sort_by}")
+
+    # If admin, return all active/filtered mines. Otherwise return only assigned ones.
     if current_user.role == UserRole.ADMIN.value:
-        all_mines = mine_repo.get_all(db, skip=skip, limit=limit)
+        mine_ids = None
     else:
-        assigned_mine_ids = [assignment.mine_id for assignment in current_user.mine_assignments]
-        # For non-admins, we still want to respect the limit but filter by assignment
-        all_mines = mine_repo.get_all(db, skip=skip, limit=limit)
-        all_mines = [m for m in all_mines if m.id in assigned_mine_ids]
-    
-    return [m for m in all_mines if m.status != "inactive"]
+        mine_ids = [assignment.mine_id for assignment in current_user.mine_assignments]
+        if not mine_ids:
+            return []
+            
+    return mine_repo.get_mines_filtered(
+        db,
+        skip=skip,
+        limit=limit,
+        state=state,
+        district=district,
+        owner_code=owner_code,
+        company=owner,
+        mine_type=mine_type,
+        ownership_type=ownership_type,
+        commodity=commodity,
+        status=status,
+        search=search,
+        sort_by=sort_by,
+        sort_order=sort_order,
+        mine_ids=mine_ids
+    )
 
 @router.get("/mines/{mine_id}", response_model=schemas.Mine)
 def get_mine(mine_id: str, db: Session = Depends(get_db), current_user: Profile = Depends(get_current_user_profile)):
@@ -167,7 +233,19 @@ def update_mine(mine_id: str, mine_in: schemas.MineUpdate, db: Session = Depends
 
 # --- INSPECTIONS ---
 @router.get("/inspections", response_model=List[schemas.Inspection])
-def get_inspections(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: Profile = Depends(get_current_user_profile)):
+def get_inspections(
+    mine_id: Optional[str] = None,
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    current_user: Profile = Depends(get_current_user_profile)
+):
+    if mine_id:
+        mine_obj = mine_repo.get_by_id(db, mine_id) or mine_repo.get_by_local_id(db, mine_id)
+        if not mine_obj:
+            raise HTTPException(status_code=404, detail="Mine not found")
+        mine_access_checker.check_mine_access(db, current_user, mine_obj.id)
+        return inspection_repo.get_by_mine(db, mine_obj.id)
     return inspection_repo.get_all(db, skip=skip, limit=limit)
 
 @router.post("/inspections", response_model=schemas.Inspection)
@@ -260,7 +338,19 @@ def update_inspection(insp_id: str, insp_in: schemas.InspectionCreate, db: Sessi
 
 # --- VIOLATIONS ---
 @router.get("/violations", response_model=List[schemas.Violation])
-def get_violations(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: Profile = Depends(get_current_user_profile)):
+def get_violations(
+    mine_id: Optional[str] = None,
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    current_user: Profile = Depends(get_current_user_profile)
+):
+    if mine_id:
+        mine_obj = mine_repo.get_by_id(db, mine_id) or mine_repo.get_by_local_id(db, mine_id)
+        if not mine_obj:
+            raise HTTPException(status_code=404, detail="Mine not found")
+        mine_access_checker.check_mine_access(db, current_user, mine_obj.id)
+        return violation_repo.get_by_mine(db, mine_obj.id)
     return violation_repo.get_all(db, skip=skip, limit=limit)
 
 @router.post("/violations", response_model=schemas.Violation)
@@ -461,7 +551,19 @@ def update_finding(finding_id: str, finding_in: schemas.FindingCreate, db: Sessi
 
 # --- ALERTS ---
 @router.get("/alerts", response_model=List[schemas.Alert])
-def get_alerts(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: Profile = Depends(get_current_user_profile)):
+def get_alerts(
+    mine_id: Optional[str] = None,
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    current_user: Profile = Depends(get_current_user_profile)
+):
+    if mine_id:
+        mine_obj = mine_repo.get_by_id(db, mine_id) or mine_repo.get_by_local_id(db, mine_id)
+        if not mine_obj:
+            raise HTTPException(status_code=404, detail="Mine not found")
+        mine_access_checker.check_mine_access(db, current_user, mine_obj.id)
+        return alert_repo.get_by_mine(db, mine_obj.id)
     return alert_repo.get_all(db, skip=skip, limit=limit)
 
 @router.post("/alerts", response_model=schemas.Alert)

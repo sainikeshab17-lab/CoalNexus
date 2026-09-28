@@ -7,69 +7,20 @@ from geoalchemy2.elements import WKTElement
 def seed_database():
     db: Session = SessionLocal()
     try:
-        print("Seeding WCL Mines...")
+        print("Seeding Initial Authentic Mines...")
         
-        # 3 Mandatory WCL Mines data
-        mines_data = [
-            {
-                "id": str(uuid.uuid4()),
-                "name": "WCL Umrer",
-                "mine_code": "WCL_UMRER",
-                "company": "WCL",
-                "district": "Nagpur",
-                "state": "Maharashtra",
-                "latitude": 20.8545,
-                "longitude": 79.3242,
-                "status": "active"
-            },
-            {
-                "id": str(uuid.uuid4()),
-                "name": "WCL Majri",
-                "mine_code": "WCL_MAJRI",
-                "company": "WCL",
-                "district": "Chandrapur",
-                "state": "Maharashtra",
-                "latitude": 20.1415,
-                "longitude": 79.0305,
-                "status": "active"
-            },
-            {
-                "id": str(uuid.uuid4()),
-                "name": "WCL Ballarpur",
-                "mine_code": "WCL_BALLARPUR",
-                "company": "WCL",
-                "district": "Chandrapur",
-                "state": "Maharashtra",
-                "latitude": 19.8451,
-                "longitude": 79.3496,
-                "status": "active"
-            }
-        ]
-
+        # We use a few authentic mine codes for demo user assignments.
+        # These mines should already exist from the Excel import.
+        
         inserted_mines = {}
-        for mine_info in mines_data:
-            existing_mine = db.query(Mine).filter(Mine.mine_code == mine_info["mine_code"]).first()
-            if not existing_mine:
-                # Use WKTElement for PostGIS location Point(longitude, latitude)
-                loc_wkt = f"POINT({mine_info['longitude']} {mine_info['latitude']})"
-                mine_obj = Mine(
-                    id=mine_info["id"],
-                    name=mine_info["name"],
-                    mine_code=mine_info["mine_code"],
-                    company=mine_info["company"],
-                    district=mine_info["district"],
-                    state=mine_info["state"],
-                    latitude=mine_info["latitude"],
-                    longitude=mine_info["longitude"],
-                    location=WKTElement(loc_wkt, srid=4326),
-                    status=mine_info["status"]
-                )
-                db.add(mine_obj)
-                inserted_mines[mine_info["mine_code"]] = mine_obj
-                print(f"Added mine: {mine_info['name']}")
+        mine_codes = ["IND_BCCL_108", "IND_BCCL_109"]
+        for code in mine_codes:
+            existing_mine = db.query(Mine).filter(Mine.mine_code == code).first()
+            if existing_mine:
+                inserted_mines[code] = existing_mine
+                print(f"Found authentic mine for seeding: {existing_mine.name}")
             else:
-                inserted_mines[mine_info["mine_code"]] = existing_mine
-                print(f"Mine already exists: {mine_info['name']}")
+                print(f"WARNING: Authentic mine {code} not found in DB. Run import first.")
 
         db.commit()
 
@@ -90,7 +41,7 @@ def seed_database():
                 "full_name": "Mine Safety Officer",
                 "role": UserRole.OFFICER.value,
                 "is_active": True,
-                "assigned_mines": ["WCL_UMRER", "WCL_MAJRI"]
+                "assigned_mines": ["IND_BCCL_108", "IND_BCCL_109"]
             },
             {
                 "id": "demo-inspector-id-333",
@@ -98,7 +49,7 @@ def seed_database():
                 "full_name": "Safety Inspector",
                 "role": UserRole.INSPECTOR.value,
                 "is_active": True,
-                "assigned_mines": ["WCL_UMRER", "WCL_BALLARPUR"]
+                "assigned_mines": ["IND_BCCL_108", "IND_BCCL_109"]
             }
         ]
 

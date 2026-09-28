@@ -37,6 +37,9 @@ engine = create_engine(
 )
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+# Import all models to ensure they are registered on Base.metadata before create_all
+from app.models.models import ProcessedOperation
+
 Base.metadata.create_all(bind=engine)
 
 @pytest.fixture(autouse=True)

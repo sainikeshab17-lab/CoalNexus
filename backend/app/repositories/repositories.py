@@ -11,6 +11,78 @@ class MineRepository(BaseRepository[Mine]):
     def get_by_code(self, db: Session, mine_code: str) -> Optional[Mine]:
         return db.query(Mine).filter(Mine.mine_code == mine_code).first()
 
+    def get_mines_filtered(
+        self,
+        db: Session,
+        *,
+        skip: int = 0,
+        limit: int = 500,
+        state: Optional[str] = None,
+        district: Optional[str] = None,
+        owner_code: Optional[str] = None,
+        company: Optional[str] = None,
+        mine_type: Optional[str] = None,
+        ownership_type: Optional[str] = None,
+        commodity: Optional[str] = None,
+        status: Optional[str] = "active",
+        search: Optional[str] = None,
+        sort_by: Optional[str] = None,
+        sort_order: str = "asc",
+        mine_ids: Optional[List[str]] = None
+    ) -> List[Mine]:
+        query = db.query(Mine)
+        
+        if status:
+            query = query.filter(Mine.status == status)
+            
+        if state:
+            query = query.filter(Mine.state.ilike(f"%{state.strip()}%"))
+        if district:
+            query = query.filter(Mine.district.ilike(f"%{district.strip()}%"))
+        if owner_code:
+            query = query.filter(Mine.owner_code.ilike(f"%{owner_code.strip()}%"))
+        if company:
+            query = query.filter(Mine.company.ilike(f"%{company.strip()}%"))
+        if mine_type:
+            query = query.filter(Mine.mine_type == mine_type.strip())
+        if ownership_type:
+            query = query.filter(Mine.ownership_type == ownership_type.strip())
+        if commodity:
+            query = query.filter(Mine.commodity == commodity.strip())
+            
+        if mine_ids is not None:
+            query = query.filter(Mine.id.in_(mine_ids))
+            
+        if search:
+            s = f"%{search.strip()}%"
+            query = query.filter(
+                (Mine.name.ilike(s)) |
+                (Mine.mine_code.ilike(s)) |
+                (Mine.company.ilike(s)) |
+                (Mine.owner_code.ilike(s)) |
+                (Mine.owner_name.ilike(s)) |
+                (Mine.district.ilike(s)) |
+                (Mine.state.ilike(s))
+            )
+            
+        # Sorting
+        sort_map = {
+            "name": Mine.name,
+            "state": Mine.state,
+            "district": Mine.district,
+            "company": Mine.company,
+            "mine_code": Mine.mine_code
+        }
+        
+        if sort_by in sort_map:
+            col = sort_map[sort_by]
+            if sort_order.lower() == "desc":
+                query = query.order_by(col.desc())
+            else:
+                query = query.order_by(col.asc())
+        
+        return query.offset(skip).limit(limit).all()
+
 class InspectionRepository(BaseRepository[Inspection]):
     def __init__(self):
         super().__init__(Inspection)
