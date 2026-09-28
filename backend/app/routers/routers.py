@@ -403,13 +403,17 @@ def create_violation(viol_in: schemas.ViolationCreate, db: Session = Depends(get
 
 @router.put("/violations/{viol_id}", response_model=schemas.Violation)
 def update_violation(viol_id: str, viol_in: schemas.ViolationCreate, db: Session = Depends(get_db), current_user: Profile = Depends(get_current_user_profile)):
-    db_obj = violation_repo.get_by_id(db, viol_id) or violation_repo.get_by_local_id(db, viol_in.local_id)
+    print(f"[VIOLATION_UPDATE_DEBUG] start viol_id={viol_id}")
+    db_obj = violation_repo.get_by_id(db, viol_id) or violation_repo.get_by_local_id(db, viol_id) or violation_repo.get_by_local_id(db, viol_in.local_id)
+    print(f"[VIOLATION_UPDATE_DEBUG] violation_found={db_obj is not None}")
     if not db_obj:
         raise HTTPException(status_code=404, detail="Violation not found")
 
     if viol_in.operation_id and check_idempotency(db, viol_in.operation_id):
+        print("[VIOLATION_UPDATE_DEBUG] idempotency triggered")
         return db_obj
 
+    print(f"[VIOLATION_UPDATE_DEBUG] server_version={db_obj.local_version} incoming_version={viol_in.local_version}")
     if viol_in.local_version < db_obj.local_version:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -421,11 +425,14 @@ def update_violation(viol_id: str, viol_in: schemas.ViolationCreate, db: Session
         )
 
     if viol_in.status.value != db_obj.status:
+        print(f"[VIOLATION_UPDATE_DEBUG] workflow_validation from {db_obj.status} to {viol_in.status.value}")
         workflow_service.validate_violation_transition(db_obj.status, viol_in.status.value)
 
+    print(f"[VIOLATION_UPDATE_DEBUG] mine_resolution incoming={viol_in.mine_id}")
     mine_obj = mine_repo.get_by_id(db, viol_in.mine_id) or mine_repo.get_by_local_id(db, viol_in.mine_id)
     mine_id = mine_obj.id if mine_obj else viol_in.mine_id
 
+    print(f"[VIOLATION_UPDATE_DEBUG] inspection_resolution incoming={viol_in.inspection_id}")
     insp_obj = inspection_repo.get_by_id(db, viol_in.inspection_id) or inspection_repo.get_by_local_id(db, viol_in.inspection_id)
     inspection_id = insp_obj.id if insp_obj else viol_in.inspection_id
 
@@ -443,10 +450,13 @@ def update_violation(viol_id: str, viol_in: schemas.ViolationCreate, db: Session
         "local_version": viol_in.local_version,
         "operation_id": viol_in.operation_id
     }
+    print("[VIOLATION_UPDATE_DEBUG] repository_update")
     updated = violation_repo.update(db, db_obj, update_data)
     if viol_in.operation_id:
+        print(f"[VIOLATION_UPDATE_DEBUG] operation_processed={viol_in.operation_id}")
         operation_repo.mark_processed(db, viol_in.operation_id)
 
+    print("[VIOLATION_UPDATE_DEBUG] response_serialization")
     # Broadcast entity update via WebSocket
     import asyncio
     try:
