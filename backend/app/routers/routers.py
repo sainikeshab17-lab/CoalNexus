@@ -261,7 +261,9 @@ def create_inspection(insp_in: schemas.InspectionCreate, db: Session = Depends(g
 
     # Resolve mine_id if it's local_id
     mine_obj = mine_repo.get_by_id(db, insp_in.mine_id) or mine_repo.get_by_local_id(db, insp_in.mine_id)
-    mine_id = mine_obj.id if mine_obj else insp_in.mine_id
+    if not mine_obj:
+        raise HTTPException(status_code=404, detail=f"Mine with id/local_id '{insp_in.mine_id}' not found")
+    mine_id = mine_obj.id
 
     db_obj = db_models.Inspection(
         id="srv_" + str(uuid.uuid4())[:8],
@@ -365,10 +367,14 @@ def create_violation(viol_in: schemas.ViolationCreate, db: Session = Depends(get
         return existing_local
 
     mine_obj = mine_repo.get_by_id(db, viol_in.mine_id) or mine_repo.get_by_local_id(db, viol_in.mine_id)
-    mine_id = mine_obj.id if mine_obj else viol_in.mine_id
+    if not mine_obj:
+        raise HTTPException(status_code=404, detail=f"Mine with id/local_id '{viol_in.mine_id}' not found")
+    mine_id = mine_obj.id
 
     insp_obj = inspection_repo.get_by_id(db, viol_in.inspection_id) or inspection_repo.get_by_local_id(db, viol_in.inspection_id)
-    inspection_id = insp_obj.id if insp_obj else viol_in.inspection_id
+    if not insp_obj:
+        raise HTTPException(status_code=404, detail=f"Inspection with id/local_id '{viol_in.inspection_id}' not found")
+    inspection_id = insp_obj.id
 
     db_obj = db_models.Violation(
         id="srv_" + str(uuid.uuid4())[:8],
@@ -588,7 +594,9 @@ def create_alert(alert_in: schemas.AlertCreate, db: Session = Depends(get_db), c
         return existing_local
 
     mine_obj = mine_repo.get_by_id(db, alert_in.mine_id) or mine_repo.get_by_local_id(db, alert_in.mine_id)
-    mine_id = mine_obj.id if mine_obj else alert_in.mine_id
+    if not mine_obj:
+        raise HTTPException(status_code=404, detail=f"Mine with id/local_id '{alert_in.mine_id}' not found")
+    mine_id = mine_obj.id
 
     db_obj = db_models.Alert(
         id="srv_" + str(uuid.uuid4())[:8],

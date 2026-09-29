@@ -171,6 +171,11 @@ def test_telemetry_ingestion():
     assert data["readings"]["methane"] == 0.5
 
 def test_workflow_validation_inspection():
+    # 1. Create Mine
+    client.post("/api/mines", json={
+        "local_id": "loc_123", "name": "M1", "mine_code": "M1", "latitude": 0, "longitude": 0, "status": "active", "operation_id": "op_m1"
+    }, headers={"Authorization": "Bearer demo-admin-id-111"})
+
     # Create an inspection
     insp_data = {
         "local_id": "insp_1",
