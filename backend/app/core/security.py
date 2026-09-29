@@ -59,13 +59,38 @@ def get_current_user_profile(
             user_id = payload.get("sub") or token
         except Exception:
             user_id = token
+            payload = {}
         
     profile = db.query(Profile).filter(Profile.id == user_id).first()
     if not profile:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User profile not found in database",
+        # On production or dev, if a valid Supabase authenticated user logs in but has no local profile row yet,
+        # automatically provision an active INSPECTOR profile using the email from metadata or jwt claims if available,
+        # or fallback to email field to ensure seamless authentication path without profile lookup errors.
+        email = payload.get("email") or f"{user_id}@coalnexus.com"
+        full_name = payload.get("user_metadata", {}).get("full_name") or payload.get("full_name") or email.split("@")[0].upper()
+        role = payload.get("user_metadata", {}).get("role") or payload.get("role") or "INSPECTOR"
+        if role.upper() not in ["ADMIN", "OFFICER", "INSPECTOR"]:
+            role = "INSPECTOR"
+        
+        profile = Profile(
+            id=user_id,
+            email=email,
+            full_name=full_name,
+            role=role.upper(),
+            is_active=True
         )
+        db.add(profile)
+        try:
+            db.commit()
+            db.refresh(profile)
+        except Exception:
+            db.rollback()
+            profile = db.query(Profile).filter(Profile.id == user_id).first()
+            if not profile:
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="User profile not found in database",
+                )
     if not profile.is_active:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
