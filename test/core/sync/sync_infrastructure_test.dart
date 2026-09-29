@@ -8,13 +8,25 @@ import 'package:coalnexus/core/network/connectivity_service.dart';
 import 'package:coalnexus/core/api/api_client.dart';
 
 class FakeApiClient implements ApiClient {
+  ApiResponse? nextResponse;
+
   @override
   Future<ApiResponse> post(String path, Map<String, dynamic> body) async {
+    if (nextResponse != null) {
+      final res = nextResponse!;
+      nextResponse = null;
+      return res;
+    }
     return ApiResponse(statusCode: 201, data: {'id': 'srv_test'});
   }
 
   @override
   Future<ApiResponse> put(String path, Map<String, dynamic> body) async {
+    if (nextResponse != null) {
+      final res = nextResponse!;
+      nextResponse = null;
+      return res;
+    }
     return ApiResponse(statusCode: 200, data: {'id': 'srv_test'});
   }
 
@@ -26,6 +38,8 @@ class FakeApiClient implements ApiClient {
 
 class FakeSyncRepository implements SyncRepository {
   final Map<String, SyncQueueItem> _queue = {};
+  bool reconcileCalled = false;
+  Map<String, dynamic>? lastReconcileData;
 
   @override
   Future<void> enqueue(SyncQueueItem item) async {
@@ -82,6 +96,12 @@ class FakeSyncRepository implements SyncRepository {
   @override
   Future<void> reconcileServerId(String feature, String localId, String serverId) async {
     // Fake implementation for test
+  }
+
+  @override
+  Future<void> reconcileFromAuthoritativeSource(String feature, String localId, Map<String, dynamic> serverData) async {
+    reconcileCalled = true;
+    lastReconcileData = serverData;
   }
 
   @override
@@ -214,6 +234,41 @@ void main() {
       // Retry count should remain 5 and not increment further because processor skips it
       final item = syncRepository._queue[localId];
       expect(item?.retryCount, equals(5));
+    });
+
+    test('should auto-reconcile on 409 Conflict if server data is provided', () async {
+      connectivityService.isOnline = true;
+      final localId = await outboxService.enqueueOperation(
+        featureName: 'mines',
+        actionType: 'UPDATE',
+        payloadJson: '{"name": "My Mine"}',
+      );
+
+      // Setup 409 response with server data
+      apiClient.nextResponse = ApiResponse(
+        statusCode: 409,
+        data: {
+          'detail': {
+            'message': 'Conflict detected',
+            'current_server_obj': {
+              'id': 'srv_authoritative',
+              'name': 'Server Version',
+              'local_version': 5
+            }
+          }
+        },
+      );
+
+      await syncProcessor.processQueue();
+
+      // Check if reconcile was called
+      expect(syncRepository.reconcileCalled, isTrue);
+      expect(syncRepository.lastReconcileData?['name'], equals('Server Version'));
+
+      // Check if the sync item was marked as synced (auto-resolved)
+      final item = syncRepository._queue[localId];
+      expect(item?.syncStatus, equals(SyncStatus.synced));
+      expect(item?.serverId, equals('srv_authoritative'));
     });
   });
 }

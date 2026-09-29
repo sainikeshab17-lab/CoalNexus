@@ -38,6 +38,9 @@ class FakeSyncRepository implements SyncRepository {
   Future<void> reconcileServerId(String feature, String localId, String serverId) async {}
 
   @override
+  Future<void> reconcileFromAuthoritativeSource(String feature, String localId, Map<String, dynamic> serverData) async {}
+
+  @override
   Future<String?> getServerId(String feature, String localId) async => null;
 
   @override
