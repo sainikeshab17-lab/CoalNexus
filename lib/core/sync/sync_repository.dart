@@ -15,6 +15,11 @@ abstract class SyncRepository {
     String localId,
     String serverId,
   );
+  Future<void> reconcileFromAuthoritativeSource(
+    String feature,
+    String localId,
+    Map<String, dynamic> serverData,
+  );
   Future<String?> getServerId(String feature, String localId);
   Future<void> clearFailedOperations();
   Future<SyncQueueItem?> getSyncItemByLocalId(String localId);

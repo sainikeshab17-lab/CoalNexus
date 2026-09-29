@@ -131,11 +131,26 @@ class SyncProcessorImpl implements SyncProcessor {
         // The backend returns current_server_obj in detail when status is 409
         final detail = response.data['detail'];
         String? conflictMessage;
+        Map<String, dynamic>? serverData;
         if (detail is Map) {
           conflictMessage = detail['message'];
-          // We could potentially trigger an immediate merge here,
-          // but for now we mark it as conflict for the UI to handle or
-          // to be resolved in the next refresh cycle.
+          serverData = detail['current_server_obj'] as Map<String, dynamic>?;
+        }
+
+        if (serverData != null) {
+          // Trigger local Drift reconciliation from the authoritative source
+          await _syncRepository.reconcileFromAuthoritativeSource(
+            item.featureName,
+            item.localId,
+            serverData,
+          );
+          // If reconciled, we mark the sync operation itself as synced since the local state now matches the server
+          final serverId = serverData['id'] as String? ?? serverData['serverId'] as String?;
+          if (serverId != null) {
+            await _syncRepository.markSynced(item.localId, serverId);
+            print('[SYNC_DEBUG] Auto-reconciled conflict for ${item.featureName} ${item.localId}');
+            return;
+          }
         }
 
         await _syncRepository.updateStatus(

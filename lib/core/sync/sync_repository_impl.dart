@@ -3,6 +3,16 @@ import 'package:coalnexus/core/storage/local_database.dart';
 import 'package:coalnexus/core/sync/sync_models.dart';
 import 'package:coalnexus/core/sync/sync_repository.dart';
 import 'package:coalnexus/core/sync/sync_mapper.dart';
+import 'package:coalnexus/features/mines/data/models/mine_model.dart';
+import 'package:coalnexus/features/mines/data/mappers/mine_mapper.dart';
+import 'package:coalnexus/features/inspections/data/models/inspection_model.dart';
+import 'package:coalnexus/features/inspections/data/models/inspection_finding_model.dart';
+import 'package:coalnexus/features/inspections/data/mappers/inspection_mapper.dart';
+import 'package:coalnexus/features/violations/data/models/violation_model.dart';
+import 'package:coalnexus/features/violations/data/models/corrective_action_model.dart';
+import 'package:coalnexus/features/violations/data/mappers/violation_mapper.dart';
+import 'package:coalnexus/features/violations/data/mappers/corrective_action_mapper.dart';
+import 'package:coalnexus/features/notifications/data/models/alert_model.dart';
 
 class SyncRepositoryImpl implements SyncRepository {
   final AppDatabase _database;
@@ -105,6 +115,61 @@ class SyncRepositoryImpl implements SyncRepository {
   }
 
   @override
+  Future<void> reconcileFromAuthoritativeSource(
+    String feature,
+    String localId,
+    Map<String, dynamic> serverData,
+  ) async {
+    final featureLower = feature.toLowerCase();
+    if (featureLower.contains('mine')) {
+      final model = MineModel.fromJson(serverData);
+      final entity = MineMapper.toEntity(model.toDomain());
+      await (_database.update(_database.mines)
+            ..where((t) => t.localId.equals(localId)))
+          .write(entity);
+    } else if (featureLower.contains('inspection') &&
+        !featureLower.contains('finding')) {
+      final model = InspectionModel.fromJson(serverData);
+      final entity = InspectionMapper.toCompanion(model.toDomain());
+      await (_database.update(_database.inspections)
+            ..where((t) => t.localId.equals(localId)))
+          .write(entity);
+    } else if (featureLower.contains('finding')) {
+      final model = InspectionFindingModel.fromJson(serverData);
+      final entity = InspectionMapper.findingToCompanion(model.toDomain());
+      await (_database.update(_database.inspectionFindings)
+            ..where((t) => t.localId.equals(localId)))
+          .write(entity);
+    } else if (featureLower.contains('violation')) {
+      final model = ViolationModel.fromJson(serverData);
+      final entity = ViolationMapper.toEntity(model);
+      await (_database.update(_database.violations)
+            ..where((t) => t.localId.equals(localId)))
+          .write(entity);
+    } else if (featureLower.contains('correctiveaction')) {
+      final model = CorrectiveActionModel.fromJson(serverData);
+      final entity = CorrectiveActionMapper.toCompanion(model.toDomain());
+      await (_database.update(_database.correctiveActions)
+            ..where((t) => t.localId.equals(localId)))
+          .write(entity);
+    } else if (featureLower.contains('alert')) {
+      final model = AlertModel.fromJson(serverData);
+      final domain = model.toDomain();
+      await (_database.update(_database.alerts)
+            ..where((t) => t.localId.equals(localId)))
+          .write(AlertsCompanion(
+        serverId: Value(domain.serverId),
+        mineId: Value(domain.mineId),
+        title: Value(domain.title),
+        message: Value(domain.message),
+        severity: Value(domain.severity.name.toUpperCase()),
+        createdAt: Value(domain.createdAt),
+        isRead: Value(domain.isRead),
+      ));
+    }
+  }
+
+  @override
   Future<String?> getServerId(String feature, String localId) async {
     final featureLower = feature.toLowerCase();
     if (featureLower.contains('mine')) {
@@ -118,8 +183,23 @@ class SyncRepositoryImpl implements SyncRepository {
         ..where((t) => t.localId.equals(localId));
       final row = await query.getSingleOrNull();
       return row?.serverId;
+    } else if (featureLower.contains('finding')) {
+      final query = _database.select(_database.inspectionFindings)
+        ..where((t) => t.localId.equals(localId));
+      final row = await query.getSingleOrNull();
+      return row?.serverId;
     } else if (featureLower.contains('violation')) {
       final query = _database.select(_database.violations)
+        ..where((t) => t.localId.equals(localId));
+      final row = await query.getSingleOrNull();
+      return row?.serverId;
+    } else if (featureLower.contains('correctiveaction')) {
+      final query = _database.select(_database.correctiveActions)
+        ..where((t) => t.localId.equals(localId));
+      final row = await query.getSingleOrNull();
+      return row?.serverId;
+    } else if (featureLower.contains('alert')) {
+      final query = _database.select(_database.alerts)
         ..where((t) => t.localId.equals(localId));
       final row = await query.getSingleOrNull();
       return row?.serverId;
